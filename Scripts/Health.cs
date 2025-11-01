@@ -57,6 +57,13 @@ namespace JacobHomanics.HealthSystem
         public UnityEvent onCurrentMax;
         public UnityEvent onCurrentZero;
 
+
+        public UnityEvent onMaxSet;
+        public UnityEvent onMaxChange;
+
+        public UnityEvent onMaxDown;
+        public UnityEvent onMaxUp;
+
         [ContextMenu("-- Current Health --")]
         private void CurrentHealthHeader() { }
 

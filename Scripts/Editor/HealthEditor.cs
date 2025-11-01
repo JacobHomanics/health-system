@@ -17,8 +17,14 @@ namespace JacobHomanics.HealthSystem.Editor
         private SerializedProperty onCurrentUpProp;
         private SerializedProperty onCurrentMaxProp;
         private SerializedProperty onCurrentZeroProp;
+        private SerializedProperty onMaxSetProp;
+        private SerializedProperty onMaxChangeProp;
+        private SerializedProperty onMaxDownProp;
+        private SerializedProperty onMaxUpProp;
 
         private bool showEvents = true;
+        private int selectedEventTab = 0;
+        private readonly string[] eventTabNames = { "Current Health", "Max Health" };
 
         private void OnEnable()
         {
@@ -32,6 +38,10 @@ namespace JacobHomanics.HealthSystem.Editor
             onCurrentUpProp = serializedObject.FindProperty("onCurrentUp");
             onCurrentMaxProp = serializedObject.FindProperty("onCurrentMax");
             onCurrentZeroProp = serializedObject.FindProperty("onCurrentZero");
+            onMaxSetProp = serializedObject.FindProperty("onMaxSet");
+            onMaxChangeProp = serializedObject.FindProperty("onMaxChange");
+            onMaxDownProp = serializedObject.FindProperty("onMaxDown");
+            onMaxUpProp = serializedObject.FindProperty("onMaxUp");
         }
 
         public override void OnInspectorGUI()
@@ -144,19 +154,42 @@ namespace JacobHomanics.HealthSystem.Editor
 
             EditorGUILayout.Space(10);
 
+            EditorGUILayout.LabelField("Events", EditorStyles.boldLabel);
+            EditorGUILayout.Space();
+
             // Events Section
-            showEvents = EditorGUILayout.Foldout(showEvents, "Unity Events", true);
-            if (showEvents)
+            // showEvents = EditorGUILayout.Foldout(showEvents, "Unity Events", true);
+            // if (showEvents)
+            // {
+            EditorGUI.indentLevel++;
+
+            // Tab selection
+            selectedEventTab = GUILayout.Toolbar(selectedEventTab, eventTabNames);
+
+            EditorGUILayout.Space(5);
+
+            // Display events based on selected tab
+            if (selectedEventTab == 0)
             {
-                EditorGUI.indentLevel++;
+                // Current Health Events
                 EditorGUILayout.PropertyField(onCurrentSetProp);
                 EditorGUILayout.PropertyField(onCurrentChangeProp);
                 EditorGUILayout.PropertyField(onCurrentDownProp);
                 EditorGUILayout.PropertyField(onCurrentUpProp);
                 EditorGUILayout.PropertyField(onCurrentMaxProp);
                 EditorGUILayout.PropertyField(onCurrentZeroProp);
-                EditorGUI.indentLevel--;
             }
+            else
+            {
+                // Max Health Events
+                EditorGUILayout.PropertyField(onMaxSetProp);
+                EditorGUILayout.PropertyField(onMaxChangeProp);
+                EditorGUILayout.PropertyField(onMaxDownProp);
+                EditorGUILayout.PropertyField(onMaxUpProp);
+            }
+
+            EditorGUI.indentLevel--;
+            // }
 
             serializedObject.ApplyModifiedProperties();
         }
