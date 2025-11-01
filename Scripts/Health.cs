@@ -57,20 +57,31 @@ namespace JacobHomanics.HealthSystem
         public UnityEvent onCurrentMax;
         public UnityEvent onCurrentZero;
 
+        [ContextMenu("-- Current Health --")]
+        private void CurrentHealthHeader() { }
 
-
-
-
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
-        void Start()
+        [ContextMenu("Damage 1")]
+        private void Take1Damage()
         {
-
+            Current -= 1;
         }
 
-        // Update is called once per frame
-        void Update()
+        [ContextMenu("Damage 10")]
+        private void Take10Damage()
         {
+            Current -= 10;
+        }
 
+        [ContextMenu("Heal 1")]
+        private void Heal1()
+        {
+            Current += 1;
+        }
+
+        [ContextMenu("Heal 10")]
+        private void Heal10()
+        {
+            Current += 10;
         }
     }
 
