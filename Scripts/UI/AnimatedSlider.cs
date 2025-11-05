@@ -5,13 +5,15 @@ using System.Collections;
 public class AnimatedSlider : Slider
 {
     [SerializeField] private Image backgroundFill;
-    [SerializeField] private float animationSpeed = 5f;
+    private float animationSpeed = 10;
 
     private float previousValue;
     private Coroutine animationCoroutine;
 
     protected override void Awake()
     {
+        Debug.Log(animationSpeed);
+
         backgroundFill = transform.Find("Background Fill").GetComponent<Image>();
         base.Awake();
         previousValue = value;
@@ -54,8 +56,15 @@ public class AnimatedSlider : Slider
     {
         if (backgroundFill == null) yield break;
 
+        float valueDifference = Mathf.Abs(fromValue - toValue);
+        if (valueDifference < 0.001f)
+        {
+            SetBackgroundFillAmount(toValue);
+            yield break;
+        }
+
         float elapsed = 0f;
-        float duration = Mathf.Abs(fromValue - toValue) / (maxValue * animationSpeed);
+        float duration = valueDifference / animationSpeed;
 
         while (elapsed < duration)
         {
@@ -64,8 +73,6 @@ public class AnimatedSlider : Slider
             float currentValue = Mathf.Lerp(fromValue, toValue, t);
             SetBackgroundFillAmount(currentValue);
             yield return null;
-
-            Debug.Log($"Current value: {currentValue}");
         }
 
         SetBackgroundFillAmount(toValue);
