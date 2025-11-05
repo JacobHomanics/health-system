@@ -12,8 +12,6 @@ public class AnimatedSlider : Slider
 
     protected override void Awake()
     {
-        Debug.Log(animationSpeed);
-
         backgroundFill = transform.Find("Background Fill").GetComponent<Image>();
         base.Awake();
         previousValue = value;
@@ -30,15 +28,31 @@ public class AnimatedSlider : Slider
     {
         if (backgroundFill != null)
         {
-            // Set the background fill to show the previous value
-            SetBackgroundFillAmount(previousValue);
+            // Get the current background fill value (where it is now, even if animating)
+            float currentBackgroundValue = GetBackgroundFillValue();
 
-            // Animate the background fill to the new value
-            if (animationCoroutine != null)
+            // If new value is greater than current background fill position, immediately snap to it
+            if (newValue > currentBackgroundValue)
             {
-                StopCoroutine(animationCoroutine);
+                // Stop any ongoing animation
+                if (animationCoroutine != null)
+                {
+                    StopCoroutine(animationCoroutine);
+                    animationCoroutine = null;
+                }
+                // Immediately set to new value
+                SetBackgroundFillAmount(newValue);
             }
-            animationCoroutine = StartCoroutine(AnimateBackgroundFill(previousValue, newValue));
+            else
+            {
+                // HP goes down or stays same - animate from current position
+                // Animate the background fill from its current position to the new value
+                if (animationCoroutine != null)
+                {
+                    StopCoroutine(animationCoroutine);
+                }
+                animationCoroutine = StartCoroutine(AnimateBackgroundFill(currentBackgroundValue, newValue));
+            }
         }
 
         previousValue = newValue;
@@ -50,6 +64,15 @@ public class AnimatedSlider : Slider
         {
             backgroundFill.fillAmount = amount / maxValue;
         }
+    }
+
+    private float GetBackgroundFillValue()
+    {
+        if (backgroundFill != null)
+        {
+            return backgroundFill.fillAmount * maxValue;
+        }
+        return previousValue;
     }
 
     private IEnumerator AnimateBackgroundFill(float fromValue, float toValue)
