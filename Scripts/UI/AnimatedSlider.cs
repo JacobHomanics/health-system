@@ -5,7 +5,8 @@ using System.Collections;
 public class AnimatedSlider : Slider
 {
     [SerializeField] private Image backgroundFill;
-    private float animationSpeed = 10;
+    [SerializeField] private bool keepSizeConsistent = true;
+    [SerializeField] private float animationSpeed = 10;
 
     private float previousValue;
     private Coroutine animationCoroutine;
@@ -28,11 +29,22 @@ public class AnimatedSlider : Slider
     {
         if (backgroundFill != null)
         {
-            // Get the current background fill value (where it is now, even if animating)
-            float currentBackgroundValue = GetBackgroundFillValue();
+            // Get the starting value based on whether we want to keep size consistent
+            float startValue;
+            if (keepSizeConsistent)
+            {
+                // Use current background fill position (continues from where it is)
+                startValue = GetBackgroundFillValue();
+            }
+            else
+            {
+                // Reset to previous value (starts from previous slider value)
+                startValue = previousValue;
+                SetBackgroundFillAmount(previousValue);
+            }
 
-            // If new value is greater than current background fill position, immediately snap to it
-            if (newValue > currentBackgroundValue)
+            // If new value is greater than start position, immediately snap to it
+            if (newValue > startValue)
             {
                 // Stop any ongoing animation
                 if (animationCoroutine != null)
@@ -45,13 +57,13 @@ public class AnimatedSlider : Slider
             }
             else
             {
-                // HP goes down or stays same - animate from current position
-                // Animate the background fill from its current position to the new value
+                // HP goes down or stays same - animate from start position
+                // Animate the background fill from start position to the new value
                 if (animationCoroutine != null)
                 {
                     StopCoroutine(animationCoroutine);
                 }
-                animationCoroutine = StartCoroutine(AnimateBackgroundFill(currentBackgroundValue, newValue));
+                animationCoroutine = StartCoroutine(AnimateBackgroundFill(startValue, newValue));
             }
         }
 
