@@ -2,8 +2,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
-public class AnimatedSlider : Slider
+public class AnimatedSlider : MonoBehaviour
 {
+    [SerializeField] private Slider slider;
     [SerializeField] private Image backgroundFill;
     [SerializeField] private bool keepSizeConsistent = true;
     [SerializeField] private float animationSpeed = 10;
@@ -11,23 +12,36 @@ public class AnimatedSlider : Slider
     private float previousValue;
     private Coroutine animationCoroutine;
 
-    protected override void Awake()
+    private void Awake()
     {
-        backgroundFill = transform.Find("Background Fill").GetComponent<Image>();
-        base.Awake();
-        previousValue = value;
-        onValueChanged.AddListener(OnValueChangedInternal);
+        // Auto-find slider if not assigned
+        if (slider == null)
+        {
+            slider = GetComponent<Slider>();
+        }
+
+        if (slider != null)
+        {
+            previousValue = slider.value;
+            slider.onValueChanged.AddListener(OnValueChangedInternal);
+        }
+        else
+        {
+            Debug.LogError("AnimatedSlider: No Slider component found. Please assign one in the inspector.", this);
+        }
     }
 
-    protected override void OnDestroy()
+    private void OnDestroy()
     {
-        onValueChanged.RemoveListener(OnValueChangedInternal);
-        base.OnDestroy();
+        if (slider != null)
+        {
+            slider.onValueChanged.RemoveListener(OnValueChangedInternal);
+        }
     }
 
     private void OnValueChangedInternal(float newValue)
     {
-        if (backgroundFill != null)
+        if (backgroundFill != null && slider != null)
         {
             // Get the starting value based on whether we want to keep size consistent
             float startValue;
@@ -72,17 +86,17 @@ public class AnimatedSlider : Slider
 
     private void SetBackgroundFillAmount(float amount)
     {
-        if (backgroundFill != null)
+        if (backgroundFill != null && slider != null)
         {
-            backgroundFill.fillAmount = amount / maxValue;
+            backgroundFill.fillAmount = amount / slider.maxValue;
         }
     }
 
     private float GetBackgroundFillValue()
     {
-        if (backgroundFill != null)
+        if (backgroundFill != null && slider != null)
         {
-            return backgroundFill.fillAmount * maxValue;
+            return backgroundFill.fillAmount * slider.maxValue;
         }
         return previousValue;
     }
@@ -114,21 +128,11 @@ public class AnimatedSlider : Slider
         animationCoroutine = null;
     }
 
-    protected override void OnEnable()
+    private void OnEnable()
     {
-        base.OnEnable();
-        if (backgroundFill != null)
+        if (backgroundFill != null && slider != null)
         {
-            SetBackgroundFillAmount(value);
-        }
-    }
-
-    protected override void OnRectTransformDimensionsChange()
-    {
-        base.OnRectTransformDimensionsChange();
-        if (backgroundFill != null && Application.isPlaying)
-        {
-            SetBackgroundFillAmount(previousValue);
+            SetBackgroundFillAmount(slider.value);
         }
     }
 }
