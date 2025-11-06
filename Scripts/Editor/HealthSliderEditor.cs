@@ -353,11 +353,11 @@ public class HealthSliderEditor : UnityEditor.Editor
                 var colorAtHalfwayProp = colorFeature.FindPropertyRelative("colorAtHalfway");
                 var colorAtMaxProp = colorFeature.FindPropertyRelative("colorAtMax");
                 if (colorAtMinProp != null)
-                    EditorGUILayout.PropertyField(colorAtMinProp, new GUIContent("Color at Min (Red)"));
+                    EditorGUILayout.PropertyField(colorAtMinProp, new GUIContent("Color at Min"));
                 if (colorAtHalfwayProp != null)
-                    EditorGUILayout.PropertyField(colorAtHalfwayProp, new GUIContent("Color at Halfway (Yellow)"));
+                    EditorGUILayout.PropertyField(colorAtHalfwayProp, new GUIContent("Color at Halfway"));
                 if (colorAtMaxProp != null)
-                    EditorGUILayout.PropertyField(colorAtMaxProp, new GUIContent("Color at Max (Green)"));
+                    EditorGUILayout.PropertyField(colorAtMaxProp, new GUIContent("Color at Max"));
                 EditorGUI.indentLevel--;
                 EditorGUILayout.Space();
             }

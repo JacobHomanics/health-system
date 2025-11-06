@@ -82,11 +82,8 @@ public class HealthSlider : MonoBehaviour
         return featureToggles.Find(f => f is T) as T;
     }
 
-    private float previousValue;
 
-    // Animation state for background fill
-
-
+    // Main Health Slider 
     void Update()
     {
         Slider.value = Health.Current;
@@ -101,6 +98,7 @@ public class HealthSlider : MonoBehaviour
         UpdateBackgroundFillAnimation();
     }
 
+    // Min/Max Health Feature
     private void TextFeatureCommand()
     {
         var textFeature = GetFeature<TextDisplayFeature>();
@@ -109,6 +107,37 @@ public class HealthSlider : MonoBehaviour
             textFeature.textCurrent.text = Health.Current.ToString();
             textFeature.textMax.text = Health.Max.ToString();
         }
+    }
+
+    // Flashing Fill Rect Feature
+    private void FlashingFeatureCommand()
+    {
+        float healthPercent = Slider.maxValue > 0 ? Slider.value / Slider.maxValue : 0;
+        healthPercent = Mathf.Clamp01(healthPercent);
+
+        var flashingFeature = GetFeature<FlashingFeature>();
+        if (flashingFeature != null && healthPercent < flashingFeature.thresholdPercent)
+        {
+            // Calculate flashing based on time
+            float flashValue = Mathf.Sin(Time.time * flashingFeature.flashSpeed) * 0.5f + 0.5f;
+            Color flashColor = Color.Lerp(flashingFeature.flashColor1, flashingFeature.flashColor2, flashValue);
+            slider.fillRect.GetComponent<Image>().color = flashColor;
+        }
+    }
+
+
+    // Color Gradient Health Feature
+    private float previousValue;
+
+    private void Awake()
+    {
+        previousValue = slider.value;
+        slider.onValueChanged.AddListener(OnValueChangedInternal);
+    }
+
+    private void OnDestroy()
+    {
+        slider.onValueChanged.RemoveListener(OnValueChangedInternal);
     }
 
     private void ColorGradientFeatureCommand()
@@ -145,32 +174,6 @@ public class HealthSlider : MonoBehaviour
 
             slider.fillRect.GetComponent<Image>().color = healthColor;
         }
-    }
-
-    private void FlashingFeatureCommand()
-    {
-        float healthPercent = Slider.maxValue > 0 ? Slider.value / Slider.maxValue : 0;
-        healthPercent = Mathf.Clamp01(healthPercent);
-
-        var flashingFeature = GetFeature<FlashingFeature>();
-        if (flashingFeature != null && healthPercent < flashingFeature.thresholdPercent)
-        {
-            // Calculate flashing based on time
-            float flashValue = Mathf.Sin(Time.time * flashingFeature.flashSpeed) * 0.5f + 0.5f;
-            Color flashColor = Color.Lerp(flashingFeature.flashColor1, flashingFeature.flashColor2, flashValue);
-            slider.fillRect.GetComponent<Image>().color = flashColor;
-        }
-    }
-
-    private void Awake()
-    {
-        previousValue = slider.value;
-        slider.onValueChanged.AddListener(OnValueChangedInternal);
-    }
-
-    private void OnDestroy()
-    {
-        slider.onValueChanged.RemoveListener(OnValueChangedInternal);
     }
 
     private void OnValueChangedInternal(float newValue)
@@ -284,11 +287,5 @@ public class HealthSlider : MonoBehaviour
             return bgFeature.backgroundFill.fillAmount * slider.maxValue;
         }
         return 0;
-    }
-
-
-    private void OnEnable()
-    {
-        SetBackgroundFillAmount(slider.value);
     }
 }
