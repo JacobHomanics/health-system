@@ -119,17 +119,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!114 &70807764 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 9050000445014980398, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
-  m_PrefabInstance: {fileID: 301461691}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &301461691
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -146,50 +135,6 @@ PrefabInstance:
       propertyPath: health
       value: 
       objectReference: {fileID: 527058328}
-    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
-      propertyPath: showText
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
-      propertyPath: showColorGradient
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
-      propertyPath: showBackgroundFill
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
-      propertyPath: featureToggles.Array.size
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
-      propertyPath: featureToggles.Array.data[2].textMax
-      value: 
-      objectReference: {fileID: 70807764}
-    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
-      propertyPath: featureToggles.Array.data[0].featureName
-      value: Color Gradient
-      objectReference: {fileID: 0}
-    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
-      propertyPath: featureToggles.Array.data[1].featureName
-      value: Background Fill
-      objectReference: {fileID: 0}
-    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
-      propertyPath: featureToggles.Array.data[2].featureName
-      value: Text Display
-      objectReference: {fileID: 0}
-    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
-      propertyPath: featureToggles.Array.data[2].textCurrent
-      value: 
-      objectReference: {fileID: 1694946306}
-    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
-      propertyPath: featureToggles.Array.data[3].featureName
-      value: New Feature
-      objectReference: {fileID: 0}
-    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
-      propertyPath: featureToggles.Array.data[1].backgroundFill
-      value: 
-      objectReference: {fileID: 1950708063}
     - target: {fileID: 8816885714237116387, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -765,28 +710,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1694946306 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1667967286366675197, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
-  m_PrefabInstance: {fileID: 301461691}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1950708063 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6178348392762232574, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
-  m_PrefabInstance: {fileID: 301461691}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!224 &2015134949 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8816885714237116387, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}

@@ -838,39 +838,55 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   health: {fileID: 0}
   slider: {fileID: 4592224593623921964}
-  textCurrent: {fileID: 1667967286366675197}
-  textMax: {fileID: 9050000445014980398}
-  backgroundFill: {fileID: 6178348392762232574}
-  keepSizeConsistent: 1
-  colorAtMin: {r: 1, g: 0, b: 0, a: 1}
-  colorAtHalfway: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  colorAtMax: {r: 0, g: 1, b: 0, a: 1}
-  animationSpeed: 10
-  speedCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0.3
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 19.882896
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  delay: 1.5
+  featureToggles:
+  - rid: 1001
+  - rid: 4860107597806043382
+  - rid: 4860107597806043383
+  references:
+    version: 2
+    RefIds:
+    - rid: 1001
+      type: {class: ColorGradientFeature, ns: , asm: health}
+      data:
+        colorAtMin: {r: 1, g: 0, b: 0, a: 1}
+        colorAtHalfway: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+        colorAtMax: {r: 0, g: 1, b: 0, a: 1}
+    - rid: 4860107597806043382
+      type: {class: BackgroundFillFeature, ns: , asm: health}
+      data:
+        backgroundFill: {fileID: 6178348392762232574}
+        keepSizeConsistent: 1
+        animationSpeed: 10
+        speedCurve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0.3
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 16
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        delay: 1
+    - rid: 4860107597806043383
+      type: {class: TextDisplayFeature, ns: , asm: health}
+      data:
+        textCurrent: {fileID: 1667967286366675197}
+        textMax: {fileID: 9050000445014980398}
 --- !u!114 &4592224593623921964
 MonoBehaviour:
   m_ObjectHideFlags: 0

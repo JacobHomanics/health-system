@@ -26,8 +26,18 @@ public class HealthSliderEditor : UnityEditor.Editor
     private SerializedProperty speedCurveProp;
     private SerializedProperty delayProp;
 
-    // Available features
-    private static readonly string[] AvailableFeatures = { "Text Display", "Color Gradient", "Background Fill" };
+    // Feature type identifiers
+    private const string TextDisplayType = "TextDisplayFeature";
+    private const string ColorGradientType = "ColorGradientFeature";
+    private const string BackgroundFillType = "BackgroundFillFeature";
+
+    // Available features mapping
+    private static readonly System.Collections.Generic.Dictionary<string, string> AvailableFeatures = new System.Collections.Generic.Dictionary<string, string>
+    {
+        { "Text Display", TextDisplayType },
+        { "Color Gradient", ColorGradientType },
+        { "Background Fill", BackgroundFillType }
+    };
 
     // Foldout states
     private bool showReferences = true;
@@ -35,8 +45,8 @@ public class HealthSliderEditor : UnityEditor.Editor
     private bool showColorGradient = true;
     private bool showBackgroundFill = true;
 
-    // Confirmation state - tracks which feature is waiting for confirmation
-    private string featureAwaitingConfirmation = null;
+    // Confirmation state - tracks which feature type is waiting for confirmation
+    private string featureTypeAwaitingConfirmation = null;
 
     private void OnEnable()
     {
@@ -99,30 +109,36 @@ public class HealthSliderEditor : UnityEditor.Editor
     {
         GenericMenu menu = new GenericMenu();
 
-        // Get currently added features
-        System.Collections.Generic.HashSet<string> addedFeatures = new System.Collections.Generic.HashSet<string>();
+        // Get currently added feature types
+        System.Collections.Generic.HashSet<string> addedFeatureTypes = new System.Collections.Generic.HashSet<string>();
         for (int i = 0; i < featureTogglesProp.arraySize; i++)
         {
             var element = featureTogglesProp.GetArrayElementAtIndex(i);
-            string featureName = element.FindPropertyRelative("featureName").stringValue;
-            addedFeatures.Add(featureName);
+            string featureType = GetFeatureType(element);
+            if (featureType != null)
+            {
+                addedFeatureTypes.Add(featureType);
+            }
         }
 
         // Add menu items for available features that aren't already added
-        foreach (string feature in AvailableFeatures)
+        foreach (var kvp in AvailableFeatures)
         {
-            if (!addedFeatures.Contains(feature))
+            string displayName = kvp.Key;
+            string featureType = kvp.Value;
+
+            if (!addedFeatureTypes.Contains(featureType))
             {
-                menu.AddItem(new GUIContent(feature), false, () => AddFeature(feature));
+                menu.AddItem(new GUIContent(displayName), false, () => AddFeature(featureType));
             }
             else
             {
-                menu.AddDisabledItem(new GUIContent(feature + " (Already Added)"));
+                menu.AddDisabledItem(new GUIContent(displayName + " (Already Added)"));
             }
         }
 
         // If all features are added, show a message
-        if (addedFeatures.Count >= AvailableFeatures.Length)
+        if (addedFeatureTypes.Count >= AvailableFeatures.Count)
         {
             menu.AddDisabledItem(new GUIContent("All features added"));
         }
@@ -130,54 +146,68 @@ public class HealthSliderEditor : UnityEditor.Editor
         menu.ShowAsContext();
     }
 
-    private void AddFeature(string featureName)
+    private void AddFeature(string featureType)
     {
         serializedObject.Update();
         int index = featureTogglesProp.arraySize;
         featureTogglesProp.arraySize++;
         var element = featureTogglesProp.GetArrayElementAtIndex(index);
-        element.FindPropertyRelative("featureName").stringValue = featureName;
-        element.FindPropertyRelative("enabled").boolValue = false;
+
+        // Set the managed reference type based on feature type
+        string managedReferenceType = GetManagedReferenceType(featureType);
+        element.managedReferenceValue = CreateFeatureInstance(featureType);
+
         serializedObject.ApplyModifiedProperties();
     }
 
-    private void RequestRemoveFeature(string featureName)
+    private object CreateFeatureInstance(string featureType)
     {
-        // If a different feature is already awaiting confirmation, cancel it first
-        if (featureAwaitingConfirmation != null && featureAwaitingConfirmation != featureName)
+        if (featureType == TextDisplayType)
         {
-            featureAwaitingConfirmation = null;
+            return new TextDisplayFeature();
         }
-        featureAwaitingConfirmation = featureName;
-    }
-
-    private void ConfirmRemoveFeature(string featureName)
-    {
-        serializedObject.Update();
-        for (int i = featureTogglesProp.arraySize - 1; i >= 0; i--)
+        else if (featureType == ColorGradientType)
         {
-            var element = featureTogglesProp.GetArrayElementAtIndex(i);
-            if (element.FindPropertyRelative("featureName").stringValue == featureName)
-            {
-                featureTogglesProp.DeleteArrayElementAtIndex(i);
-                break;
-            }
+            return new ColorGradientFeature();
         }
-        serializedObject.ApplyModifiedProperties();
-        featureAwaitingConfirmation = null;
+        else if (featureType == BackgroundFillType)
+        {
+            return new BackgroundFillFeature();
+        }
+        return null;
     }
 
-    private void CancelRemoveFeature()
+    private string GetManagedReferenceType(string featureType)
     {
-        featureAwaitingConfirmation = null;
+        // Unity uses assembly qualified names for managed references
+        string assemblyName = typeof(FeatureToggle).Assembly.GetName().Name;
+        return $"{featureType}, {assemblyName}";
     }
 
-    private SerializedProperty GetFeatureElement(string featureName)
+    private string GetFeatureType(SerializedProperty element)
+    {
+        // Check for type-specific properties to determine the feature type
+        if (element.FindPropertyRelative("textCurrent") != null)
+        {
+            return TextDisplayType;
+        }
+        else if (element.FindPropertyRelative("colorAtMin") != null)
+        {
+            return ColorGradientType;
+        }
+        else if (element.FindPropertyRelative("backgroundFill") != null)
+        {
+            return BackgroundFillType;
+        }
+        return null;
+    }
+
+    private SerializedProperty GetFeatureElementByType(string featureType)
     {
         for (int i = 0; i < featureTogglesProp.arraySize; i++)
         {
             var element = featureTogglesProp.GetArrayElementAtIndex(i);
-            if (element.FindPropertyRelative("featureName").stringValue == featureName)
+            if (GetFeatureType(element) == featureType)
             {
                 return element;
             }
@@ -185,44 +215,52 @@ public class HealthSliderEditor : UnityEditor.Editor
         return null;
     }
 
-
-
-    private bool IsFeatureInList(string featureName)
+    private bool IsFeatureInList(string featureType)
     {
-        for (int i = 0; i < featureTogglesProp.arraySize; i++)
-        {
-            var element = featureTogglesProp.GetArrayElementAtIndex(i);
-            if (element.FindPropertyRelative("featureName").stringValue == featureName)
-            {
-                return true;
-            }
-        }
-        return false;
+        return GetFeatureElementByType(featureType) != null;
     }
 
-    private bool IsFeatureEnabled(string featureName)
+    private void RequestRemoveFeature(string featureType)
     {
-        for (int i = 0; i < featureTogglesProp.arraySize; i++)
+        // If a different feature is already awaiting confirmation, cancel it first
+        if (featureTypeAwaitingConfirmation != null && featureTypeAwaitingConfirmation != featureType)
+        {
+            featureTypeAwaitingConfirmation = null;
+        }
+        featureTypeAwaitingConfirmation = featureType;
+    }
+
+    private void ConfirmRemoveFeature(string featureType)
+    {
+        serializedObject.Update();
+        for (int i = featureTogglesProp.arraySize - 1; i >= 0; i--)
         {
             var element = featureTogglesProp.GetArrayElementAtIndex(i);
-            if (element.FindPropertyRelative("featureName").stringValue == featureName)
+            if (GetFeatureType(element) == featureType)
             {
-                return element.FindPropertyRelative("enabled").boolValue;
+                featureTogglesProp.DeleteArrayElementAtIndex(i);
+                break;
             }
         }
-        return false;
+        serializedObject.ApplyModifiedProperties();
+        featureTypeAwaitingConfirmation = null;
+    }
+
+    private void CancelRemoveFeature()
+    {
+        featureTypeAwaitingConfirmation = null;
     }
 
     private void DrawFeatureSections()
     {
         // Text Display Section
-        var textFeature = GetFeatureElement("Text Display");
+        var textFeature = GetFeatureElementByType(TextDisplayType);
         if (textFeature != null)
         {
             EditorGUILayout.BeginHorizontal();
             showTextDisplay = EditorGUILayout.Foldout(showTextDisplay, "Text Display", true);
 
-            if (featureAwaitingConfirmation == "Text Display")
+            if (featureTypeAwaitingConfirmation == TextDisplayType)
             {
                 EditorGUILayout.LabelField("Are you sure?", GUILayout.Width(100));
                 if (GUILayout.Button("No", GUILayout.Width(60)))
@@ -231,35 +269,39 @@ public class HealthSliderEditor : UnityEditor.Editor
                 }
                 if (GUILayout.Button("Yes", GUILayout.Width(60)))
                 {
-                    ConfirmRemoveFeature("Text Display");
+                    ConfirmRemoveFeature(TextDisplayType);
                 }
             }
             else
             {
                 if (GUILayout.Button("Remove", GUILayout.Width(60)))
                 {
-                    RequestRemoveFeature("Text Display");
+                    RequestRemoveFeature(TextDisplayType);
                 }
             }
             EditorGUILayout.EndHorizontal();
             if (showTextDisplay)
             {
                 EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(textFeature.FindPropertyRelative("textCurrent"), new GUIContent("Current Text"));
-                EditorGUILayout.PropertyField(textFeature.FindPropertyRelative("textMax"), new GUIContent("Max Text"));
+                var textCurrentProp = textFeature.FindPropertyRelative("textCurrent");
+                var textMaxProp = textFeature.FindPropertyRelative("textMax");
+                if (textCurrentProp != null)
+                    EditorGUILayout.PropertyField(textCurrentProp, new GUIContent("Current Text"));
+                if (textMaxProp != null)
+                    EditorGUILayout.PropertyField(textMaxProp, new GUIContent("Max Text"));
                 EditorGUI.indentLevel--;
                 EditorGUILayout.Space();
             }
         }
 
         // Color Gradient Section
-        var colorFeature = GetFeatureElement("Color Gradient");
+        var colorFeature = GetFeatureElementByType(ColorGradientType);
         if (colorFeature != null)
         {
             EditorGUILayout.BeginHorizontal();
             showColorGradient = EditorGUILayout.Foldout(showColorGradient, "Color Gradient", true);
 
-            if (featureAwaitingConfirmation == "Color Gradient")
+            if (featureTypeAwaitingConfirmation == ColorGradientType)
             {
                 EditorGUILayout.LabelField("Are you sure?", GUILayout.Width(100));
                 if (GUILayout.Button("No", GUILayout.Width(60)))
@@ -268,36 +310,42 @@ public class HealthSliderEditor : UnityEditor.Editor
                 }
                 if (GUILayout.Button("Yes", GUILayout.Width(60)))
                 {
-                    ConfirmRemoveFeature("Color Gradient");
+                    ConfirmRemoveFeature(ColorGradientType);
                 }
             }
             else
             {
                 if (GUILayout.Button("Remove", GUILayout.Width(60)))
                 {
-                    RequestRemoveFeature("Color Gradient");
+                    RequestRemoveFeature(ColorGradientType);
                 }
             }
             EditorGUILayout.EndHorizontal();
             if (showColorGradient)
             {
                 EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(colorFeature.FindPropertyRelative("colorAtMin"), new GUIContent("Color at Min (Red)"));
-                EditorGUILayout.PropertyField(colorFeature.FindPropertyRelative("colorAtHalfway"), new GUIContent("Color at Halfway (Yellow)"));
-                EditorGUILayout.PropertyField(colorFeature.FindPropertyRelative("colorAtMax"), new GUIContent("Color at Max (Green)"));
+                var colorAtMinProp = colorFeature.FindPropertyRelative("colorAtMin");
+                var colorAtHalfwayProp = colorFeature.FindPropertyRelative("colorAtHalfway");
+                var colorAtMaxProp = colorFeature.FindPropertyRelative("colorAtMax");
+                if (colorAtMinProp != null)
+                    EditorGUILayout.PropertyField(colorAtMinProp, new GUIContent("Color at Min (Red)"));
+                if (colorAtHalfwayProp != null)
+                    EditorGUILayout.PropertyField(colorAtHalfwayProp, new GUIContent("Color at Halfway (Yellow)"));
+                if (colorAtMaxProp != null)
+                    EditorGUILayout.PropertyField(colorAtMaxProp, new GUIContent("Color at Max (Green)"));
                 EditorGUI.indentLevel--;
                 EditorGUILayout.Space();
             }
         }
 
         // Background Fill Section
-        var bgFeature = GetFeatureElement("Background Fill");
+        var bgFeature = GetFeatureElementByType(BackgroundFillType);
         if (bgFeature != null)
         {
             EditorGUILayout.BeginHorizontal();
             showBackgroundFill = EditorGUILayout.Foldout(showBackgroundFill, "Background Fill", true);
 
-            if (featureAwaitingConfirmation == "Background Fill")
+            if (featureTypeAwaitingConfirmation == BackgroundFillType)
             {
                 EditorGUILayout.LabelField("Are you sure?", GUILayout.Width(100));
                 if (GUILayout.Button("No", GUILayout.Width(60)))
@@ -306,29 +354,41 @@ public class HealthSliderEditor : UnityEditor.Editor
                 }
                 if (GUILayout.Button("Yes", GUILayout.Width(60)))
                 {
-                    ConfirmRemoveFeature("Background Fill");
+                    ConfirmRemoveFeature(BackgroundFillType);
                 }
             }
             else
             {
                 if (GUILayout.Button("Remove", GUILayout.Width(60)))
                 {
-                    RequestRemoveFeature("Background Fill");
+                    RequestRemoveFeature(BackgroundFillType);
                 }
             }
             EditorGUILayout.EndHorizontal();
             if (showBackgroundFill)
             {
                 EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(bgFeature.FindPropertyRelative("backgroundFill"), new GUIContent("Background Fill Image"));
-                EditorGUILayout.PropertyField(bgFeature.FindPropertyRelative("keepSizeConsistent"), new GUIContent("Keep Size Consistent"));
-                EditorGUILayout.PropertyField(bgFeature.FindPropertyRelative("animationSpeed"), new GUIContent("Animation Speed"));
-                EditorGUILayout.PropertyField(bgFeature.FindPropertyRelative("speedCurve"), new GUIContent("Speed Curve"));
-                EditorGUILayout.PropertyField(bgFeature.FindPropertyRelative("delay"), new GUIContent("Delay"));
+                var backgroundFillProp = bgFeature.FindPropertyRelative("backgroundFill");
+                var keepSizeConsistentProp = bgFeature.FindPropertyRelative("keepSizeConsistent");
+                var animationSpeedProp = bgFeature.FindPropertyRelative("animationSpeed");
+                var speedCurveProp = bgFeature.FindPropertyRelative("speedCurve");
+                var delayProp = bgFeature.FindPropertyRelative("delay");
+
+                if (backgroundFillProp != null)
+                    EditorGUILayout.PropertyField(backgroundFillProp, new GUIContent("Background Fill Image"));
+                if (keepSizeConsistentProp != null)
+                    EditorGUILayout.PropertyField(keepSizeConsistentProp, new GUIContent("Keep Size Consistent"));
+                if (animationSpeedProp != null)
+                    EditorGUILayout.PropertyField(animationSpeedProp, new GUIContent("Animation Speed"));
+                if (speedCurveProp != null)
+                    EditorGUILayout.PropertyField(speedCurveProp, new GUIContent("Speed Curve"));
+                if (delayProp != null)
+                    EditorGUILayout.PropertyField(delayProp, new GUIContent("Delay"));
                 EditorGUI.indentLevel--;
                 EditorGUILayout.Space();
             }
         }
     }
 }
+
 
