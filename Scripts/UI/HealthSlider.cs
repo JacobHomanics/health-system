@@ -45,6 +45,7 @@ public class HealthSlider : MonoBehaviour
     [SerializeField] private Color colorAtMax = Color.green;
 
     [SerializeField] private float animationSpeed = 10;
+    [SerializeField] private AnimationCurve speedCurve = AnimationCurve.EaseInOut(0f, 0.3f, 1f, 8.5f);
 
     private float previousValue;
     private Coroutine animationCoroutine;
@@ -159,8 +160,16 @@ public class HealthSlider : MonoBehaviour
 
         yield return new WaitForSeconds(delay);
 
+        // Calculate dynamic animation speed based on difference
+        // Higher difference = faster animation, smaller differences animate slower
+        float normalizedDifference = slider.maxValue > 0 ? valueDifference / slider.maxValue : 0;
+        // Evaluate the speed curve to get the speed multiplier
+        // X-axis (0-1): normalized difference, Y-axis: speed multiplier
+        float speedMultiplier = speedCurve.Evaluate(normalizedDifference);
+        float dynamicSpeed = animationSpeed * speedMultiplier;
+
         float elapsed = 0f;
-        float duration = valueDifference / animationSpeed;
+        float duration = valueDifference / dynamicSpeed;
 
         while (elapsed < duration)
         {
