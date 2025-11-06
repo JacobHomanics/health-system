@@ -92,9 +92,14 @@ public class HealthSliderEditor : UnityEditor.Editor
             rect.y += 2;
             float yPos = rect.y;
 
+            // Offset to account for drag handle (typically 20px)
+            float dragHandleWidth = 20f;
+            float foldoutX = rect.x + dragHandleWidth;
+            float foldoutWidth = rect.width - dragHandleWidth;
+
             // Draw foldout
             featureFoldoutStates[index] = EditorGUI.Foldout(
-                new Rect(rect.x, yPos, rect.width, EditorGUIUtility.singleLineHeight),
+                new Rect(foldoutX, yPos, foldoutWidth, EditorGUIUtility.singleLineHeight),
                 featureFoldoutStates[index],
                 displayName,
                 true
@@ -106,7 +111,7 @@ public class HealthSliderEditor : UnityEditor.Editor
             if (featureFoldoutStates[index])
             {
                 float propertyY = yPos;
-                float indentOffset = EditorGUIUtility.labelWidth * 0.5f; // Account for foldout indentation
+                float indentOffset = 15f; // Indent for properties under foldout
 
                 if (featureType == TextDisplayType)
                 {
@@ -114,12 +119,12 @@ public class HealthSliderEditor : UnityEditor.Editor
                     var textMaxProp = element.FindPropertyRelative("textMax");
                     if (textCurrentProp != null)
                     {
-                        EditorGUI.PropertyField(new Rect(rect.x + indentOffset, propertyY, rect.width - indentOffset, EditorGUIUtility.singleLineHeight), textCurrentProp, new GUIContent("Current Text"));
+                        EditorGUI.PropertyField(new Rect(foldoutX + indentOffset, propertyY, foldoutWidth - indentOffset, EditorGUIUtility.singleLineHeight), textCurrentProp, new GUIContent("Current Text"));
                         propertyY += EditorGUIUtility.singleLineHeight + 2;
                     }
                     if (textMaxProp != null)
                     {
-                        EditorGUI.PropertyField(new Rect(rect.x + indentOffset, propertyY, rect.width - indentOffset, EditorGUIUtility.singleLineHeight), textMaxProp, new GUIContent("Max Text"));
+                        EditorGUI.PropertyField(new Rect(foldoutX + indentOffset, propertyY, foldoutWidth - indentOffset, EditorGUIUtility.singleLineHeight), textMaxProp, new GUIContent("Max Text"));
                         propertyY += EditorGUIUtility.singleLineHeight + 2;
                     }
                 }
@@ -130,17 +135,17 @@ public class HealthSliderEditor : UnityEditor.Editor
                     var colorAtMaxProp = element.FindPropertyRelative("colorAtMax");
                     if (colorAtMinProp != null)
                     {
-                        EditorGUI.PropertyField(new Rect(rect.x + indentOffset, propertyY, rect.width - indentOffset, EditorGUIUtility.singleLineHeight), colorAtMinProp, new GUIContent("Color at Min"));
+                        EditorGUI.PropertyField(new Rect(foldoutX + indentOffset, propertyY, foldoutWidth - indentOffset, EditorGUIUtility.singleLineHeight), colorAtMinProp, new GUIContent("Color at Min"));
                         propertyY += EditorGUIUtility.singleLineHeight + 2;
                     }
                     if (colorAtHalfwayProp != null)
                     {
-                        EditorGUI.PropertyField(new Rect(rect.x + indentOffset, propertyY, rect.width - indentOffset, EditorGUIUtility.singleLineHeight), colorAtHalfwayProp, new GUIContent("Color at Halfway"));
+                        EditorGUI.PropertyField(new Rect(foldoutX + indentOffset, propertyY, foldoutWidth - indentOffset, EditorGUIUtility.singleLineHeight), colorAtHalfwayProp, new GUIContent("Color at Halfway"));
                         propertyY += EditorGUIUtility.singleLineHeight + 2;
                     }
                     if (colorAtMaxProp != null)
                     {
-                        EditorGUI.PropertyField(new Rect(rect.x + indentOffset, propertyY, rect.width - indentOffset, EditorGUIUtility.singleLineHeight), colorAtMaxProp, new GUIContent("Color at Max"));
+                        EditorGUI.PropertyField(new Rect(foldoutX + indentOffset, propertyY, foldoutWidth - indentOffset, EditorGUIUtility.singleLineHeight), colorAtMaxProp, new GUIContent("Color at Max"));
                         propertyY += EditorGUIUtility.singleLineHeight + 2;
                     }
                 }
@@ -154,27 +159,27 @@ public class HealthSliderEditor : UnityEditor.Editor
 
                     if (backgroundFillProp != null)
                     {
-                        EditorGUI.PropertyField(new Rect(rect.x + indentOffset, propertyY, rect.width - indentOffset, EditorGUIUtility.singleLineHeight), backgroundFillProp, new GUIContent("Background Fill Image"));
+                        EditorGUI.PropertyField(new Rect(foldoutX + indentOffset, propertyY, foldoutWidth - indentOffset, EditorGUIUtility.singleLineHeight), backgroundFillProp, new GUIContent("Background Fill Image"));
                         propertyY += EditorGUIUtility.singleLineHeight + 2;
                     }
                     if (keepSizeConsistentProp != null)
                     {
-                        EditorGUI.PropertyField(new Rect(rect.x + indentOffset, propertyY, rect.width - indentOffset, EditorGUIUtility.singleLineHeight), keepSizeConsistentProp, new GUIContent("Keep Size Consistent"));
+                        EditorGUI.PropertyField(new Rect(foldoutX + indentOffset, propertyY, foldoutWidth - indentOffset, EditorGUIUtility.singleLineHeight), keepSizeConsistentProp, new GUIContent("Keep Size Consistent"));
                         propertyY += EditorGUIUtility.singleLineHeight + 2;
                     }
                     if (animationSpeedProp != null)
                     {
-                        EditorGUI.PropertyField(new Rect(rect.x + indentOffset, propertyY, rect.width - indentOffset, EditorGUIUtility.singleLineHeight), animationSpeedProp, new GUIContent("Animation Speed"));
+                        EditorGUI.PropertyField(new Rect(foldoutX + indentOffset, propertyY, foldoutWidth - indentOffset, EditorGUIUtility.singleLineHeight), animationSpeedProp, new GUIContent("Animation Speed"));
                         propertyY += EditorGUIUtility.singleLineHeight + 2;
                     }
                     if (speedCurveProp != null)
                     {
-                        EditorGUI.PropertyField(new Rect(rect.x + indentOffset, propertyY, rect.width - indentOffset, EditorGUIUtility.singleLineHeight), speedCurveProp, new GUIContent("Speed Curve"));
+                        EditorGUI.PropertyField(new Rect(foldoutX + indentOffset, propertyY, foldoutWidth - indentOffset, EditorGUIUtility.singleLineHeight), speedCurveProp, new GUIContent("Speed Curve"));
                         propertyY += EditorGUIUtility.singleLineHeight + 2;
                     }
                     if (delayProp != null)
                     {
-                        EditorGUI.PropertyField(new Rect(rect.x + indentOffset, propertyY, rect.width - indentOffset, EditorGUIUtility.singleLineHeight), delayProp, new GUIContent("Delay"));
+                        EditorGUI.PropertyField(new Rect(foldoutX + indentOffset, propertyY, foldoutWidth - indentOffset, EditorGUIUtility.singleLineHeight), delayProp, new GUIContent("Delay"));
                         propertyY += EditorGUIUtility.singleLineHeight + 2;
                     }
                 }
@@ -187,22 +192,22 @@ public class HealthSliderEditor : UnityEditor.Editor
 
                     if (thresholdPercentProp != null)
                     {
-                        EditorGUI.PropertyField(new Rect(rect.x + indentOffset, propertyY, rect.width - indentOffset, EditorGUIUtility.singleLineHeight), thresholdPercentProp, new GUIContent("Threshold Percent"));
+                        EditorGUI.PropertyField(new Rect(foldoutX + indentOffset, propertyY, foldoutWidth - indentOffset, EditorGUIUtility.singleLineHeight), thresholdPercentProp, new GUIContent("Threshold Percent"));
                         propertyY += EditorGUIUtility.singleLineHeight + 2;
                     }
                     if (flashColor1Prop != null)
                     {
-                        EditorGUI.PropertyField(new Rect(rect.x + indentOffset, propertyY, rect.width - indentOffset, EditorGUIUtility.singleLineHeight), flashColor1Prop, new GUIContent("Flash Color 1"));
+                        EditorGUI.PropertyField(new Rect(foldoutX + indentOffset, propertyY, foldoutWidth - indentOffset, EditorGUIUtility.singleLineHeight), flashColor1Prop, new GUIContent("Flash Color 1"));
                         propertyY += EditorGUIUtility.singleLineHeight + 2;
                     }
                     if (flashColor2Prop != null)
                     {
-                        EditorGUI.PropertyField(new Rect(rect.x + indentOffset, propertyY, rect.width - indentOffset, EditorGUIUtility.singleLineHeight), flashColor2Prop, new GUIContent("Flash Color 2"));
+                        EditorGUI.PropertyField(new Rect(foldoutX + indentOffset, propertyY, foldoutWidth - indentOffset, EditorGUIUtility.singleLineHeight), flashColor2Prop, new GUIContent("Flash Color 2"));
                         propertyY += EditorGUIUtility.singleLineHeight + 2;
                     }
                     if (flashSpeedProp != null)
                     {
-                        EditorGUI.PropertyField(new Rect(rect.x + indentOffset, propertyY, rect.width - indentOffset, EditorGUIUtility.singleLineHeight), flashSpeedProp, new GUIContent("Flash Speed"));
+                        EditorGUI.PropertyField(new Rect(foldoutX + indentOffset, propertyY, foldoutWidth - indentOffset, EditorGUIUtility.singleLineHeight), flashSpeedProp, new GUIContent("Flash Speed"));
                         propertyY += EditorGUIUtility.singleLineHeight + 2;
                     }
                 }
