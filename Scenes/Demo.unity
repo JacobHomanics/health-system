@@ -152,6 +152,14 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
+      propertyPath: featureToggles.Array.data[0].featureName
+      value: Text Display
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
+      propertyPath: featureToggles.Array.data[1].featureName
+      value: Color Gradient
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
       propertyPath: featureToggles.Array.data[2].featureName
       value: Background Fill
       objectReference: {fileID: 0}

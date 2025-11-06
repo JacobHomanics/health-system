@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEditor;
-using UnityEditorInternal;
 using TMPro;
 
 [CustomEditor(typeof(HealthSlider))]
@@ -27,15 +26,17 @@ public class HealthSliderEditor : UnityEditor.Editor
     private SerializedProperty speedCurveProp;
     private SerializedProperty delayProp;
 
-    // ReorderableList
-    private ReorderableList featureTogglesList;
+    // Available features
+    private static readonly string[] AvailableFeatures = { "Text Display", "Color Gradient", "Background Fill" };
 
     // Foldout states
     private bool showReferences = true;
-    private bool showFeatureList = true;
     private bool showTextDisplay = true;
     private bool showColorGradient = true;
     private bool showBackgroundFill = true;
+
+    // Confirmation state - tracks which feature is waiting for confirmation
+    private string featureAwaitingConfirmation = null;
 
     private void OnEnable()
     {
@@ -58,42 +59,6 @@ public class HealthSliderEditor : UnityEditor.Editor
         animationSpeedProp = serializedObject.FindProperty("animationSpeed");
         speedCurveProp = serializedObject.FindProperty("speedCurve");
         delayProp = serializedObject.FindProperty("delay");
-
-        // Setup ReorderableList
-        featureTogglesList = new ReorderableList(serializedObject, featureTogglesProp, true, true, true, true);
-        featureTogglesList.drawHeaderCallback = (Rect rect) =>
-        {
-            EditorGUI.LabelField(rect, "Feature Toggles");
-        };
-        featureTogglesList.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
-        {
-            var element = featureTogglesProp.GetArrayElementAtIndex(index);
-            rect.y += 2;
-            float width = rect.width;
-            float nameWidth = width * 0.6f;
-            float enabledWidth = width * 0.4f - 5;
-
-            EditorGUI.PropertyField(
-                new Rect(rect.x, rect.y, nameWidth, EditorGUIUtility.singleLineHeight),
-                element.FindPropertyRelative("featureName"),
-                GUIContent.none
-            );
-            EditorGUI.PropertyField(
-                new Rect(rect.x + nameWidth + 5, rect.y, enabledWidth, EditorGUIUtility.singleLineHeight),
-                element.FindPropertyRelative("enabled"),
-                new GUIContent("Enabled")
-            );
-        };
-        featureTogglesList.onAddCallback = (ReorderableList list) =>
-        {
-            int index = list.serializedProperty.arraySize;
-            list.serializedProperty.arraySize++;
-            list.index = index;
-            var element = list.serializedProperty.GetArrayElementAtIndex(index);
-            element.FindPropertyRelative("featureName").stringValue = "New Feature";
-            element.FindPropertyRelative("enabled").boolValue = false;
-        };
-        featureTogglesList.elementHeight = EditorGUIUtility.singleLineHeight + 4;
     }
 
     public override void OnInspectorGUI()
@@ -115,24 +80,99 @@ public class HealthSliderEditor : UnityEditor.Editor
             EditorGUILayout.Space();
         }
 
-        // Feature Toggles List
-        showFeatureList = EditorGUILayout.Foldout(showFeatureList, "Feature Toggles", true);
-        if (showFeatureList)
+        // Sync feature toggles with boolean properties
+        SyncFeatureToggles();
+
+        // Add Feature Button
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Add Feature"))
         {
-            EditorGUI.indentLevel++;
-            featureTogglesList.DoLayoutList();
-
-            // Sync feature toggles with boolean properties
-            SyncFeatureToggles();
-
-            EditorGUI.indentLevel--;
-            EditorGUILayout.Space();
+            ShowAddFeatureMenu();
         }
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.Space();
 
         // Display sections based on feature toggles
         DrawFeatureSections();
 
         serializedObject.ApplyModifiedProperties();
+    }
+
+    private void ShowAddFeatureMenu()
+    {
+        GenericMenu menu = new GenericMenu();
+
+        // Get currently added features
+        System.Collections.Generic.HashSet<string> addedFeatures = new System.Collections.Generic.HashSet<string>();
+        for (int i = 0; i < featureTogglesProp.arraySize; i++)
+        {
+            var element = featureTogglesProp.GetArrayElementAtIndex(i);
+            string featureName = element.FindPropertyRelative("featureName").stringValue;
+            addedFeatures.Add(featureName);
+        }
+
+        // Add menu items for available features that aren't already added
+        foreach (string feature in AvailableFeatures)
+        {
+            if (!addedFeatures.Contains(feature))
+            {
+                menu.AddItem(new GUIContent(feature), false, () => AddFeature(feature));
+            }
+            else
+            {
+                menu.AddDisabledItem(new GUIContent(feature + " (Already Added)"));
+            }
+        }
+
+        // If all features are added, show a message
+        if (addedFeatures.Count >= AvailableFeatures.Length)
+        {
+            menu.AddDisabledItem(new GUIContent("All features added"));
+        }
+
+        menu.ShowAsContext();
+    }
+
+    private void AddFeature(string featureName)
+    {
+        serializedObject.Update();
+        int index = featureTogglesProp.arraySize;
+        featureTogglesProp.arraySize++;
+        var element = featureTogglesProp.GetArrayElementAtIndex(index);
+        element.FindPropertyRelative("featureName").stringValue = featureName;
+        element.FindPropertyRelative("enabled").boolValue = false;
+        serializedObject.ApplyModifiedProperties();
+    }
+
+    private void RequestRemoveFeature(string featureName)
+    {
+        // If a different feature is already awaiting confirmation, cancel it first
+        if (featureAwaitingConfirmation != null && featureAwaitingConfirmation != featureName)
+        {
+            featureAwaitingConfirmation = null;
+        }
+        featureAwaitingConfirmation = featureName;
+    }
+
+    private void ConfirmRemoveFeature(string featureName)
+    {
+        serializedObject.Update();
+        for (int i = featureTogglesProp.arraySize - 1; i >= 0; i--)
+        {
+            var element = featureTogglesProp.GetArrayElementAtIndex(i);
+            if (element.FindPropertyRelative("featureName").stringValue == featureName)
+            {
+                featureTogglesProp.DeleteArrayElementAtIndex(i);
+                break;
+            }
+        }
+        serializedObject.ApplyModifiedProperties();
+        featureAwaitingConfirmation = null;
+    }
+
+    private void CancelRemoveFeature()
+    {
+        featureAwaitingConfirmation = null;
     }
 
     private void SyncFeatureToggles()
@@ -191,7 +231,29 @@ public class HealthSliderEditor : UnityEditor.Editor
         // Text Display Section
         if (IsFeatureInList("Text Display"))
         {
+            EditorGUILayout.BeginHorizontal();
             showTextDisplay = EditorGUILayout.Foldout(showTextDisplay, "Text Display", true);
+
+            if (featureAwaitingConfirmation == "Text Display")
+            {
+                EditorGUILayout.LabelField("Are you sure?", GUILayout.Width(100));
+                if (GUILayout.Button("No", GUILayout.Width(60)))
+                {
+                    CancelRemoveFeature();
+                }
+                if (GUILayout.Button("Yes", GUILayout.Width(60)))
+                {
+                    ConfirmRemoveFeature("Text Display");
+                }
+            }
+            else
+            {
+                if (GUILayout.Button("Remove", GUILayout.Width(60)))
+                {
+                    RequestRemoveFeature("Text Display");
+                }
+            }
+            EditorGUILayout.EndHorizontal();
             if (showTextDisplay)
             {
                 EditorGUI.indentLevel++;
@@ -205,7 +267,29 @@ public class HealthSliderEditor : UnityEditor.Editor
         // Color Gradient Section
         if (IsFeatureInList("Color Gradient"))
         {
+            EditorGUILayout.BeginHorizontal();
             showColorGradient = EditorGUILayout.Foldout(showColorGradient, "Color Gradient", true);
+
+            if (featureAwaitingConfirmation == "Color Gradient")
+            {
+                EditorGUILayout.LabelField("Are you sure?", GUILayout.Width(100));
+                if (GUILayout.Button("No", GUILayout.Width(60)))
+                {
+                    CancelRemoveFeature();
+                }
+                if (GUILayout.Button("Yes", GUILayout.Width(60)))
+                {
+                    ConfirmRemoveFeature("Color Gradient");
+                }
+            }
+            else
+            {
+                if (GUILayout.Button("Remove", GUILayout.Width(60)))
+                {
+                    RequestRemoveFeature("Color Gradient");
+                }
+            }
+            EditorGUILayout.EndHorizontal();
             if (showColorGradient)
             {
                 EditorGUI.indentLevel++;
@@ -220,7 +304,29 @@ public class HealthSliderEditor : UnityEditor.Editor
         // Background Fill Section
         if (IsFeatureInList("Background Fill"))
         {
+            EditorGUILayout.BeginHorizontal();
             showBackgroundFill = EditorGUILayout.Foldout(showBackgroundFill, "Background Fill", true);
+
+            if (featureAwaitingConfirmation == "Background Fill")
+            {
+                EditorGUILayout.LabelField("Are you sure?", GUILayout.Width(100));
+                if (GUILayout.Button("No", GUILayout.Width(60)))
+                {
+                    CancelRemoveFeature();
+                }
+                if (GUILayout.Button("Yes", GUILayout.Width(60)))
+                {
+                    ConfirmRemoveFeature("Background Fill");
+                }
+            }
+            else
+            {
+                if (GUILayout.Button("Remove", GUILayout.Width(60)))
+                {
+                    RequestRemoveFeature("Background Fill");
+                }
+            }
+            EditorGUILayout.EndHorizontal();
             if (showBackgroundFill)
             {
                 EditorGUI.indentLevel++;
