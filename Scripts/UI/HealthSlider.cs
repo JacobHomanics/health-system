@@ -41,28 +41,47 @@ public class HealthSlider : MonoBehaviour
     [SerializeField] private bool keepSizeConsistent = true;
 
     [SerializeField] private Color colorAtMin = Color.red;
+    [SerializeField] private Color colorAtHalfway = Color.yellow;
     [SerializeField] private Color colorAtMax = Color.green;
 
     [SerializeField] private float animationSpeed = 10;
+
+    private float previousValue;
+    private Coroutine animationCoroutine;
 
     void Update()
     {
         Slider.value = Health.Current;
         Slider.maxValue = Health.Max;
 
-        // Normalize the value between min and max (0 to 1)
-        float normalizedValue = Mathf.Clamp01((slider.value - slider.minValue) / (slider.maxValue - slider.minValue));
-        // Interpolate between the two colors based on normalized value
-        slider.fillRect.GetComponent<Image>().color = Color.Lerp(colorAtMin, colorAtMax, normalizedValue);
-
         if (TextCurrent != null)
             TextCurrent.text = Health.Current.ToString();
         if (TextMax != null)
             TextMax.text = Health.Max.ToString();
+
+
+
+        float healthPercent = Slider.maxValue > 0 ? Slider.value / Slider.maxValue : 0;
+        healthPercent = Mathf.Clamp01(healthPercent);
+
+        // Color gradient: green (high) -> yellow (mid) -> red (low)
+        Color healthColor;
+        if (healthPercent > 0.5f)
+        {
+            // Green to yellow
+            float t = (healthPercent - 0.5f) * 2f;
+            healthColor = Color.Lerp(colorAtHalfway, colorAtMax, t);
+        }
+        else
+        {
+            // Yellow to red
+            float t = healthPercent * 2f;
+            healthColor = Color.Lerp(colorAtMin, colorAtHalfway, t);
+        }
+
+        slider.fillRect.GetComponent<Image>().color = healthColor;
     }
 
-    private float previousValue;
-    private Coroutine animationCoroutine;
 
     private void Awake()
     {
