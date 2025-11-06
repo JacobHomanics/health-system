@@ -840,8 +840,9 @@ MonoBehaviour:
   slider: {fileID: 4592224593623921964}
   featureToggles:
   - rid: 1001
-  - rid: 4860107597806043382
   - rid: 4860107597806043383
+  - rid: 4860107597806043389
+  - rid: 4860107597806043390
   references:
     version: 2
     RefIds:
@@ -851,7 +852,12 @@ MonoBehaviour:
         colorAtMin: {r: 1, g: 0, b: 0, a: 1}
         colorAtHalfway: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
         colorAtMax: {r: 0, g: 1, b: 0, a: 1}
-    - rid: 4860107597806043382
+    - rid: 4860107597806043383
+      type: {class: TextDisplayFeature, ns: , asm: health}
+      data:
+        textCurrent: {fileID: 1667967286366675197}
+        textMax: {fileID: 9050000445014980398}
+    - rid: 4860107597806043389
       type: {class: BackgroundFillFeature, ns: , asm: health}
       data:
         backgroundFill: {fileID: 6178348392762232574}
@@ -882,11 +888,19 @@ MonoBehaviour:
           m_PostInfinity: 2
           m_RotationOrder: 4
         delay: 1
-    - rid: 4860107597806043383
-      type: {class: TextDisplayFeature, ns: , asm: health}
+        isAnimating: 0
+        animationFromValue: 0
+        animationToValue: 0
+        animationElapsed: 0
+        animationDuration: 0
+        animationDelayRemaining: 0
+    - rid: 4860107597806043390
+      type: {class: FlashingFeature, ns: , asm: health}
       data:
-        textCurrent: {fileID: 1667967286366675197}
-        textMax: {fileID: 9050000445014980398}
+        thresholdPercent: 0.2
+        flashColor1: {r: 1, g: 0, b: 0, a: 1}
+        flashColor2: {r: 1, g: 1, b: 1, a: 1}
+        flashSpeed: 15
 --- !u!114 &4592224593623921964
 MonoBehaviour:
   m_ObjectHideFlags: 0

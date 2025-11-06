@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using JacobHomanics.HealthSystem;
 using TMPro;
@@ -35,6 +34,13 @@ public class BackgroundFillFeature : FeatureToggle
     public float animationSpeed = 10;
     public AnimationCurve speedCurve = AnimationCurve.EaseInOut(0f, 0.3f, 1f, 16f);
     public float delay = 1f;
+
+    public bool isAnimating = false;
+    public float animationFromValue;
+    public float animationToValue;
+    public float animationElapsed;
+    public float animationDuration;
+    public float animationDelayRemaining;
 
 }
 
@@ -77,7 +83,9 @@ public class HealthSlider : MonoBehaviour
     }
 
     private float previousValue;
-    private Coroutine animationCoroutine;
+
+    // Animation state for background fill
+
 
     void Update()
     {
@@ -89,6 +97,8 @@ public class HealthSlider : MonoBehaviour
         ColorGradientFeatureCommand();
 
         FlashingFeatureCommand();
+
+        UpdateBackgroundFillAnimation();
     }
 
     private void TextFeatureCommand()
@@ -190,26 +200,71 @@ public class HealthSlider : MonoBehaviour
         if (newValue > startValue)
         {
             // Stop any ongoing animation
-            if (animationCoroutine != null)
-            {
-                StopCoroutine(animationCoroutine);
-                animationCoroutine = null;
-            }
+            bgFeature.isAnimating = false;
             // Immediately set to new value
             SetBackgroundFillAmount(newValue);
         }
         else
         {
             // HP goes down or stays same - animate from start position
-            // Animate the background fill from start position to the new value
-            if (animationCoroutine != null)
-            {
-                StopCoroutine(animationCoroutine);
-            }
-            animationCoroutine = StartCoroutine(AnimateBackgroundFill(startValue, newValue, bgFeature));
+            // Set up animation state
+            StartBackgroundFillAnimation(startValue, newValue, bgFeature);
         }
 
         previousValue = newValue;
+    }
+
+    private void StartBackgroundFillAnimation(float fromValue, float toValue, BackgroundFillFeature bgFeature)
+    {
+        float valueDifference = Mathf.Abs(fromValue - toValue);
+        if (valueDifference < 0.001f)
+        {
+            SetBackgroundFillAmount(toValue);
+            bgFeature.isAnimating = false;
+            return;
+        }
+
+        // Initialize animation state
+        bgFeature.isAnimating = true;
+        bgFeature.animationFromValue = fromValue;
+        bgFeature.animationToValue = toValue;
+        bgFeature.animationElapsed = 0f;
+        bgFeature.animationDelayRemaining = bgFeature.delay;
+
+        // Calculate dynamic animation speed based on difference
+        float normalizedDifference = slider.maxValue > 0 ? valueDifference / slider.maxValue : 0;
+        float speedMultiplier = bgFeature.speedCurve.Evaluate(normalizedDifference);
+        float dynamicSpeed = bgFeature.animationSpeed * speedMultiplier;
+        bgFeature.animationDuration = valueDifference / dynamicSpeed;
+    }
+
+    private void UpdateBackgroundFillAnimation()
+    {
+        var bgFeature = GetFeature<BackgroundFillFeature>();
+
+
+        if (!bgFeature.isAnimating)
+            return;
+
+        // Handle delay before animation starts
+        if (bgFeature.animationDelayRemaining > 0f)
+        {
+            bgFeature.animationDelayRemaining -= Time.deltaTime;
+            return;
+        }
+
+        // Update animation
+        bgFeature.animationElapsed += Time.deltaTime;
+        float t = Mathf.Clamp01(bgFeature.animationElapsed / bgFeature.animationDuration);
+        float currentValue = Mathf.Lerp(bgFeature.animationFromValue, bgFeature.animationToValue, t);
+        SetBackgroundFillAmount(currentValue);
+
+        // Check if animation is complete
+        if (bgFeature.animationElapsed >= bgFeature.animationDuration)
+        {
+            SetBackgroundFillAmount(bgFeature.animationToValue);
+            bgFeature.isAnimating = false;
+        }
     }
 
     private void SetBackgroundFillAmount(float amount)
@@ -231,40 +286,6 @@ public class HealthSlider : MonoBehaviour
         return 0;
     }
 
-    private IEnumerator AnimateBackgroundFill(float fromValue, float toValue, BackgroundFillFeature bgFeature)
-    {
-        float valueDifference = Mathf.Abs(fromValue - toValue);
-        if (valueDifference < 0.001f)
-        {
-            SetBackgroundFillAmount(toValue);
-            yield break;
-        }
-
-        yield return new WaitForSeconds(bgFeature.delay);
-
-        // Calculate dynamic animation speed based on difference
-        // Higher difference = faster animation, smaller differences animate slower
-        float normalizedDifference = slider.maxValue > 0 ? valueDifference / slider.maxValue : 0;
-        // Evaluate the speed curve to get the speed multiplier
-        // X-axis (0-1): normalized difference, Y-axis: speed multiplier
-        float speedMultiplier = bgFeature.speedCurve.Evaluate(normalizedDifference);
-        float dynamicSpeed = bgFeature.animationSpeed * speedMultiplier;
-
-        float elapsed = 0f;
-        float duration = valueDifference / dynamicSpeed;
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsed / duration);
-            float currentValue = Mathf.Lerp(fromValue, toValue, t);
-            SetBackgroundFillAmount(currentValue);
-            yield return null;
-        }
-
-        SetBackgroundFillAmount(toValue);
-        animationCoroutine = null;
-    }
 
     private void OnEnable()
     {
