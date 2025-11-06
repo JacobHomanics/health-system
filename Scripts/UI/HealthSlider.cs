@@ -5,6 +5,19 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+[System.Serializable]
+public class FeatureToggle
+{
+    public string featureName;
+    public bool enabled;
+
+    public FeatureToggle(string name, bool isEnabled)
+    {
+        featureName = name;
+        enabled = isEnabled;
+    }
+}
+
 public class HealthSlider : MonoBehaviour
 {
     [SerializeField] private Health health;
@@ -20,6 +33,14 @@ public class HealthSlider : MonoBehaviour
     {
         get => slider;
     }
+
+    [SerializeField]
+    private List<FeatureToggle> featureToggles = new List<FeatureToggle>
+    {
+        new FeatureToggle("Text Display", false),
+        new FeatureToggle("Color Gradient", false),
+        new FeatureToggle("Background Fill", false)
+    };
 
     [SerializeField] private bool showText = false;
 
