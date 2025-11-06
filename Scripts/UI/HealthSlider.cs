@@ -11,10 +11,25 @@ public class FeatureToggle
     public string featureName;
     public bool enabled;
 
-    public FeatureToggle(string name, bool isEnabled)
+    // Text Display fields
+    public TMP_Text textCurrent;
+    public TMP_Text textMax;
+
+    // Color Gradient fields
+    public Color colorAtMin = Color.red;
+    public Color colorAtHalfway = Color.yellow;
+    public Color colorAtMax = Color.green;
+
+    // Background Fill fields
+    public Image backgroundFill;
+    public bool keepSizeConsistent = true;
+    public float animationSpeed = 10;
+    public AnimationCurve speedCurve = AnimationCurve.EaseInOut(0f, 0.3f, 1f, 8.5f);
+    public float delay = 1f;
+
+    public FeatureToggle(string name)
     {
         featureName = name;
-        enabled = isEnabled;
     }
 }
 
@@ -37,44 +52,31 @@ public class HealthSlider : MonoBehaviour
     [SerializeField]
     private List<FeatureToggle> featureToggles = new List<FeatureToggle>
     {
-        new FeatureToggle("Text Display", false),
-        new FeatureToggle("Color Gradient", false),
-        new FeatureToggle("Background Fill", false)
+        new FeatureToggle("Text Display"),
+        new FeatureToggle("Color Gradient"),
+        new FeatureToggle("Background Fill")
     };
 
-    [SerializeField] private bool showText = false;
+    // Legacy fields for backward compatibility (kept for migration)
+    // [SerializeField] private bool showText = false;
+    // [SerializeField] private TMP_Text textCurrent;
+    // [SerializeField] private TMP_Text textMax;
+    // [SerializeField] private bool showColorGradient = false;
+    // [SerializeField] private Color colorAtMin = Color.red;
+    // [SerializeField] private Color colorAtHalfway = Color.yellow;
+    // [SerializeField] private Color colorAtMax = Color.green;
+    // [SerializeField] private bool showBackgroundFill = false;
+    // [SerializeField] private Image backgroundFill;
+    // [SerializeField] private bool keepSizeConsistent = true;
+    // [SerializeField] private float animationSpeed = 10;
+    // [SerializeField] private AnimationCurve speedCurve = AnimationCurve.EaseInOut(0f, 0.3f, 1f, 8.5f);
 
-    [SerializeField] private TMP_Text textCurrent;
-    public TMP_Text TextCurrent
+    // Helper properties to get feature data
+
+    private FeatureToggle GetFeature(string featureName)
     {
-        get => textCurrent;
+        return featureToggles.Find(f => f.featureName == featureName);
     }
-
-    [SerializeField] private TMP_Text textMax;
-    public TMP_Text TextMax
-    {
-        get => textMax;
-    }
-
-
-    [SerializeField] private bool showColorGradient = false;
-    [SerializeField] private Color colorAtMin = Color.red;
-    [SerializeField] private Color colorAtHalfway = Color.yellow;
-    [SerializeField] private Color colorAtMax = Color.green;
-
-
-    [SerializeField] private bool showBackgroundFill = false;
-
-    [SerializeField] private Image backgroundFill;
-    public Image BackgroundFill
-    {
-        get => backgroundFill;
-    }
-
-    [SerializeField] private bool keepSizeConsistent = true;
-
-    [SerializeField] private float animationSpeed = 10;
-    [SerializeField] private AnimationCurve speedCurve = AnimationCurve.EaseInOut(0f, 0.3f, 1f, 8.5f);
 
 
     private float previousValue;
@@ -85,32 +87,55 @@ public class HealthSlider : MonoBehaviour
         Slider.value = Health.Current;
         Slider.maxValue = Health.Max;
 
-        if (TextCurrent != null)
-            TextCurrent.text = Health.Current.ToString();
-        if (TextMax != null)
-            TextMax.text = Health.Max.ToString();
-
-
+        var textFeature = GetFeature("Text Display");
+        if (textFeature != null)
+        {
+            textFeature.textCurrent.text = Health.Current.ToString();
+            textFeature.textMax.text = Health.Max.ToString();
+        }
 
         float healthPercent = Slider.maxValue > 0 ? Slider.value / Slider.maxValue : 0;
         healthPercent = Mathf.Clamp01(healthPercent);
 
         // Color gradient: green (high) -> yellow (mid) -> red (low)
-        Color healthColor;
-        if (healthPercent > 0.5f)
+        var colorFeature = GetFeature("Color Gradient");
+
+        Debug.Log(colorFeature);
+
+        if (colorFeature != null)
         {
-            // Green to yellow
-            float t = (healthPercent - 0.5f) * 2f;
-            healthColor = Color.Lerp(colorAtHalfway, colorAtMax, t);
+            Color healthColor;
+            if (healthPercent > 0.5f)
+            {
+                // Green to yellow
+                float t = (healthPercent - 0.5f) * 2f;
+                healthColor = Color.Lerp(colorFeature.colorAtHalfway, colorFeature.colorAtMax, t);
+            }
+            else
+            {
+                // Yellow to red
+                float t = healthPercent * 2f;
+                healthColor = Color.Lerp(colorFeature.colorAtMin, colorFeature.colorAtHalfway, t);
+            }
+
+            slider.fillRect.GetComponent<Image>().color = healthColor;
         }
         else
         {
-            // Yellow to red
-            float t = healthPercent * 2f;
-            healthColor = Color.Lerp(colorAtMin, colorAtHalfway, t);
+            // Fallback to legacy colors
+            Color healthColor;
+            if (healthPercent > 0.5f)
+            {
+                float t = (healthPercent - 0.5f) * 2f;
+                healthColor = Color.Lerp(colorFeature.colorAtHalfway, colorFeature.colorAtMax, t);
+            }
+            else
+            {
+                float t = healthPercent * 2f;
+                healthColor = Color.Lerp(colorFeature.colorAtMin, colorFeature.colorAtHalfway, t);
+            }
+            slider.fillRect.GetComponent<Image>().color = healthColor;
         }
-
-        slider.fillRect.GetComponent<Image>().color = healthColor;
     }
 
 
@@ -127,9 +152,16 @@ public class HealthSlider : MonoBehaviour
 
     private void OnValueChangedInternal(float newValue)
     {
+        var bgFeature = GetFeature("Background Fill");
+        if (bgFeature == null || bgFeature.backgroundFill == null)
+        {
+            previousValue = newValue;
+            return;
+        }
+
         // Get the starting value based on whether we want to keep size consistent
         float startValue;
-        if (keepSizeConsistent)
+        if (bgFeature.keepSizeConsistent)
         {
             // Use current background fill position (continues from where it is)
             startValue = GetBackgroundFillValue();
@@ -161,7 +193,7 @@ public class HealthSlider : MonoBehaviour
             {
                 StopCoroutine(animationCoroutine);
             }
-            animationCoroutine = StartCoroutine(AnimateBackgroundFill(startValue, newValue));
+            animationCoroutine = StartCoroutine(AnimateBackgroundFill(startValue, newValue, bgFeature));
         }
 
         previousValue = newValue;
@@ -169,17 +201,26 @@ public class HealthSlider : MonoBehaviour
 
     private void SetBackgroundFillAmount(float amount)
     {
-        backgroundFill.fillAmount = amount / slider.maxValue;
+        var bgFeature = GetFeature("Background Fill");
+        Image fillImage = bgFeature.backgroundFill;
+        if (fillImage != null)
+        {
+            fillImage.fillAmount = amount / slider.maxValue;
+        }
     }
 
     private float GetBackgroundFillValue()
     {
-        return backgroundFill.fillAmount * slider.maxValue;
+        var bgFeature = GetFeature("Background Fill");
+        Image fillImage = bgFeature.backgroundFill;
+        if (fillImage != null)
+        {
+            return fillImage.fillAmount * slider.maxValue;
+        }
+        return 0;
     }
 
-    public float delay = 3f;
-
-    private IEnumerator AnimateBackgroundFill(float fromValue, float toValue)
+    private IEnumerator AnimateBackgroundFill(float fromValue, float toValue, FeatureToggle bgFeature)
     {
         float valueDifference = Mathf.Abs(fromValue - toValue);
         if (valueDifference < 0.001f)
@@ -188,15 +229,15 @@ public class HealthSlider : MonoBehaviour
             yield break;
         }
 
-        yield return new WaitForSeconds(delay);
+        yield return new WaitForSeconds(bgFeature.delay);
 
         // Calculate dynamic animation speed based on difference
         // Higher difference = faster animation, smaller differences animate slower
         float normalizedDifference = slider.maxValue > 0 ? valueDifference / slider.maxValue : 0;
         // Evaluate the speed curve to get the speed multiplier
         // X-axis (0-1): normalized difference, Y-axis: speed multiplier
-        float speedMultiplier = speedCurve.Evaluate(normalizedDifference);
-        float dynamicSpeed = animationSpeed * speedMultiplier;
+        float speedMultiplier = bgFeature.speedCurve.Evaluate(normalizedDifference);
+        float dynamicSpeed = bgFeature.animationSpeed * speedMultiplier;
 
         float elapsed = 0f;
         float duration = valueDifference / dynamicSpeed;

@@ -80,9 +80,6 @@ public class HealthSliderEditor : UnityEditor.Editor
             EditorGUILayout.Space();
         }
 
-        // Sync feature toggles with boolean properties
-        SyncFeatureToggles();
-
         // Add Feature Button
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("Add Feature"))
@@ -175,30 +172,20 @@ public class HealthSliderEditor : UnityEditor.Editor
         featureAwaitingConfirmation = null;
     }
 
-    private void SyncFeatureToggles()
+    private SerializedProperty GetFeatureElement(string featureName)
     {
-        // Sync the list with the existing boolean properties
         for (int i = 0; i < featureTogglesProp.arraySize; i++)
         {
             var element = featureTogglesProp.GetArrayElementAtIndex(i);
-            string featureName = element.FindPropertyRelative("featureName").stringValue;
-            bool enabled = element.FindPropertyRelative("enabled").boolValue;
-
-            // Map feature names to boolean properties
-            if (featureName == "Text Display")
+            if (element.FindPropertyRelative("featureName").stringValue == featureName)
             {
-                showTextProp.boolValue = enabled;
-            }
-            else if (featureName == "Color Gradient")
-            {
-                showColorGradientProp.boolValue = enabled;
-            }
-            else if (featureName == "Background Fill")
-            {
-                showBackgroundFillProp.boolValue = enabled;
+                return element;
             }
         }
+        return null;
     }
+
+
 
     private bool IsFeatureInList(string featureName)
     {
@@ -229,7 +216,8 @@ public class HealthSliderEditor : UnityEditor.Editor
     private void DrawFeatureSections()
     {
         // Text Display Section
-        if (IsFeatureInList("Text Display"))
+        var textFeature = GetFeatureElement("Text Display");
+        if (textFeature != null)
         {
             EditorGUILayout.BeginHorizontal();
             showTextDisplay = EditorGUILayout.Foldout(showTextDisplay, "Text Display", true);
@@ -257,15 +245,16 @@ public class HealthSliderEditor : UnityEditor.Editor
             if (showTextDisplay)
             {
                 EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(textCurrentProp, new GUIContent("Current Text"));
-                EditorGUILayout.PropertyField(textMaxProp, new GUIContent("Max Text"));
+                EditorGUILayout.PropertyField(textFeature.FindPropertyRelative("textCurrent"), new GUIContent("Current Text"));
+                EditorGUILayout.PropertyField(textFeature.FindPropertyRelative("textMax"), new GUIContent("Max Text"));
                 EditorGUI.indentLevel--;
                 EditorGUILayout.Space();
             }
         }
 
         // Color Gradient Section
-        if (IsFeatureInList("Color Gradient"))
+        var colorFeature = GetFeatureElement("Color Gradient");
+        if (colorFeature != null)
         {
             EditorGUILayout.BeginHorizontal();
             showColorGradient = EditorGUILayout.Foldout(showColorGradient, "Color Gradient", true);
@@ -293,16 +282,17 @@ public class HealthSliderEditor : UnityEditor.Editor
             if (showColorGradient)
             {
                 EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(colorAtMinProp, new GUIContent("Color at Min (Red)"));
-                EditorGUILayout.PropertyField(colorAtHalfwayProp, new GUIContent("Color at Halfway (Yellow)"));
-                EditorGUILayout.PropertyField(colorAtMaxProp, new GUIContent("Color at Max (Green)"));
+                EditorGUILayout.PropertyField(colorFeature.FindPropertyRelative("colorAtMin"), new GUIContent("Color at Min (Red)"));
+                EditorGUILayout.PropertyField(colorFeature.FindPropertyRelative("colorAtHalfway"), new GUIContent("Color at Halfway (Yellow)"));
+                EditorGUILayout.PropertyField(colorFeature.FindPropertyRelative("colorAtMax"), new GUIContent("Color at Max (Green)"));
                 EditorGUI.indentLevel--;
                 EditorGUILayout.Space();
             }
         }
 
         // Background Fill Section
-        if (IsFeatureInList("Background Fill"))
+        var bgFeature = GetFeatureElement("Background Fill");
+        if (bgFeature != null)
         {
             EditorGUILayout.BeginHorizontal();
             showBackgroundFill = EditorGUILayout.Foldout(showBackgroundFill, "Background Fill", true);
@@ -330,11 +320,11 @@ public class HealthSliderEditor : UnityEditor.Editor
             if (showBackgroundFill)
             {
                 EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(backgroundFillProp, new GUIContent("Background Fill Image"));
-                EditorGUILayout.PropertyField(keepSizeConsistentProp, new GUIContent("Keep Size Consistent"));
-                EditorGUILayout.PropertyField(animationSpeedProp, new GUIContent("Animation Speed"));
-                EditorGUILayout.PropertyField(speedCurveProp, new GUIContent("Speed Curve"));
-                EditorGUILayout.PropertyField(delayProp, new GUIContent("Delay"));
+                EditorGUILayout.PropertyField(bgFeature.FindPropertyRelative("backgroundFill"), new GUIContent("Background Fill Image"));
+                EditorGUILayout.PropertyField(bgFeature.FindPropertyRelative("keepSizeConsistent"), new GUIContent("Keep Size Consistent"));
+                EditorGUILayout.PropertyField(bgFeature.FindPropertyRelative("animationSpeed"), new GUIContent("Animation Speed"));
+                EditorGUILayout.PropertyField(bgFeature.FindPropertyRelative("speedCurve"), new GUIContent("Speed Curve"));
+                EditorGUILayout.PropertyField(bgFeature.FindPropertyRelative("delay"), new GUIContent("Delay"));
                 EditorGUI.indentLevel--;
                 EditorGUILayout.Space();
             }
