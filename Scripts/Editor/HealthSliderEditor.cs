@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEditor;
+using UnityEditorInternal;
 using TMPro;
 
 [CustomEditor(typeof(HealthSlider))]
@@ -43,13 +44,10 @@ public class HealthSliderEditor : UnityEditor.Editor
 
     // Foldout states
     private bool showReferences = true;
-    private bool showTextDisplay = true;
-    private bool showColorGradient = true;
-    private bool showBackgroundFill = true;
-    private bool showFlashing = true;
 
-    // Confirmation state - tracks which feature type is waiting for confirmation
-    private string featureTypeAwaitingConfirmation = null;
+    // ReorderableList for features
+    private ReorderableList featuresList;
+    private System.Collections.Generic.Dictionary<int, bool> featureFoldoutStates = new System.Collections.Generic.Dictionary<int, bool>();
 
     private void OnEnable()
     {
@@ -72,6 +70,203 @@ public class HealthSliderEditor : UnityEditor.Editor
         animationSpeedProp = serializedObject.FindProperty("animationSpeed");
         speedCurveProp = serializedObject.FindProperty("speedCurve");
         delayProp = serializedObject.FindProperty("delay");
+
+        // Setup ReorderableList for features
+        featuresList = new ReorderableList(serializedObject, featureTogglesProp, true, true, true, true);
+        featuresList.drawHeaderCallback = (Rect rect) =>
+        {
+            EditorGUI.LabelField(rect, "Features");
+        };
+        featuresList.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
+        {
+            var element = featureTogglesProp.GetArrayElementAtIndex(index);
+            string featureType = GetFeatureType(element);
+            string displayName = GetFeatureDisplayName(featureType);
+
+            // Get or create foldout state
+            if (!featureFoldoutStates.ContainsKey(index))
+            {
+                featureFoldoutStates[index] = true;
+            }
+
+            rect.y += 2;
+            float yPos = rect.y;
+
+            // Draw foldout
+            featureFoldoutStates[index] = EditorGUI.Foldout(
+                new Rect(rect.x, yPos, rect.width, EditorGUIUtility.singleLineHeight),
+                featureFoldoutStates[index],
+                displayName,
+                true
+            );
+
+            yPos += EditorGUIUtility.singleLineHeight + 2;
+
+            // Draw properties if expanded
+            if (featureFoldoutStates[index])
+            {
+                float propertyY = yPos;
+                float indentOffset = EditorGUIUtility.labelWidth * 0.5f; // Account for foldout indentation
+
+                if (featureType == TextDisplayType)
+                {
+                    var textCurrentProp = element.FindPropertyRelative("textCurrent");
+                    var textMaxProp = element.FindPropertyRelative("textMax");
+                    if (textCurrentProp != null)
+                    {
+                        EditorGUI.PropertyField(new Rect(rect.x + indentOffset, propertyY, rect.width - indentOffset, EditorGUIUtility.singleLineHeight), textCurrentProp, new GUIContent("Current Text"));
+                        propertyY += EditorGUIUtility.singleLineHeight + 2;
+                    }
+                    if (textMaxProp != null)
+                    {
+                        EditorGUI.PropertyField(new Rect(rect.x + indentOffset, propertyY, rect.width - indentOffset, EditorGUIUtility.singleLineHeight), textMaxProp, new GUIContent("Max Text"));
+                        propertyY += EditorGUIUtility.singleLineHeight + 2;
+                    }
+                }
+                else if (featureType == ColorGradientType)
+                {
+                    var colorAtMinProp = element.FindPropertyRelative("colorAtMin");
+                    var colorAtHalfwayProp = element.FindPropertyRelative("colorAtHalfway");
+                    var colorAtMaxProp = element.FindPropertyRelative("colorAtMax");
+                    if (colorAtMinProp != null)
+                    {
+                        EditorGUI.PropertyField(new Rect(rect.x + indentOffset, propertyY, rect.width - indentOffset, EditorGUIUtility.singleLineHeight), colorAtMinProp, new GUIContent("Color at Min"));
+                        propertyY += EditorGUIUtility.singleLineHeight + 2;
+                    }
+                    if (colorAtHalfwayProp != null)
+                    {
+                        EditorGUI.PropertyField(new Rect(rect.x + indentOffset, propertyY, rect.width - indentOffset, EditorGUIUtility.singleLineHeight), colorAtHalfwayProp, new GUIContent("Color at Halfway"));
+                        propertyY += EditorGUIUtility.singleLineHeight + 2;
+                    }
+                    if (colorAtMaxProp != null)
+                    {
+                        EditorGUI.PropertyField(new Rect(rect.x + indentOffset, propertyY, rect.width - indentOffset, EditorGUIUtility.singleLineHeight), colorAtMaxProp, new GUIContent("Color at Max"));
+                        propertyY += EditorGUIUtility.singleLineHeight + 2;
+                    }
+                }
+                else if (featureType == BackgroundFillType)
+                {
+                    var backgroundFillProp = element.FindPropertyRelative("backgroundFill");
+                    var keepSizeConsistentProp = element.FindPropertyRelative("keepSizeConsistent");
+                    var animationSpeedProp = element.FindPropertyRelative("animationSpeed");
+                    var speedCurveProp = element.FindPropertyRelative("speedCurve");
+                    var delayProp = element.FindPropertyRelative("delay");
+
+                    if (backgroundFillProp != null)
+                    {
+                        EditorGUI.PropertyField(new Rect(rect.x + indentOffset, propertyY, rect.width - indentOffset, EditorGUIUtility.singleLineHeight), backgroundFillProp, new GUIContent("Background Fill Image"));
+                        propertyY += EditorGUIUtility.singleLineHeight + 2;
+                    }
+                    if (keepSizeConsistentProp != null)
+                    {
+                        EditorGUI.PropertyField(new Rect(rect.x + indentOffset, propertyY, rect.width - indentOffset, EditorGUIUtility.singleLineHeight), keepSizeConsistentProp, new GUIContent("Keep Size Consistent"));
+                        propertyY += EditorGUIUtility.singleLineHeight + 2;
+                    }
+                    if (animationSpeedProp != null)
+                    {
+                        EditorGUI.PropertyField(new Rect(rect.x + indentOffset, propertyY, rect.width - indentOffset, EditorGUIUtility.singleLineHeight), animationSpeedProp, new GUIContent("Animation Speed"));
+                        propertyY += EditorGUIUtility.singleLineHeight + 2;
+                    }
+                    if (speedCurveProp != null)
+                    {
+                        EditorGUI.PropertyField(new Rect(rect.x + indentOffset, propertyY, rect.width - indentOffset, EditorGUIUtility.singleLineHeight), speedCurveProp, new GUIContent("Speed Curve"));
+                        propertyY += EditorGUIUtility.singleLineHeight + 2;
+                    }
+                    if (delayProp != null)
+                    {
+                        EditorGUI.PropertyField(new Rect(rect.x + indentOffset, propertyY, rect.width - indentOffset, EditorGUIUtility.singleLineHeight), delayProp, new GUIContent("Delay"));
+                        propertyY += EditorGUIUtility.singleLineHeight + 2;
+                    }
+                }
+                else if (featureType == FlashingType)
+                {
+                    var thresholdPercentProp = element.FindPropertyRelative("thresholdPercent");
+                    var flashColor1Prop = element.FindPropertyRelative("flashColor1");
+                    var flashColor2Prop = element.FindPropertyRelative("flashColor2");
+                    var flashSpeedProp = element.FindPropertyRelative("flashSpeed");
+
+                    if (thresholdPercentProp != null)
+                    {
+                        EditorGUI.PropertyField(new Rect(rect.x + indentOffset, propertyY, rect.width - indentOffset, EditorGUIUtility.singleLineHeight), thresholdPercentProp, new GUIContent("Threshold Percent"));
+                        propertyY += EditorGUIUtility.singleLineHeight + 2;
+                    }
+                    if (flashColor1Prop != null)
+                    {
+                        EditorGUI.PropertyField(new Rect(rect.x + indentOffset, propertyY, rect.width - indentOffset, EditorGUIUtility.singleLineHeight), flashColor1Prop, new GUIContent("Flash Color 1"));
+                        propertyY += EditorGUIUtility.singleLineHeight + 2;
+                    }
+                    if (flashColor2Prop != null)
+                    {
+                        EditorGUI.PropertyField(new Rect(rect.x + indentOffset, propertyY, rect.width - indentOffset, EditorGUIUtility.singleLineHeight), flashColor2Prop, new GUIContent("Flash Color 2"));
+                        propertyY += EditorGUIUtility.singleLineHeight + 2;
+                    }
+                    if (flashSpeedProp != null)
+                    {
+                        EditorGUI.PropertyField(new Rect(rect.x + indentOffset, propertyY, rect.width - indentOffset, EditorGUIUtility.singleLineHeight), flashSpeedProp, new GUIContent("Flash Speed"));
+                        propertyY += EditorGUIUtility.singleLineHeight + 2;
+                    }
+                }
+            }
+        };
+        featuresList.elementHeightCallback = (int index) =>
+        {
+            if (!featureFoldoutStates.ContainsKey(index) || !featureFoldoutStates[index])
+            {
+                return EditorGUIUtility.singleLineHeight + 4;
+            }
+
+            var element = featureTogglesProp.GetArrayElementAtIndex(index);
+            string featureType = GetFeatureType(element);
+            int propertyCount = GetPropertyCount(featureType);
+
+            return (EditorGUIUtility.singleLineHeight + 2) * (1 + propertyCount) + 4;
+        };
+        featuresList.onAddDropdownCallback = (Rect buttonRect, ReorderableList list) =>
+        {
+            ShowAddFeatureMenu();
+        };
+        featuresList.onRemoveCallback = (ReorderableList list) =>
+        {
+            if (list.index >= 0 && list.index < featureTogglesProp.arraySize)
+            {
+                // Remove foldout state
+                if (featureFoldoutStates.ContainsKey(list.index))
+                {
+                    featureFoldoutStates.Remove(list.index);
+                }
+
+                // Update foldout state indices
+                var keysToUpdate = new System.Collections.Generic.List<int>();
+                foreach (var key in featureFoldoutStates.Keys)
+                {
+                    if (key > list.index)
+                    {
+                        keysToUpdate.Add(key);
+                    }
+                }
+                foreach (var key in keysToUpdate)
+                {
+                    bool value = featureFoldoutStates[key];
+                    featureFoldoutStates.Remove(key);
+                    featureFoldoutStates[key - 1] = value;
+                }
+
+                featureTogglesProp.DeleteArrayElementAtIndex(list.index);
+            }
+        };
+        featuresList.onReorderCallback = (ReorderableList list) =>
+        {
+            // Rebuild foldout states after reordering
+            // This is a simple approach - we'll rebuild the dictionary
+            var newFoldoutStates = new System.Collections.Generic.Dictionary<int, bool>();
+            for (int i = 0; i < featureTogglesProp.arraySize; i++)
+            {
+                // Try to preserve foldout state if possible
+                // Since we don't know the exact mapping, we'll default to true for all
+                newFoldoutStates[i] = featureFoldoutStates.ContainsKey(i) ? featureFoldoutStates[i] : true;
+            }
+            featureFoldoutStates = newFoldoutStates;
+        };
     }
 
     public override void OnInspectorGUI()
@@ -93,26 +288,48 @@ public class HealthSliderEditor : UnityEditor.Editor
             EditorGUILayout.Space();
         }
 
-        // Add Feature Button
-        EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("Add Feature"))
-        {
-            ShowAddFeatureMenu();
-        }
-        EditorGUILayout.EndHorizontal();
-        EditorGUILayout.Space();
+        // Features Section Title
+        EditorGUILayout.Space(10);
+        EditorGUILayout.LabelField("Features", EditorStyles.boldLabel);
+        EditorGUILayout.Space(5);
 
-        // Display sections based on feature toggles
-        bool featureRemoved = DrawFeatureSections();
-
-        // If a feature was removed, apply changes and exit early to avoid accessing deleted properties
-        if (featureRemoved)
-        {
-            serializedObject.ApplyModifiedProperties();
-            return;
-        }
+        // Display ReorderableList
+        featuresList.DoLayoutList();
 
         serializedObject.ApplyModifiedProperties();
+    }
+
+    private string GetFeatureDisplayName(string featureType)
+    {
+        foreach (var kvp in AvailableFeatures)
+        {
+            if (kvp.Value == featureType)
+            {
+                return kvp.Key;
+            }
+        }
+        return featureType ?? "Unknown";
+    }
+
+    private int GetPropertyCount(string featureType)
+    {
+        if (featureType == TextDisplayType)
+        {
+            return 2;
+        }
+        else if (featureType == ColorGradientType)
+        {
+            return 3;
+        }
+        else if (featureType == BackgroundFillType)
+        {
+            return 5;
+        }
+        else if (featureType == FlashingType)
+        {
+            return 4;
+        }
+        return 0;
     }
 
     private void ShowAddFeatureMenu()
@@ -168,6 +385,9 @@ public class HealthSliderEditor : UnityEditor.Editor
         element.managedReferenceValue = CreateFeatureInstance(featureType);
 
         serializedObject.ApplyModifiedProperties();
+
+        // Initialize foldout state for new feature
+        featureFoldoutStates[index] = true;
     }
 
     private object CreateFeatureInstance(string featureType)
@@ -233,245 +453,6 @@ public class HealthSliderEditor : UnityEditor.Editor
         return null;
     }
 
-    private bool IsFeatureInList(string featureType)
-    {
-        return GetFeatureElementByType(featureType) != null;
-    }
-
-    private void RequestRemoveFeature(string featureType)
-    {
-        // If a different feature is already awaiting confirmation, cancel it first
-        if (featureTypeAwaitingConfirmation != null && featureTypeAwaitingConfirmation != featureType)
-        {
-            featureTypeAwaitingConfirmation = null;
-        }
-        featureTypeAwaitingConfirmation = featureType;
-    }
-
-    private void ConfirmRemoveFeature(string featureType)
-    {
-        serializedObject.Update();
-        for (int i = featureTogglesProp.arraySize - 1; i >= 0; i--)
-        {
-            var element = featureTogglesProp.GetArrayElementAtIndex(i);
-            if (GetFeatureType(element) == featureType)
-            {
-                featureTogglesProp.DeleteArrayElementAtIndex(i);
-                break;
-            }
-        }
-        serializedObject.ApplyModifiedProperties();
-        featureTypeAwaitingConfirmation = null;
-    }
-
-    private void CancelRemoveFeature()
-    {
-        featureTypeAwaitingConfirmation = null;
-    }
-
-    private bool DrawFeatureSections()
-    {
-        bool featureRemoved = false;
-
-        // Text Display Section
-        var textFeature = GetFeatureElementByType(TextDisplayType);
-        if (textFeature != null)
-        {
-            EditorGUILayout.BeginHorizontal();
-            showTextDisplay = EditorGUILayout.Foldout(showTextDisplay, "Text Display", true);
-
-            if (featureTypeAwaitingConfirmation == TextDisplayType)
-            {
-                EditorGUILayout.LabelField("Are you sure?", GUILayout.Width(100));
-                if (GUILayout.Button("No", GUILayout.Width(60)))
-                {
-                    CancelRemoveFeature();
-                }
-                if (GUILayout.Button("Yes", GUILayout.Width(60)))
-                {
-                    ConfirmRemoveFeature(TextDisplayType);
-                    featureRemoved = true;
-                }
-            }
-            else
-            {
-                if (GUILayout.Button("Remove", GUILayout.Width(60)))
-                {
-                    RequestRemoveFeature(TextDisplayType);
-                }
-            }
-            EditorGUILayout.EndHorizontal();
-            if (showTextDisplay && !featureRemoved)
-            {
-                EditorGUI.indentLevel++;
-                var textCurrentProp = textFeature.FindPropertyRelative("textCurrent");
-                var textMaxProp = textFeature.FindPropertyRelative("textMax");
-                if (textCurrentProp != null)
-                    EditorGUILayout.PropertyField(textCurrentProp, new GUIContent("Current Text"));
-                if (textMaxProp != null)
-                    EditorGUILayout.PropertyField(textMaxProp, new GUIContent("Max Text"));
-                EditorGUI.indentLevel--;
-                EditorGUILayout.Space();
-            }
-        }
-
-        if (featureRemoved)
-            return true;
-
-        // Color Gradient Section
-        var colorFeature = GetFeatureElementByType(ColorGradientType);
-        if (colorFeature != null)
-        {
-            EditorGUILayout.BeginHorizontal();
-            showColorGradient = EditorGUILayout.Foldout(showColorGradient, "Color Gradient", true);
-
-            if (featureTypeAwaitingConfirmation == ColorGradientType)
-            {
-                EditorGUILayout.LabelField("Are you sure?", GUILayout.Width(100));
-                if (GUILayout.Button("No", GUILayout.Width(60)))
-                {
-                    CancelRemoveFeature();
-                }
-                if (GUILayout.Button("Yes", GUILayout.Width(60)))
-                {
-                    ConfirmRemoveFeature(ColorGradientType);
-                    featureRemoved = true;
-                }
-            }
-            else
-            {
-                if (GUILayout.Button("Remove", GUILayout.Width(60)))
-                {
-                    RequestRemoveFeature(ColorGradientType);
-                }
-            }
-            EditorGUILayout.EndHorizontal();
-            if (showColorGradient && !featureRemoved)
-            {
-                EditorGUI.indentLevel++;
-                var colorAtMinProp = colorFeature.FindPropertyRelative("colorAtMin");
-                var colorAtHalfwayProp = colorFeature.FindPropertyRelative("colorAtHalfway");
-                var colorAtMaxProp = colorFeature.FindPropertyRelative("colorAtMax");
-                if (colorAtMinProp != null)
-                    EditorGUILayout.PropertyField(colorAtMinProp, new GUIContent("Color at Min"));
-                if (colorAtHalfwayProp != null)
-                    EditorGUILayout.PropertyField(colorAtHalfwayProp, new GUIContent("Color at Halfway"));
-                if (colorAtMaxProp != null)
-                    EditorGUILayout.PropertyField(colorAtMaxProp, new GUIContent("Color at Max"));
-                EditorGUI.indentLevel--;
-                EditorGUILayout.Space();
-            }
-        }
-
-        if (featureRemoved)
-            return true;
-
-        // Background Fill Section
-        var bgFeature = GetFeatureElementByType(BackgroundFillType);
-        if (bgFeature != null)
-        {
-            EditorGUILayout.BeginHorizontal();
-            showBackgroundFill = EditorGUILayout.Foldout(showBackgroundFill, "Background Fill", true);
-
-            if (featureTypeAwaitingConfirmation == BackgroundFillType)
-            {
-                EditorGUILayout.LabelField("Are you sure?", GUILayout.Width(100));
-                if (GUILayout.Button("No", GUILayout.Width(60)))
-                {
-                    CancelRemoveFeature();
-                }
-                if (GUILayout.Button("Yes", GUILayout.Width(60)))
-                {
-                    ConfirmRemoveFeature(BackgroundFillType);
-                    featureRemoved = true;
-                }
-            }
-            else
-            {
-                if (GUILayout.Button("Remove", GUILayout.Width(60)))
-                {
-                    RequestRemoveFeature(BackgroundFillType);
-                }
-            }
-            EditorGUILayout.EndHorizontal();
-            if (showBackgroundFill && !featureRemoved)
-            {
-                EditorGUI.indentLevel++;
-                var backgroundFillProp = bgFeature.FindPropertyRelative("backgroundFill");
-                var keepSizeConsistentProp = bgFeature.FindPropertyRelative("keepSizeConsistent");
-                var animationSpeedProp = bgFeature.FindPropertyRelative("animationSpeed");
-                var speedCurveProp = bgFeature.FindPropertyRelative("speedCurve");
-                var delayProp = bgFeature.FindPropertyRelative("delay");
-
-                if (backgroundFillProp != null)
-                    EditorGUILayout.PropertyField(backgroundFillProp, new GUIContent("Background Fill Image"));
-                if (keepSizeConsistentProp != null)
-                    EditorGUILayout.PropertyField(keepSizeConsistentProp, new GUIContent("Keep Size Consistent"));
-                if (animationSpeedProp != null)
-                    EditorGUILayout.PropertyField(animationSpeedProp, new GUIContent("Animation Speed"));
-                if (speedCurveProp != null)
-                    EditorGUILayout.PropertyField(speedCurveProp, new GUIContent("Speed Curve"));
-                if (delayProp != null)
-                    EditorGUILayout.PropertyField(delayProp, new GUIContent("Delay"));
-                EditorGUI.indentLevel--;
-                EditorGUILayout.Space();
-            }
-        }
-
-        if (featureRemoved)
-            return true;
-
-        // Flashing Section
-        var flashingFeature = GetFeatureElementByType(FlashingType);
-        if (flashingFeature != null)
-        {
-            EditorGUILayout.BeginHorizontal();
-            showFlashing = EditorGUILayout.Foldout(showFlashing, "Flashing", true);
-
-            if (featureTypeAwaitingConfirmation == FlashingType)
-            {
-                EditorGUILayout.LabelField("Are you sure?", GUILayout.Width(100));
-                if (GUILayout.Button("No", GUILayout.Width(60)))
-                {
-                    CancelRemoveFeature();
-                }
-                if (GUILayout.Button("Yes", GUILayout.Width(60)))
-                {
-                    ConfirmRemoveFeature(FlashingType);
-                    featureRemoved = true;
-                }
-            }
-            else
-            {
-                if (GUILayout.Button("Remove", GUILayout.Width(60)))
-                {
-                    RequestRemoveFeature(FlashingType);
-                }
-            }
-            EditorGUILayout.EndHorizontal();
-            if (showFlashing && !featureRemoved)
-            {
-                EditorGUI.indentLevel++;
-                var thresholdPercentProp = flashingFeature.FindPropertyRelative("thresholdPercent");
-                var flashColor1Prop = flashingFeature.FindPropertyRelative("flashColor1");
-                var flashColor2Prop = flashingFeature.FindPropertyRelative("flashColor2");
-                var flashSpeedProp = flashingFeature.FindPropertyRelative("flashSpeed");
-
-                if (thresholdPercentProp != null)
-                    EditorGUILayout.PropertyField(thresholdPercentProp, new GUIContent("Threshold Percent"));
-                if (flashColor1Prop != null)
-                    EditorGUILayout.PropertyField(flashColor1Prop, new GUIContent("Flash Color 1"));
-                if (flashColor2Prop != null)
-                    EditorGUILayout.PropertyField(flashColor2Prop, new GUIContent("Flash Color 2"));
-                if (flashSpeedProp != null)
-                    EditorGUILayout.PropertyField(flashSpeedProp, new GUIContent("Flash Speed"));
-                EditorGUI.indentLevel--;
-                EditorGUILayout.Space();
-            }
-        }
-
-        return featureRemoved;
-    }
 }
 
 
