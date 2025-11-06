@@ -8,6 +8,8 @@ public class AnimatedSlider : MonoBehaviour
     [SerializeField] private Image backgroundFill;
     [SerializeField] private bool keepSizeConsistent = true;
     [SerializeField] private float animationSpeed = 10;
+    [SerializeField] private Color colorAtMin = Color.red;
+    [SerializeField] private Color colorAtMax = Color.green;
 
     private float previousValue;
     private Coroutine animationCoroutine;
@@ -20,10 +22,7 @@ public class AnimatedSlider : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (slider != null)
-        {
-            slider.onValueChanged.RemoveListener(OnValueChangedInternal);
-        }
+        slider.onValueChanged.RemoveListener(OnValueChangedInternal);
     }
 
     private void OnValueChangedInternal(float newValue)
@@ -72,6 +71,15 @@ public class AnimatedSlider : MonoBehaviour
     {
         backgroundFill.fillAmount = amount / slider.maxValue;
     }
+
+    void Update()
+    {
+        // Normalize the value between min and max (0 to 1)
+        float normalizedValue = Mathf.Clamp01((slider.value - slider.minValue) / (slider.maxValue - slider.minValue));
+        // Interpolate between the two colors based on normalized value
+        slider.fillRect.GetComponent<Image>().color = Color.Lerp(colorAtMin, colorAtMax, normalizedValue);
+    }
+
 
     private float GetBackgroundFillValue()
     {
