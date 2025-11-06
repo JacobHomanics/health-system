@@ -132,20 +132,20 @@ PrefabInstance:
       value: Slider (Animated)
       objectReference: {fileID: 0}
     - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
-      propertyPath: delay
-      value: 1.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
       propertyPath: health
       value: 
       objectReference: {fileID: 527058328}
     - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
-      propertyPath: speedCurve.m_Curve.Array.data[1].time
+      propertyPath: showText
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
-      propertyPath: speedCurve.m_Curve.Array.data[1].value
-      value: 19.882896
+      propertyPath: showColorGradient
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
+      propertyPath: showBackgroundFill
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8816885714237116387, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
       propertyPath: m_Pivot.x

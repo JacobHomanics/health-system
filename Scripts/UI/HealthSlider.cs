@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using JacobHomanics.HealthSystem;
 using TMPro;
 using UnityEngine;
@@ -20,6 +21,8 @@ public class HealthSlider : MonoBehaviour
         get => slider;
     }
 
+    [SerializeField] private bool showText = false;
+
     [SerializeField] private TMP_Text textCurrent;
     public TMP_Text TextCurrent
     {
@@ -32,6 +35,15 @@ public class HealthSlider : MonoBehaviour
         get => textMax;
     }
 
+
+    [SerializeField] private bool showColorGradient = false;
+    [SerializeField] private Color colorAtMin = Color.red;
+    [SerializeField] private Color colorAtHalfway = Color.yellow;
+    [SerializeField] private Color colorAtMax = Color.green;
+
+
+    [SerializeField] private bool showBackgroundFill = false;
+
     [SerializeField] private Image backgroundFill;
     public Image BackgroundFill
     {
@@ -40,12 +52,9 @@ public class HealthSlider : MonoBehaviour
 
     [SerializeField] private bool keepSizeConsistent = true;
 
-    [SerializeField] private Color colorAtMin = Color.red;
-    [SerializeField] private Color colorAtHalfway = Color.yellow;
-    [SerializeField] private Color colorAtMax = Color.green;
-
     [SerializeField] private float animationSpeed = 10;
     [SerializeField] private AnimationCurve speedCurve = AnimationCurve.EaseInOut(0f, 0.3f, 1f, 8.5f);
+
 
     private float previousValue;
     private Coroutine animationCoroutine;
