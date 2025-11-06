@@ -839,19 +839,13 @@ MonoBehaviour:
   health: {fileID: 0}
   slider: {fileID: 4592224593623921964}
   featureToggles:
-  - rid: 1001
   - rid: 4860107597806043383
   - rid: 4860107597806043389
   - rid: 4860107597806043390
+  - rid: 4860107597806043397
   references:
     version: 2
     RefIds:
-    - rid: 1001
-      type: {class: ColorGradientFeature, ns: , asm: health}
-      data:
-        colorAtMin: {r: 1, g: 0, b: 0, a: 1}
-        colorAtHalfway: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-        colorAtMax: {r: 0, g: 1, b: 0, a: 1}
     - rid: 4860107597806043383
       type: {class: TextDisplayFeature, ns: , asm: health}
       data:
@@ -901,6 +895,12 @@ MonoBehaviour:
         flashColor1: {r: 1, g: 0, b: 0, a: 1}
         flashColor2: {r: 1, g: 1, b: 1, a: 1}
         flashSpeed: 15
+    - rid: 4860107597806043397
+      type: {class: ColorGradientFeature, ns: , asm: health}
+      data:
+        colorAtMin: {r: 1, g: 0, b: 0, a: 1}
+        colorAtHalfway: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+        colorAtMax: {r: 0, g: 1, b: 0, a: 1}
 --- !u!114 &4592224593623921964
 MonoBehaviour:
   m_ObjectHideFlags: 0
