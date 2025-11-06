@@ -75,13 +75,23 @@ public class HealthSlider : MonoBehaviour
         Slider.value = Health.Current;
         Slider.maxValue = Health.Max;
 
+        TextFeatureCommand();
+
+        ColorGradientFeatureCommand();
+    }
+
+    private void TextFeatureCommand()
+    {
         var textFeature = GetFeature<TextDisplayFeature>();
         if (textFeature != null && textFeature.textCurrent != null && textFeature.textMax != null)
         {
             textFeature.textCurrent.text = Health.Current.ToString();
             textFeature.textMax.text = Health.Max.ToString();
         }
+    }
 
+    private void ColorGradientFeatureCommand()
+    {
         float healthPercent = Slider.maxValue > 0 ? Slider.value / Slider.maxValue : 0;
         healthPercent = Mathf.Clamp01(healthPercent);
 
@@ -106,7 +116,6 @@ public class HealthSlider : MonoBehaviour
             slider.fillRect.GetComponent<Image>().color = healthColor;
         }
     }
-
 
     private void Awake()
     {
