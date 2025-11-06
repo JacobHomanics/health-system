@@ -146,6 +146,8 @@ public class HealthSlider : MonoBehaviour
         return backgroundFill.fillAmount * slider.maxValue;
     }
 
+    public float delay = 3f;
+
     private IEnumerator AnimateBackgroundFill(float fromValue, float toValue)
     {
         float valueDifference = Mathf.Abs(fromValue - toValue);
@@ -154,6 +156,8 @@ public class HealthSlider : MonoBehaviour
             SetBackgroundFillAmount(toValue);
             yield break;
         }
+
+        yield return new WaitForSeconds(delay);
 
         float elapsed = 0f;
         float duration = valueDifference / animationSpeed;

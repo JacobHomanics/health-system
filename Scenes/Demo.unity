@@ -132,6 +132,10 @@ PrefabInstance:
       value: Slider (Animated)
       objectReference: {fileID: 0}
     - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
+      propertyPath: delay
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
       propertyPath: health
       value: 
       objectReference: {fileID: 527058328}
