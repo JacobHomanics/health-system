@@ -103,7 +103,14 @@ public class HealthSliderEditor : UnityEditor.Editor
         EditorGUILayout.Space();
 
         // Display sections based on feature toggles
-        DrawFeatureSections();
+        bool featureRemoved = DrawFeatureSections();
+
+        // If a feature was removed, apply changes and exit early to avoid accessing deleted properties
+        if (featureRemoved)
+        {
+            serializedObject.ApplyModifiedProperties();
+            return;
+        }
 
         serializedObject.ApplyModifiedProperties();
     }
@@ -262,8 +269,10 @@ public class HealthSliderEditor : UnityEditor.Editor
         featureTypeAwaitingConfirmation = null;
     }
 
-    private void DrawFeatureSections()
+    private bool DrawFeatureSections()
     {
+        bool featureRemoved = false;
+
         // Text Display Section
         var textFeature = GetFeatureElementByType(TextDisplayType);
         if (textFeature != null)
@@ -281,6 +290,7 @@ public class HealthSliderEditor : UnityEditor.Editor
                 if (GUILayout.Button("Yes", GUILayout.Width(60)))
                 {
                     ConfirmRemoveFeature(TextDisplayType);
+                    featureRemoved = true;
                 }
             }
             else
@@ -291,7 +301,7 @@ public class HealthSliderEditor : UnityEditor.Editor
                 }
             }
             EditorGUILayout.EndHorizontal();
-            if (showTextDisplay)
+            if (showTextDisplay && !featureRemoved)
             {
                 EditorGUI.indentLevel++;
                 var textCurrentProp = textFeature.FindPropertyRelative("textCurrent");
@@ -304,6 +314,9 @@ public class HealthSliderEditor : UnityEditor.Editor
                 EditorGUILayout.Space();
             }
         }
+
+        if (featureRemoved)
+            return true;
 
         // Color Gradient Section
         var colorFeature = GetFeatureElementByType(ColorGradientType);
@@ -322,6 +335,7 @@ public class HealthSliderEditor : UnityEditor.Editor
                 if (GUILayout.Button("Yes", GUILayout.Width(60)))
                 {
                     ConfirmRemoveFeature(ColorGradientType);
+                    featureRemoved = true;
                 }
             }
             else
@@ -332,7 +346,7 @@ public class HealthSliderEditor : UnityEditor.Editor
                 }
             }
             EditorGUILayout.EndHorizontal();
-            if (showColorGradient)
+            if (showColorGradient && !featureRemoved)
             {
                 EditorGUI.indentLevel++;
                 var colorAtMinProp = colorFeature.FindPropertyRelative("colorAtMin");
@@ -348,6 +362,9 @@ public class HealthSliderEditor : UnityEditor.Editor
                 EditorGUILayout.Space();
             }
         }
+
+        if (featureRemoved)
+            return true;
 
         // Background Fill Section
         var bgFeature = GetFeatureElementByType(BackgroundFillType);
@@ -366,6 +383,7 @@ public class HealthSliderEditor : UnityEditor.Editor
                 if (GUILayout.Button("Yes", GUILayout.Width(60)))
                 {
                     ConfirmRemoveFeature(BackgroundFillType);
+                    featureRemoved = true;
                 }
             }
             else
@@ -376,7 +394,7 @@ public class HealthSliderEditor : UnityEditor.Editor
                 }
             }
             EditorGUILayout.EndHorizontal();
-            if (showBackgroundFill)
+            if (showBackgroundFill && !featureRemoved)
             {
                 EditorGUI.indentLevel++;
                 var backgroundFillProp = bgFeature.FindPropertyRelative("backgroundFill");
@@ -400,6 +418,9 @@ public class HealthSliderEditor : UnityEditor.Editor
             }
         }
 
+        if (featureRemoved)
+            return true;
+
         // Flashing Section
         var flashingFeature = GetFeatureElementByType(FlashingType);
         if (flashingFeature != null)
@@ -417,6 +438,7 @@ public class HealthSliderEditor : UnityEditor.Editor
                 if (GUILayout.Button("Yes", GUILayout.Width(60)))
                 {
                     ConfirmRemoveFeature(FlashingType);
+                    featureRemoved = true;
                 }
             }
             else
@@ -427,7 +449,7 @@ public class HealthSliderEditor : UnityEditor.Editor
                 }
             }
             EditorGUILayout.EndHorizontal();
-            if (showFlashing)
+            if (showFlashing && !featureRemoved)
             {
                 EditorGUI.indentLevel++;
                 var thresholdPercentProp = flashingFeature.FindPropertyRelative("thresholdPercent");
@@ -447,6 +469,8 @@ public class HealthSliderEditor : UnityEditor.Editor
                 EditorGUILayout.Space();
             }
         }
+
+        return featureRemoved;
     }
 }
 
