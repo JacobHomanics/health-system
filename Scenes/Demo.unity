@@ -372,6 +372,58 @@ PrefabInstance:
       propertyPath: health
       value: 
       objectReference: {fileID: 527058328}
+    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
+      propertyPath: featureToggles.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
+      propertyPath: 'featureToggles.Array.data[3]'
+      value: 4860107597806043387
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
+      propertyPath: 'managedReferences[4860107597806043387]'
+      value: health FlashingFeature
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
+      propertyPath: managedReferences[4860107597806043387].flashSpeed
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
+      propertyPath: managedReferences[4860107597806043387].flashColor1.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
+      propertyPath: managedReferences[4860107597806043387].flashColor1.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
+      propertyPath: managedReferences[4860107597806043387].flashColor1.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
+      propertyPath: managedReferences[4860107597806043387].flashColor1.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
+      propertyPath: managedReferences[4860107597806043387].flashColor2.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
+      propertyPath: managedReferences[4860107597806043387].flashColor2.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
+      propertyPath: managedReferences[4860107597806043387].flashColor2.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
+      propertyPath: managedReferences[4860107597806043387].flashColor2.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8120290067654841128, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
+      propertyPath: managedReferences[4860107597806043387].thresholdPercent
+      value: 0.2
+      objectReference: {fileID: 0}
     - target: {fileID: 8816885714237116387, guid: 2cd46b906430a4cfc947fdefadc36625, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

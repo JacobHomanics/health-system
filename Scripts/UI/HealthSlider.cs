@@ -38,6 +38,15 @@ public class BackgroundFillFeature : FeatureToggle
 
 }
 
+[System.Serializable]
+public class FlashingFeature : FeatureToggle
+{
+    public float thresholdPercent = 0.2f;
+    public Color flashColor1 = Color.red;
+    public Color flashColor2 = Color.white;
+    public float flashSpeed = 15f;
+}
+
 public class HealthSlider : MonoBehaviour
 {
     [SerializeField] private Health health;
@@ -78,6 +87,8 @@ public class HealthSlider : MonoBehaviour
         TextFeatureCommand();
 
         ColorGradientFeatureCommand();
+
+        FlashingFeatureCommand();
     }
 
     private void TextFeatureCommand()
@@ -97,6 +108,15 @@ public class HealthSlider : MonoBehaviour
 
         // Color gradient: green (high) -> yellow (mid) -> red (low)
         var colorFeature = GetFeature<ColorGradientFeature>();
+        var flashingFeature = GetFeature<FlashingFeature>();
+
+        // If flashing feature is active and health is below threshold, let flashing handle the color
+        if (flashingFeature != null && healthPercent < flashingFeature.thresholdPercent)
+        {
+            // Flashing feature will handle the color
+            return;
+        }
+
         if (colorFeature != null)
         {
             Color healthColor;
@@ -114,6 +134,21 @@ public class HealthSlider : MonoBehaviour
             }
 
             slider.fillRect.GetComponent<Image>().color = healthColor;
+        }
+    }
+
+    private void FlashingFeatureCommand()
+    {
+        float healthPercent = Slider.maxValue > 0 ? Slider.value / Slider.maxValue : 0;
+        healthPercent = Mathf.Clamp01(healthPercent);
+
+        var flashingFeature = GetFeature<FlashingFeature>();
+        if (flashingFeature != null && healthPercent < flashingFeature.thresholdPercent)
+        {
+            // Calculate flashing based on time
+            float flashValue = Mathf.Sin(Time.time * flashingFeature.flashSpeed) * 0.5f + 0.5f;
+            Color flashColor = Color.Lerp(flashingFeature.flashColor1, flashingFeature.flashColor2, flashValue);
+            slider.fillRect.GetComponent<Image>().color = flashColor;
         }
     }
 

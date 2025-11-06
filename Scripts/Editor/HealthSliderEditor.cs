@@ -30,13 +30,15 @@ public class HealthSliderEditor : UnityEditor.Editor
     private const string TextDisplayType = "TextDisplayFeature";
     private const string ColorGradientType = "ColorGradientFeature";
     private const string BackgroundFillType = "BackgroundFillFeature";
+    private const string FlashingType = "FlashingFeature";
 
     // Available features mapping
     private static readonly System.Collections.Generic.Dictionary<string, string> AvailableFeatures = new System.Collections.Generic.Dictionary<string, string>
     {
         { "Text Display", TextDisplayType },
         { "Color Gradient", ColorGradientType },
-        { "Background Fill", BackgroundFillType }
+        { "Background Fill", BackgroundFillType },
+        { "Flashing", FlashingType }
     };
 
     // Foldout states
@@ -44,6 +46,7 @@ public class HealthSliderEditor : UnityEditor.Editor
     private bool showTextDisplay = true;
     private bool showColorGradient = true;
     private bool showBackgroundFill = true;
+    private bool showFlashing = true;
 
     // Confirmation state - tracks which feature type is waiting for confirmation
     private string featureTypeAwaitingConfirmation = null;
@@ -174,6 +177,10 @@ public class HealthSliderEditor : UnityEditor.Editor
         {
             return new BackgroundFillFeature();
         }
+        else if (featureType == FlashingType)
+        {
+            return new FlashingFeature();
+        }
         return null;
     }
 
@@ -198,6 +205,10 @@ public class HealthSliderEditor : UnityEditor.Editor
         else if (element.FindPropertyRelative("backgroundFill") != null)
         {
             return BackgroundFillType;
+        }
+        else if (element.FindPropertyRelative("thresholdPercent") != null)
+        {
+            return FlashingType;
         }
         return null;
     }
@@ -384,6 +395,54 @@ public class HealthSliderEditor : UnityEditor.Editor
                     EditorGUILayout.PropertyField(speedCurveProp, new GUIContent("Speed Curve"));
                 if (delayProp != null)
                     EditorGUILayout.PropertyField(delayProp, new GUIContent("Delay"));
+                EditorGUI.indentLevel--;
+                EditorGUILayout.Space();
+            }
+        }
+
+        // Flashing Section
+        var flashingFeature = GetFeatureElementByType(FlashingType);
+        if (flashingFeature != null)
+        {
+            EditorGUILayout.BeginHorizontal();
+            showFlashing = EditorGUILayout.Foldout(showFlashing, "Flashing", true);
+
+            if (featureTypeAwaitingConfirmation == FlashingType)
+            {
+                EditorGUILayout.LabelField("Are you sure?", GUILayout.Width(100));
+                if (GUILayout.Button("No", GUILayout.Width(60)))
+                {
+                    CancelRemoveFeature();
+                }
+                if (GUILayout.Button("Yes", GUILayout.Width(60)))
+                {
+                    ConfirmRemoveFeature(FlashingType);
+                }
+            }
+            else
+            {
+                if (GUILayout.Button("Remove", GUILayout.Width(60)))
+                {
+                    RequestRemoveFeature(FlashingType);
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+            if (showFlashing)
+            {
+                EditorGUI.indentLevel++;
+                var thresholdPercentProp = flashingFeature.FindPropertyRelative("thresholdPercent");
+                var flashColor1Prop = flashingFeature.FindPropertyRelative("flashColor1");
+                var flashColor2Prop = flashingFeature.FindPropertyRelative("flashColor2");
+                var flashSpeedProp = flashingFeature.FindPropertyRelative("flashSpeed");
+
+                if (thresholdPercentProp != null)
+                    EditorGUILayout.PropertyField(thresholdPercentProp, new GUIContent("Threshold Percent"));
+                if (flashColor1Prop != null)
+                    EditorGUILayout.PropertyField(flashColor1Prop, new GUIContent("Flash Color 1"));
+                if (flashColor2Prop != null)
+                    EditorGUILayout.PropertyField(flashColor2Prop, new GUIContent("Flash Color 2"));
+                if (flashSpeedProp != null)
+                    EditorGUILayout.PropertyField(flashSpeedProp, new GUIContent("Flash Speed"));
                 EditorGUI.indentLevel--;
                 EditorGUILayout.Space();
             }
