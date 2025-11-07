@@ -185,11 +185,17 @@ public class HealthSliderEditor : UnityEditor.Editor
                 }
                 else if (featureType == FlashingType)
                 {
+                    var flashImageProp = element.FindPropertyRelative("flashImage");
                     var thresholdPercentProp = element.FindPropertyRelative("thresholdPercent");
                     var flashColor1Prop = element.FindPropertyRelative("flashColor1");
                     var flashColor2Prop = element.FindPropertyRelative("flashColor2");
                     var flashSpeedProp = element.FindPropertyRelative("flashSpeed");
 
+                    if (flashImageProp != null)
+                    {
+                        EditorGUI.PropertyField(new Rect(foldoutX + indentOffset, propertyY, foldoutWidth - indentOffset, EditorGUIUtility.singleLineHeight), flashImageProp, new GUIContent("Flash Image"));
+                        propertyY += EditorGUIUtility.singleLineHeight + 2;
+                    }
                     if (thresholdPercentProp != null)
                     {
                         EditorGUI.PropertyField(new Rect(foldoutX + indentOffset, propertyY, foldoutWidth - indentOffset, EditorGUIUtility.singleLineHeight), thresholdPercentProp, new GUIContent("Threshold Percent"));

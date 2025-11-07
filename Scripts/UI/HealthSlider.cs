@@ -47,6 +47,7 @@ public class BackgroundFillFeature : FeatureToggle
 [System.Serializable]
 public class FlashingFeature : FeatureToggle
 {
+    public Image flashImage;
     public float thresholdPercent = 0.2f;
     public Color flashColor1 = Color.red;
     public Color flashColor2 = Color.white;
@@ -116,12 +117,14 @@ public class HealthSlider : MonoBehaviour
         healthPercent = Mathf.Clamp01(healthPercent);
 
         var flashingFeature = GetFeature<FlashingFeature>();
+        flashingFeature.flashImage.gameObject.SetActive(healthPercent < flashingFeature.thresholdPercent);
         if (flashingFeature != null && healthPercent < flashingFeature.thresholdPercent)
         {
             // Calculate flashing based on time
             float flashValue = Mathf.Sin(Time.time * flashingFeature.flashSpeed) * 0.5f + 0.5f;
             Color flashColor = Color.Lerp(flashingFeature.flashColor1, flashingFeature.flashColor2, flashValue);
-            slider.fillRect.GetComponent<Image>().color = flashColor;
+            flashingFeature.flashImage.color = flashColor;
+            flashingFeature.flashImage.fillAmount = healthPercent;
         }
     }
 
