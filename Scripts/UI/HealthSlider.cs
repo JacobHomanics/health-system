@@ -93,45 +93,41 @@ public class HealthSlider : MonoBehaviour
 
         TextFeatureCommand();
 
-        ColorGradientFeatureCommand();
+        ColorGradientFeatureCommand(GetFeature<ColorGradientFeature>(), Slider.fillRect.GetComponent<Image>(), CurrentNum, MaxNum);
 
-        FlashingFeatureCommand();
+        FlashingFeatureCommand(GetFeature<FlashingFeature>(), CurrentNum, MaxNum);
 
-        UpdateBackgroundFillAnimation();
+        UpdateBackgroundFillAnimation(GetFeature<BackgroundFillFeature>(), MaxNum);
     }
 
     // Min/Max Health Feature
     private void TextFeatureCommand()
     {
         var textFeature = GetFeature<TextDisplayFeature>();
-        if (textFeature != null && textFeature.textCurrent != null && textFeature.textMax != null)
-        {
-            Display(textFeature.textCurrent);
-            Display(textFeature.textMax);
-        }
+        Display(textFeature.textCurrent, CurrentNum, MaxNum);
+        Display(textFeature.textMax, CurrentNum, MaxNum);
     }
 
-    private void Display(HealthImage.TextDisplayFeature2 textDisplayFeature)
+    public static void Display(HealthImage.TextDisplayFeature2 textDisplayFeature, float current, float max)
     {
         if (textDisplayFeature.displayType == HealthImage.TextDisplayFeature2.DisplayType.Current)
-            Display(textDisplayFeature.text, CurrentNum, textDisplayFeature.format);
+            Display(textDisplayFeature.text, current, textDisplayFeature.format);
         if (textDisplayFeature.displayType == HealthImage.TextDisplayFeature2.DisplayType.Max)
-            Display(textDisplayFeature.text, MaxNum, textDisplayFeature.format);
+            Display(textDisplayFeature.text, max, textDisplayFeature.format);
 
     }
 
-    private void Display(TMP_Text text, float num, string format)
+    public static void Display(TMP_Text text, float num, string format)
     {
         text.text = num.ToString(format);
     }
 
     // Flashing Fill Rect Feature
-    private void FlashingFeatureCommand()
+    public static void FlashingFeatureCommand(FlashingFeature flashingFeature, float current, float max)
     {
-        float healthPercent = Slider.maxValue > 0 ? Slider.value / Slider.maxValue : 0;
+        float healthPercent = current / max;
         healthPercent = Mathf.Clamp01(healthPercent);
 
-        var flashingFeature = GetFeature<FlashingFeature>();
         flashingFeature.flashImage.gameObject.SetActive(healthPercent < flashingFeature.thresholdPercent);
         if (flashingFeature != null && healthPercent < flashingFeature.thresholdPercent)
         {
@@ -158,21 +154,10 @@ public class HealthSlider : MonoBehaviour
         slider.onValueChanged.RemoveListener(OnValueChangedInternal);
     }
 
-    private void ColorGradientFeatureCommand()
+    public static void ColorGradientFeatureCommand(ColorGradientFeature colorFeature, Image image, float current, float max)
     {
-        float healthPercent = Slider.maxValue > 0 ? Slider.value / Slider.maxValue : 0;
+        float healthPercent = current / max;
         healthPercent = Mathf.Clamp01(healthPercent);
-
-        // Color gradient: green (high) -> yellow (mid) -> red (low)
-        var colorFeature = GetFeature<ColorGradientFeature>();
-        var flashingFeature = GetFeature<FlashingFeature>();
-
-        // If flashing feature is active and health is below threshold, let flashing handle the color
-        if (flashingFeature != null && healthPercent < flashingFeature.thresholdPercent)
-        {
-            // Flashing feature will handle the color
-            return;
-        }
 
         if (colorFeature != null)
         {
@@ -190,7 +175,7 @@ public class HealthSlider : MonoBehaviour
                 healthColor = Color.Lerp(colorFeature.colorAtMin, colorFeature.colorAtHalfway, t);
             }
 
-            slider.fillRect.GetComponent<Image>().color = healthColor;
+            image.color = healthColor;
         }
     }
 
@@ -208,13 +193,13 @@ public class HealthSlider : MonoBehaviour
         if (bgFeature.keepSizeConsistent)
         {
             // Use current background fill position (continues from where it is)
-            startValue = GetBackgroundFillValue();
+            startValue = GetBackgroundFillValue(bgFeature, MaxNum);
         }
         else
         {
             // Reset to previous value (starts from previous slider value)
             startValue = previousValue;
-            SetBackgroundFillAmount(previousValue);
+            SetBackgroundFillAmount(bgFeature, previousValue, MaxNum);
         }
 
         // If new value is greater than start position, immediately snap to it
@@ -223,24 +208,24 @@ public class HealthSlider : MonoBehaviour
             // Stop any ongoing animation
             bgFeature.isAnimating = false;
             // Immediately set to new value
-            SetBackgroundFillAmount(newValue);
+            SetBackgroundFillAmount(bgFeature, newValue, MaxNum);
         }
         else
         {
             // HP goes down or stays same - animate from start position
             // Set up animation state
-            StartBackgroundFillAnimation(startValue, newValue, bgFeature);
+            StartBackgroundFillAnimation(startValue, newValue, bgFeature, MaxNum);
         }
 
         previousValue = newValue;
     }
 
-    private void StartBackgroundFillAnimation(float fromValue, float toValue, BackgroundFillFeature bgFeature)
+    private static void StartBackgroundFillAnimation(float fromValue, float toValue, BackgroundFillFeature bgFeature, float max)
     {
         float valueDifference = Mathf.Abs(fromValue - toValue);
         if (valueDifference < 0.001f)
         {
-            SetBackgroundFillAmount(toValue);
+            SetBackgroundFillAmount(bgFeature, toValue, max);
             bgFeature.isAnimating = false;
             return;
         }
@@ -253,17 +238,14 @@ public class HealthSlider : MonoBehaviour
         bgFeature.animationDelayRemaining = bgFeature.delay;
 
         // Calculate dynamic animation speed based on difference
-        float normalizedDifference = slider.maxValue > 0 ? valueDifference / slider.maxValue : 0;
+        float normalizedDifference = valueDifference / max;
         float speedMultiplier = bgFeature.speedCurve.Evaluate(normalizedDifference);
         float dynamicSpeed = bgFeature.animationSpeed * speedMultiplier;
         bgFeature.animationDuration = valueDifference / dynamicSpeed;
     }
 
-    private void UpdateBackgroundFillAnimation()
+    public static void UpdateBackgroundFillAnimation(BackgroundFillFeature bgFeature, float max)
     {
-        var bgFeature = GetFeature<BackgroundFillFeature>();
-
-
         if (!bgFeature.isAnimating)
             return;
 
@@ -278,32 +260,26 @@ public class HealthSlider : MonoBehaviour
         bgFeature.animationElapsed += Time.deltaTime;
         float t = Mathf.Clamp01(bgFeature.animationElapsed / bgFeature.animationDuration);
         float currentValue = Mathf.Lerp(bgFeature.animationFromValue, bgFeature.animationToValue, t);
-        SetBackgroundFillAmount(currentValue);
+        SetBackgroundFillAmount(bgFeature, currentValue, max);
 
         // Check if animation is complete
         if (bgFeature.animationElapsed >= bgFeature.animationDuration)
         {
-            SetBackgroundFillAmount(bgFeature.animationToValue);
+            SetBackgroundFillAmount(bgFeature, bgFeature.animationToValue, max);
             bgFeature.isAnimating = false;
         }
     }
 
-    private void SetBackgroundFillAmount(float amount)
+    private static void SetBackgroundFillAmount(BackgroundFillFeature bgFeature, float amount, float max)
     {
-        var bgFeature = GetFeature<BackgroundFillFeature>();
         if (bgFeature != null && bgFeature.backgroundFill != null)
         {
-            bgFeature.backgroundFill.fillAmount = amount / slider.maxValue;
+            bgFeature.backgroundFill.fillAmount = amount / max;
         }
     }
 
-    private float GetBackgroundFillValue()
+    private static float GetBackgroundFillValue(BackgroundFillFeature bgFeature, float max)
     {
-        var bgFeature = GetFeature<BackgroundFillFeature>();
-        if (bgFeature != null && bgFeature.backgroundFill != null)
-        {
-            return bgFeature.backgroundFill.fillAmount * slider.maxValue;
-        }
-        return 0;
+        return bgFeature.backgroundFill.fillAmount * max;
     }
 }

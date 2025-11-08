@@ -65,56 +65,54 @@ public class HealthImage : MonoBehaviour
     {
         image.fillAmount = CurrentNum / MaxNum;
 
-        TextFeatureCommand();
+        HealthSlider.Display(GetFeature<TextDisplayFeature2>(), CurrentNum, MaxNum);
 
-        ColorGradientFeatureCommand();
+        HealthSlider.ColorGradientFeatureCommand(GetFeature<ColorGradientFeature>(), image, CurrentNum, MaxNum);
 
-        FlashingFeatureCommand();
+        // ColorGradientFeatureCommand();
 
-        UpdateBackgroundFillAnimation();
+        HealthSlider.FlashingFeatureCommand(GetFeature<FlashingFeature>(), CurrentNum, MaxNum);
+
+        HealthSlider.UpdateBackgroundFillAnimation(GetFeature<BackgroundFillFeature>(), MaxNum);
+
+
+        // UpdateBackgroundFillAnimation();
     }
 
     // Min/Max Health Feature
-    private void TextFeatureCommand()
-    {
-        var textFeature = GetFeature<TextDisplayFeature2>();
-        if (textFeature != null && textFeature.text)
-        {
-            Display(textFeature);
-        }
-    }
 
-    private void Display(TextDisplayFeature2 textDisplayFeature)
-    {
-        if (textDisplayFeature.displayType == TextDisplayFeature2.DisplayType.Current)
-            Display(textDisplayFeature.text, CurrentNum, textDisplayFeature.format);
-        if (textDisplayFeature.displayType == TextDisplayFeature2.DisplayType.Max)
-            Display(textDisplayFeature.text, MaxNum, textDisplayFeature.format);
 
-    }
+    // private void Display(TextDisplayFeature2 textDisplayFeature)
+    // {
+    //     if (textDisplayFeature.displayType == TextDisplayFeature2.DisplayType.Current)
+    //         Display(textDisplayFeature.text, CurrentNum, textDisplayFeature.format);
+    //     if (textDisplayFeature.displayType == TextDisplayFeature2.DisplayType.Max)
+    //         Display(textDisplayFeature.text, MaxNum, textDisplayFeature.format);
 
-    private void Display(TMP_Text text, float num, string format)
-    {
-        text.text = num.ToString(format);
-    }
+    // }
+
+    // private void Display(TMP_Text text, float num, string format)
+    // {
+    //     text.text = num.ToString(format);
+    // }
 
     // Flashing Fill Rect Feature
-    private void FlashingFeatureCommand()
-    {
-        float healthPercent = 1 > 0 ? Image.fillAmount / 1 : 0;
-        healthPercent = Mathf.Clamp01(healthPercent);
+    // private void FlashingFeatureCommand()
+    // {
+    //     float healthPercent = 1 > 0 ? Image.fillAmount / 1 : 0;
+    //     healthPercent = Mathf.Clamp01(healthPercent);
 
-        var flashingFeature = GetFeature<FlashingFeature>();
-        flashingFeature.flashImage.gameObject.SetActive(healthPercent < flashingFeature.thresholdPercent);
-        if (flashingFeature != null && healthPercent < flashingFeature.thresholdPercent)
-        {
-            // Calculate flashing based on time
-            float flashValue = Mathf.Sin(Time.time * flashingFeature.flashSpeed) * 0.5f + 0.5f;
-            Color flashColor = Color.Lerp(flashingFeature.flashColor1, flashingFeature.flashColor2, flashValue);
-            flashingFeature.flashImage.color = flashColor;
-            flashingFeature.flashImage.fillAmount = healthPercent;
-        }
-    }
+    //     var flashingFeature = GetFeature<FlashingFeature>();
+    //     flashingFeature.flashImage.gameObject.SetActive(healthPercent < flashingFeature.thresholdPercent);
+    //     if (flashingFeature != null && healthPercent < flashingFeature.thresholdPercent)
+    //     {
+    //         // Calculate flashing based on time
+    //         float flashValue = Mathf.Sin(Time.time * flashingFeature.flashSpeed) * 0.5f + 0.5f;
+    //         Color flashColor = Color.Lerp(flashingFeature.flashColor1, flashingFeature.flashColor2, flashValue);
+    //         flashingFeature.flashImage.color = flashColor;
+    //         flashingFeature.flashImage.fillAmount = healthPercent;
+    //     }
+    // }
 
 
     // Color Gradient Health Feature
@@ -131,41 +129,41 @@ public class HealthImage : MonoBehaviour
         health.onCurrentChange.RemoveListener(OnValueChangedInternal);
     }
 
-    private void ColorGradientFeatureCommand()
-    {
-        float healthPercent = 1 > 0 ? Image.fillAmount / 1 : 0;
-        healthPercent = Mathf.Clamp01(healthPercent);
+    // private void ColorGradientFeatureCommand()
+    // {
+    //     float healthPercent = 1 > 0 ? Image.fillAmount / 1 : 0;
+    //     healthPercent = Mathf.Clamp01(healthPercent);
 
-        // Color gradient: green (high) -> yellow (mid) -> red (low)
-        var colorFeature = GetFeature<ColorGradientFeature>();
-        var flashingFeature = GetFeature<FlashingFeature>();
+    //     // Color gradient: green (high) -> yellow (mid) -> red (low)
+    //     var colorFeature = GetFeature<ColorGradientFeature>();
+    //     var flashingFeature = GetFeature<FlashingFeature>();
 
-        // If flashing feature is active and health is below threshold, let flashing handle the color
-        if (flashingFeature != null && healthPercent < flashingFeature.thresholdPercent)
-        {
-            // Flashing feature will handle the color
-            return;
-        }
+    //     // If flashing feature is active and health is below threshold, let flashing handle the color
+    //     if (flashingFeature != null && healthPercent < flashingFeature.thresholdPercent)
+    //     {
+    //         // Flashing feature will handle the color
+    //         return;
+    //     }
 
-        if (colorFeature != null)
-        {
-            Color healthColor;
-            if (healthPercent > 0.5f)
-            {
-                // Green to yellow
-                float t = (healthPercent - 0.5f) * 2f;
-                healthColor = Color.Lerp(colorFeature.colorAtHalfway, colorFeature.colorAtMax, t);
-            }
-            else
-            {
-                // Yellow to red
-                float t = healthPercent * 2f;
-                healthColor = Color.Lerp(colorFeature.colorAtMin, colorFeature.colorAtHalfway, t);
-            }
+    //     if (colorFeature != null)
+    //     {
+    //         Color healthColor;
+    //         if (healthPercent > 0.5f)
+    //         {
+    //             // Green to yellow
+    //             float t = (healthPercent - 0.5f) * 2f;
+    //             healthColor = Color.Lerp(colorFeature.colorAtHalfway, colorFeature.colorAtMax, t);
+    //         }
+    //         else
+    //         {
+    //             // Yellow to red
+    //             float t = healthPercent * 2f;
+    //             healthColor = Color.Lerp(colorFeature.colorAtMin, colorFeature.colorAtHalfway, t);
+    //         }
 
-            image.color = healthColor;
-        }
-    }
+    //         image.color = healthColor;
+    //     }
+    // }
 
     private void OnValueChangedInternal()
     {
