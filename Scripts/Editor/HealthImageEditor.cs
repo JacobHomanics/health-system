@@ -3,19 +3,19 @@ using UnityEditor;
 using UnityEditorInternal;
 using TMPro;
 
-[CustomEditor(typeof(HealthSlider))]
+[CustomEditor(typeof(HealthImage))]
 [CanEditMultipleObjects]
-public class HealthSliderEditor : UnityEditor.Editor
+public class HealthImageEditor : UnityEditor.Editor
 {
-    private HealthSlider healthSlider;
+    private HealthImage healthImage;
 
     // Serialized Properties
     private SerializedProperty healthProp;
-    private SerializedProperty sliderProp;
+    private SerializedProperty imageProp;
     private SerializedProperty featureTogglesProp;
 
     // Feature type identifiers
-    private const string TextDisplayType = "TextDisplayFeature";
+    private const string TextDisplayType = "HealthImage+TextDisplayFeature2";
     private const string ColorGradientType = "ColorGradientFeature";
     private const string BackgroundFillType = "BackgroundFillFeature";
     private const string FlashingType = "FlashingFeature";
@@ -38,11 +38,11 @@ public class HealthSliderEditor : UnityEditor.Editor
 
     private void OnEnable()
     {
-        healthSlider = (HealthSlider)target;
+        healthImage = (HealthImage)target;
 
         // Find all serialized properties
         healthProp = serializedObject.FindProperty("health");
-        sliderProp = serializedObject.FindProperty("slider");
+        imageProp = serializedObject.FindProperty("image");
         featureTogglesProp = serializedObject.FindProperty("featureToggles");
 
         // Setup ReorderableList for features
@@ -56,6 +56,15 @@ public class HealthSliderEditor : UnityEditor.Editor
             var element = featureTogglesProp.GetArrayElementAtIndex(index);
             string featureType = GetFeatureType(element);
             string displayName = GetFeatureDisplayName(featureType);
+
+            // Check if managed reference is broken
+            bool isBroken = string.IsNullOrEmpty(element.managedReferenceFullTypename) ||
+                           (element.managedReferenceValue == null && !string.IsNullOrEmpty(element.managedReferenceFullTypename));
+
+            if (isBroken && string.IsNullOrEmpty(featureType))
+            {
+                displayName = "Missing Type (Click to Fix)";
+            }
 
             // Get or create foldout state
             if (!featureFoldoutStates.ContainsKey(index))
@@ -87,25 +96,40 @@ public class HealthSliderEditor : UnityEditor.Editor
                 float propertyY = yPos;
                 float indentOffset = 15f; // Indent for properties under foldout
 
-                if (featureType == TextDisplayType)
+                // Show fix button for broken references
+                if (isBroken && string.IsNullOrEmpty(featureType))
                 {
-                    var textCurrentProp = element.FindPropertyRelative("textCurrent");
-                    var textMaxProp = element.FindPropertyRelative("textMax");
+                    EditorGUI.HelpBox(new Rect(foldoutX + indentOffset, propertyY, foldoutWidth - indentOffset, EditorGUIUtility.singleLineHeight * 2),
+                        "This feature references a missing type. Click 'Fix' to recreate it.", MessageType.Warning);
+                    propertyY += EditorGUIUtility.singleLineHeight * 2 + 2;
 
-                    // Current Text Display Feature
-                    if (textCurrentProp != null)
+                    if (GUI.Button(new Rect(foldoutX + indentOffset, propertyY, foldoutWidth - indentOffset, EditorGUIUtility.singleLineHeight), "Fix (Recreate as Text Display)"))
                     {
-                        float currentHeight = EditorGUI.GetPropertyHeight(textCurrentProp, true);
-                        EditorGUI.PropertyField(new Rect(foldoutX + indentOffset, propertyY, foldoutWidth - indentOffset, currentHeight), textCurrentProp, new GUIContent("Current Text"), true);
-                        propertyY += currentHeight + 2;
+                        element.managedReferenceValue = new HealthImage.TextDisplayFeature2();
+                        serializedObject.ApplyModifiedProperties();
+                        return;
                     }
-
-                    // Max Text Display Feature
-                    if (textMaxProp != null)
+                    propertyY += EditorGUIUtility.singleLineHeight + 2;
+                }
+                else if (featureType == TextDisplayType)
+                {
+                    var textProp = element.FindPropertyRelative("text");
+                    var displayTypeProp = element.FindPropertyRelative("displayType");
+                    var formatProp = element.FindPropertyRelative("format");
+                    if (textProp != null)
                     {
-                        float maxHeight = EditorGUI.GetPropertyHeight(textMaxProp, true);
-                        EditorGUI.PropertyField(new Rect(foldoutX + indentOffset, propertyY, foldoutWidth - indentOffset, maxHeight), textMaxProp, new GUIContent("Max Text"), true);
-                        propertyY += maxHeight + 2;
+                        EditorGUI.PropertyField(new Rect(foldoutX + indentOffset, propertyY, foldoutWidth - indentOffset, EditorGUIUtility.singleLineHeight), textProp, new GUIContent("Text"));
+                        propertyY += EditorGUIUtility.singleLineHeight + 2;
+                    }
+                    if (displayTypeProp != null)
+                    {
+                        EditorGUI.PropertyField(new Rect(foldoutX + indentOffset, propertyY, foldoutWidth - indentOffset, EditorGUIUtility.singleLineHeight), displayTypeProp, new GUIContent("Display Type"));
+                        propertyY += EditorGUIUtility.singleLineHeight + 2;
+                    }
+                    if (formatProp != null)
+                    {
+                        EditorGUI.PropertyField(new Rect(foldoutX + indentOffset, propertyY, foldoutWidth - indentOffset, EditorGUIUtility.singleLineHeight), formatProp, new GUIContent("Format"));
+                        propertyY += EditorGUIUtility.singleLineHeight + 2;
                     }
                 }
                 else if (featureType == ColorGradientType)
@@ -209,26 +233,18 @@ public class HealthSliderEditor : UnityEditor.Editor
             var element = featureTogglesProp.GetArrayElementAtIndex(index);
             string featureType = GetFeatureType(element);
 
-            // For TextDisplayFeature, calculate height based on nested properties
-            if (featureType == TextDisplayType)
+            // Check if managed reference is broken
+            bool isBroken = string.IsNullOrEmpty(element.managedReferenceFullTypename) ||
+                           (element.managedReferenceValue == null && !string.IsNullOrEmpty(element.managedReferenceFullTypename));
+
+            if (isBroken && string.IsNullOrEmpty(featureType))
             {
-                float height = EditorGUIUtility.singleLineHeight + 2; // Foldout line
-                var textCurrentProp = element.FindPropertyRelative("textCurrent");
-                var textMaxProp = element.FindPropertyRelative("textMax");
-
-                if (textCurrentProp != null)
-                {
-                    height += EditorGUI.GetPropertyHeight(textCurrentProp, true) + 2;
-                }
-                if (textMaxProp != null)
-                {
-                    height += EditorGUI.GetPropertyHeight(textMaxProp, true) + 2;
-                }
-
-                return height + 4;
+                // Height for broken reference: foldout + help box + button
+                return EditorGUIUtility.singleLineHeight + 2 +
+                       EditorGUIUtility.singleLineHeight * 2 + 2 +
+                       EditorGUIUtility.singleLineHeight + 2 + 4;
             }
 
-            // For other features, use the property count method
             int propertyCount = GetPropertyCount(featureType);
             return (EditorGUIUtility.singleLineHeight + 2) * (1 + propertyCount) + 4;
         };
@@ -285,7 +301,7 @@ public class HealthSliderEditor : UnityEditor.Editor
         serializedObject.Update();
 
         EditorGUILayout.Space();
-        EditorGUILayout.LabelField("Health Slider", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("Health Image", EditorStyles.boldLabel);
         EditorGUILayout.Space();
 
         // References Section
@@ -294,7 +310,7 @@ public class HealthSliderEditor : UnityEditor.Editor
         {
             EditorGUI.indentLevel++;
             EditorGUILayout.PropertyField(healthProp, new GUIContent("Health"));
-            EditorGUILayout.PropertyField(sliderProp, new GUIContent("Slider"));
+            EditorGUILayout.PropertyField(imageProp, new GUIContent("Image"));
             EditorGUI.indentLevel--;
             EditorGUILayout.Space();
         }
@@ -326,9 +342,7 @@ public class HealthSliderEditor : UnityEditor.Editor
     {
         if (featureType == TextDisplayType)
         {
-            // Each text feature (Current and Max) has: 1 label + 3 properties (text, displayType, format)
-            // Total: 2 labels + 6 properties = 8
-            return 8;
+            return 3;
         }
         else if (featureType == ColorGradientType)
         {
@@ -340,7 +354,7 @@ public class HealthSliderEditor : UnityEditor.Editor
         }
         else if (featureType == FlashingType)
         {
-            return 4;
+            return 5;
         }
         return 0;
     }
@@ -394,7 +408,6 @@ public class HealthSliderEditor : UnityEditor.Editor
         var element = featureTogglesProp.GetArrayElementAtIndex(index);
 
         // Set the managed reference type based on feature type
-        string managedReferenceType = GetManagedReferenceType(featureType);
         element.managedReferenceValue = CreateFeatureInstance(featureType);
 
         serializedObject.ApplyModifiedProperties();
@@ -407,7 +420,7 @@ public class HealthSliderEditor : UnityEditor.Editor
     {
         if (featureType == TextDisplayType)
         {
-            return new TextDisplayFeature();
+            return new HealthImage.TextDisplayFeature2();
         }
         else if (featureType == ColorGradientType)
         {
@@ -424,17 +437,34 @@ public class HealthSliderEditor : UnityEditor.Editor
         return null;
     }
 
-    private string GetManagedReferenceType(string featureType)
-    {
-        // Unity uses assembly qualified names for managed references
-        string assemblyName = typeof(FeatureToggle).Assembly.GetName().Name;
-        return $"{featureType}, {assemblyName}";
-    }
-
     private string GetFeatureType(SerializedProperty element)
     {
-        // Check for type-specific properties to determine the feature type
-        if (element.FindPropertyRelative("textCurrent") != null)
+        // First, try to get the managed reference type name directly
+        string managedRefType = element.managedReferenceFullTypename;
+        if (!string.IsNullOrEmpty(managedRefType))
+        {
+            // Unity stores nested types as "Namespace.OuterClass+NestedClass" or "OuterClass+NestedClass"
+            // Check if it matches our known types
+            if (managedRefType.Contains("TextDisplayFeature"))
+            {
+                return TextDisplayType;
+            }
+            else if (managedRefType.Contains("ColorGradientFeature"))
+            {
+                return ColorGradientType;
+            }
+            else if (managedRefType.Contains("BackgroundFillFeature"))
+            {
+                return BackgroundFillType;
+            }
+            else if (managedRefType.Contains("FlashingFeature"))
+            {
+                return FlashingType;
+            }
+        }
+
+        // Fallback: Check for type-specific properties to determine the feature type
+        if (element.FindPropertyRelative("text") != null && element.FindPropertyRelative("displayType") != null)
         {
             return TextDisplayType;
         }
@@ -465,7 +495,5 @@ public class HealthSliderEditor : UnityEditor.Editor
         }
         return null;
     }
-
 }
-
 
