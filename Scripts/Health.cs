@@ -64,31 +64,14 @@ namespace JacobHomanics.HealthSystem
         public UnityEvent onMaxDown;
         public UnityEvent onMaxUp;
 
-        [ContextMenu("-- Current Health --")]
-        private void CurrentHealthHeader() { }
-
-        [ContextMenu("Damage 1")]
-        private void Take1Damage()
+        public void Damage(float amount)
         {
-            Current -= 1;
+            Current -= amount;
         }
 
-        [ContextMenu("Damage 10")]
-        private void Take10Damage()
+        public void Heal(float amount)
         {
-            Current -= 10;
-        }
-
-        [ContextMenu("Heal 1")]
-        private void Heal1()
-        {
-            Current += 1;
-        }
-
-        [ContextMenu("Heal 10")]
-        private void Heal10()
-        {
-            Current += 10;
+            Current += amount;
         }
     }
 
