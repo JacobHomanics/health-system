@@ -34,19 +34,16 @@ public class HealthSlider : MonoBehaviour
 
     private void Awake()
     {
-        previousValue = slider.value;
-        slider.onValueChanged.AddListener(OnValueChangedInternal);
-    }
-
-    private void OnDestroy()
-    {
-        slider.onValueChanged.RemoveListener(OnValueChangedInternal);
+        previousValue = CurrentNum;
     }
 
     void Update()
     {
         Slider.value = CurrentNum;
         Slider.maxValue = MaxNum;
+
+        // Check if value has changed and handle background fill animation
+        HandleValueChange(CurrentNum, UIToolkit.GetFeature<BackgroundFillFeature>(featureToggles));
 
         TextFeatureCommand();
 
@@ -57,13 +54,27 @@ public class HealthSlider : MonoBehaviour
         UIToolkit.UpdateBackgroundFillAnimation(UIToolkit.GetFeature<BackgroundFillFeature>(featureToggles), MaxNum);
     }
 
-    private void OnValueChangedInternal(float newValue)
+    private void HandleValueChange(float newValue, BackgroundFillFeature bgFeature)
     {
-        var bgFeature = UIToolkit.GetFeature<BackgroundFillFeature>(featureToggles);
+        if (Mathf.Abs(newValue - previousValue) < 0.001f)
+            return;
+
         if (bgFeature == null || bgFeature.backgroundFill == null)
         {
             previousValue = newValue;
             return;
+        }
+
+        // Get the current background fill value
+        float currentFillValue = UIToolkit.GetBackgroundFillValue(bgFeature, MaxNum);
+
+        // Check if background fill needs initialization (is at or near 0, indicating uninitialized)
+        // Only initialize if it's truly uninitialized, not just different
+        if (currentFillValue < 0.01f * MaxNum)
+        {
+            // Background fill appears uninitialized, initialize it to previousValue
+            UIToolkit.SetBackgroundFillAmount(bgFeature, previousValue, MaxNum);
+            currentFillValue = previousValue;
         }
 
         // Get the starting value based on whether we want to keep size consistent
@@ -71,7 +82,7 @@ public class HealthSlider : MonoBehaviour
         if (bgFeature.keepSizeConsistent)
         {
             // Use current background fill position (continues from where it is)
-            startValue = UIToolkit.GetBackgroundFillValue(bgFeature, MaxNum);
+            startValue = currentFillValue;
         }
         else
         {
@@ -98,10 +109,6 @@ public class HealthSlider : MonoBehaviour
         previousValue = newValue;
     }
 
-    // Main Health Slider 
-
-
-    // Min/Max Health Feature
     private void TextFeatureCommand()
     {
         var textFeature = UIToolkit.GetFeature<TextDisplayFeature>(featureToggles);
