@@ -1,0 +1,16 @@
+{
+    "name": "health.editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:41b8bc4d3d116438aa8b9d28f0577a27"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
