@@ -32,10 +32,19 @@ public class HealthImage : MonoBehaviour
     public float CurrentNum => Health.Current;
     public float MaxNum => Health.Max;
 
+    private float previousValue;
+
+    private void Awake()
+    {
+        previousValue = CurrentNum;
+    }
+
     // Main Health Slider 
     void Update()
     {
         image.fillAmount = CurrentNum / MaxNum;
+
+        UIToolkit.HandleValueChange(CurrentNum, UIToolkit.GetFeature<BackgroundFillFeature>(featureToggles), ref previousValue, MaxNum);
 
         UIToolkit.Display(UIToolkit.GetFeature<TextDisplayFeature2>(featureToggles), CurrentNum, MaxNum);
 
@@ -46,57 +55,4 @@ public class HealthImage : MonoBehaviour
         UIToolkit.UpdateBackgroundFillAnimation(UIToolkit.GetFeature<BackgroundFillFeature>(featureToggles), MaxNum);
     }
 
-    private float previousValue;
-
-    private void Awake()
-    {
-        previousValue = image.fillAmount;
-        health.onCurrentChange.AddListener(OnValueChangedInternal);
-    }
-
-    private void OnDestroy()
-    {
-        health.onCurrentChange.RemoveListener(OnValueChangedInternal);
-    }
-
-    private void OnValueChangedInternal(float newValue)
-    {
-        var bgFeature = UIToolkit.GetFeature<BackgroundFillFeature>(featureToggles);
-        if (bgFeature == null || bgFeature.backgroundFill == null)
-        {
-            previousValue = newValue;
-            return;
-        }
-
-        // Get the starting value based on whether we want to keep size consistent
-        float startValue;
-        if (bgFeature.keepSizeConsistent)
-        {
-            // Use current background fill position (continues from where it is)
-            startValue = UIToolkit.GetBackgroundFillValue(bgFeature, MaxNum);
-        }
-        else
-        {
-            // Reset to previous value (starts from previous slider value)
-            startValue = previousValue;
-            UIToolkit.SetBackgroundFillAmount(bgFeature, previousValue, MaxNum);
-        }
-
-        // If new value is greater than start position, immediately snap to it
-        if (newValue > startValue)
-        {
-            // Stop any ongoing animation
-            bgFeature.isAnimating = false;
-            // Immediately set to new value
-            UIToolkit.SetBackgroundFillAmount(bgFeature, newValue, MaxNum);
-        }
-        else
-        {
-            // HP goes down or stays same - animate from start position
-            // Set up animation state
-            UIToolkit.StartBackgroundFillAnimation(startValue, newValue, bgFeature, MaxNum);
-        }
-
-        previousValue = newValue;
-    }
 }

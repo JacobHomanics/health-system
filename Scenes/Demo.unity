@@ -854,7 +854,7 @@ MonoBehaviour:
       type: {class: BackgroundFillFeature, ns: , asm: health}
       data:
         backgroundFill: {fileID: 1049135636}
-        keepSizeConsistent: 0
+        keepSizeConsistent: 1
         animationSpeed: 10
         speedCurve:
           serializedVersion: 2
