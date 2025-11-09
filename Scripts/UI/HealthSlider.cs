@@ -24,7 +24,8 @@ public class HealthSlider : MonoBehaviour
     {
         new TextDisplayFeature(),
         new ColorGradientFeature(),
-        new BackgroundFillFeature()
+        new BackgroundFillFeature(),
+        new FlashingFeature()
     };
 
     public float CurrentNum => Health.Current;
