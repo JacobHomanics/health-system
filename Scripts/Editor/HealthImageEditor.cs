@@ -15,7 +15,7 @@ public class HealthImageEditor : UnityEditor.Editor
     private SerializedProperty featureTogglesProp;
 
     // Feature type identifiers
-    private const string TextDisplayType = "HealthImage+TextDisplayFeature2";
+    private const string TextDisplayType = "TextDisplayFeature2";
     private const string ColorGradientType = "ColorGradientFeature";
     private const string BackgroundFillType = "BackgroundFillFeature";
     private const string FlashingType = "FlashingFeature";
@@ -105,7 +105,7 @@ public class HealthImageEditor : UnityEditor.Editor
 
                     if (GUI.Button(new Rect(foldoutX + indentOffset, propertyY, foldoutWidth - indentOffset, EditorGUIUtility.singleLineHeight), "Fix (Recreate as Text Display)"))
                     {
-                        element.managedReferenceValue = new HealthImage.TextDisplayFeature2();
+                        element.managedReferenceValue = new TextDisplayFeature2();
                         serializedObject.ApplyModifiedProperties();
                         return;
                     }
@@ -420,7 +420,7 @@ public class HealthImageEditor : UnityEditor.Editor
     {
         if (featureType == TextDisplayType)
         {
-            return new HealthImage.TextDisplayFeature2();
+            return new TextDisplayFeature2();
         }
         else if (featureType == ColorGradientType)
         {

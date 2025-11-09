@@ -837,7 +837,7 @@ MonoBehaviour:
   health: {fileID: 527058328}
   image: {fileID: 19022771}
   featureToggles:
-  - rid: 4860107675376812413
+  - rid: 4860107675376812414
   - rid: 4860107675376812400
   - rid: 4860107675376812401
   - rid: 4860107675376812402
@@ -895,8 +895,8 @@ MonoBehaviour:
         flashColor1: {r: 1, g: 0, b: 0, a: 1}
         flashColor2: {r: 1, g: 1, b: 1, a: 1}
         flashSpeed: 15
-    - rid: 4860107675376812413
-      type: {class: HealthImage/TextDisplayFeature2, ns: , asm: health}
+    - rid: 4860107675376812414
+      type: {class: TextDisplayFeature2, ns: , asm: health}
       data:
         text: {fileID: 427422025}
         displayType: 0

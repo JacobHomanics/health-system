@@ -340,7 +340,7 @@ public class HealthSliderEditor : UnityEditor.Editor
         }
         else if (featureType == FlashingType)
         {
-            return 4;
+            return 5;
         }
         return 0;
     }
