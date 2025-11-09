@@ -92,6 +92,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8283975149473841762, guid: 927e93f88347c4d439235fe9c6562c4a, type: 3}
+      propertyPath: leftProperties.clampAtMax
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8283975149473841762, guid: 927e93f88347c4d439235fe9c6562c4a, type: 3}
+      propertyPath: leftProperties.clampAtZero
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8283975149473841762, guid: 927e93f88347c4d439235fe9c6562c4a, type: 3}
+      propertyPath: rightProperties.clampAtMax
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8283975149473841762, guid: 927e93f88347c4d439235fe9c6562c4a, type: 3}
+      propertyPath: rightProperties.clampAtZero
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8569788577226618911, guid: 927e93f88347c4d439235fe9c6562c4a, type: 3}
       propertyPath: m_Name
       value: Slider (Health) Variant
