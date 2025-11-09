@@ -43,7 +43,7 @@ public class HealthSlider : MonoBehaviour
         Slider.maxValue = MaxNum;
 
         // Check if value has changed and handle background fill animation
-        HandleValueChange(CurrentNum, UIToolkit.GetFeature<BackgroundFillFeature>(featureToggles));
+        HandleValueChange(CurrentNum, UIToolkit.GetFeature<BackgroundFillFeature>(featureToggles), ref previousValue, MaxNum);
 
         TextFeatureCommand();
 
@@ -54,7 +54,7 @@ public class HealthSlider : MonoBehaviour
         UIToolkit.UpdateBackgroundFillAnimation(UIToolkit.GetFeature<BackgroundFillFeature>(featureToggles), MaxNum);
     }
 
-    private void HandleValueChange(float newValue, BackgroundFillFeature bgFeature)
+    public static void HandleValueChange(float newValue, BackgroundFillFeature bgFeature, ref float previousValue, float max)
     {
         if (Mathf.Abs(newValue - previousValue) < 0.001f)
             return;
@@ -66,14 +66,14 @@ public class HealthSlider : MonoBehaviour
         }
 
         // Get the current background fill value
-        float currentFillValue = UIToolkit.GetBackgroundFillValue(bgFeature, MaxNum);
+        float currentFillValue = UIToolkit.GetBackgroundFillValue(bgFeature, max);
 
         // Check if background fill needs initialization (is at or near 0, indicating uninitialized)
         // Only initialize if it's truly uninitialized, not just different
-        if (currentFillValue < 0.01f * MaxNum)
+        if (currentFillValue < 0.01f * max)
         {
             // Background fill appears uninitialized, initialize it to previousValue
-            UIToolkit.SetBackgroundFillAmount(bgFeature, previousValue, MaxNum);
+            UIToolkit.SetBackgroundFillAmount(bgFeature, previousValue, max);
             currentFillValue = previousValue;
         }
 
@@ -88,7 +88,7 @@ public class HealthSlider : MonoBehaviour
         {
             // Reset to previous value (starts from previous slider value)
             startValue = previousValue;
-            UIToolkit.SetBackgroundFillAmount(bgFeature, previousValue, MaxNum);
+            UIToolkit.SetBackgroundFillAmount(bgFeature, previousValue, max);
         }
 
         // If new value is greater than start position, immediately snap to it
@@ -97,13 +97,13 @@ public class HealthSlider : MonoBehaviour
             // Stop any ongoing animation
             bgFeature.isAnimating = false;
             // Immediately set to new value
-            UIToolkit.SetBackgroundFillAmount(bgFeature, newValue, MaxNum);
+            UIToolkit.SetBackgroundFillAmount(bgFeature, newValue, max);
         }
         else
         {
             // HP goes down or stays same - animate from start position
             // Set up animation state
-            UIToolkit.StartBackgroundFillAnimation(startValue, newValue, bgFeature, MaxNum);
+            UIToolkit.StartBackgroundFillAnimation(startValue, newValue, bgFeature, max);
         }
 
         previousValue = newValue;
