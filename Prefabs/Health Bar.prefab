@@ -317,7 +317,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 78.8
+  m_fontSize: 62.65
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -453,7 +453,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 71.4
+  m_fontSize: 34.2
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -661,7 +661,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 71.4
+  m_fontSize: 33.85
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -925,8 +925,14 @@ MonoBehaviour:
     - rid: 4860107638879551610
       type: {class: TextDisplayFeature, ns: , asm: health}
       data:
-        textCurrent: {fileID: 1667967286366675197}
-        textMax: {fileID: 9050000445014980398}
+        textCurrent:
+          text: {fileID: 1667967286366675197}
+          displayType: 0
+          format: '#,##0'
+        textMax:
+          text: {fileID: 9050000445014980398}
+          displayType: 1
+          format: '#,##0'
     - rid: 4860107638879551611
       type: {class: ColorGradientFeature, ns: , asm: health}
       data:
