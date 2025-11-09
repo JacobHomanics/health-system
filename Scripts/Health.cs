@@ -20,7 +20,7 @@ namespace JacobHomanics.HealthSystem
                 onCurrentSet?.Invoke();
 
                 if (current != previous)
-                    onCurrentChange?.Invoke();
+                    onCurrentChange?.Invoke(current);
 
                 if (current < previous)
                     onCurrentDown?.Invoke();
@@ -50,7 +50,7 @@ namespace JacobHomanics.HealthSystem
         }
 
         public UnityEvent onCurrentSet;
-        public UnityEvent onCurrentChange;
+        public UnityEvent<float> onCurrentChange;
 
         public UnityEvent onCurrentDown;
         public UnityEvent onCurrentUp;

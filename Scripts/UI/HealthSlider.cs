@@ -220,7 +220,7 @@ public class HealthSlider : MonoBehaviour
         previousValue = newValue;
     }
 
-    private static void StartBackgroundFillAnimation(float fromValue, float toValue, BackgroundFillFeature bgFeature, float max)
+    public static void StartBackgroundFillAnimation(float fromValue, float toValue, BackgroundFillFeature bgFeature, float max)
     {
         float valueDifference = Mathf.Abs(fromValue - toValue);
         if (valueDifference < 0.001f)
@@ -270,7 +270,7 @@ public class HealthSlider : MonoBehaviour
         }
     }
 
-    private static void SetBackgroundFillAmount(BackgroundFillFeature bgFeature, float amount, float max)
+    public static void SetBackgroundFillAmount(BackgroundFillFeature bgFeature, float amount, float max)
     {
         if (bgFeature != null && bgFeature.backgroundFill != null)
         {
@@ -278,7 +278,7 @@ public class HealthSlider : MonoBehaviour
         }
     }
 
-    private static float GetBackgroundFillValue(BackgroundFillFeature bgFeature, float max)
+    public static float GetBackgroundFillValue(BackgroundFillFeature bgFeature, float max)
     {
         return bgFeature.backgroundFill.fillAmount * max;
     }
