@@ -6,29 +6,6 @@ using UnityEngine.UI;
 
 public class HealthImage : MonoBehaviour
 {
-    [System.Serializable]
-    public class TextDisplayFeature2 : FeatureToggle
-    {
-        public TMP_Text text;
-
-        public enum DisplayType
-        {
-            Current, Max
-        }
-
-        public DisplayType displayType;
-        public string format = "#,##0";
-
-        public TextDisplayFeature2()
-        {
-        }
-
-        public TextDisplayFeature2(DisplayType displayType)
-        {
-            this.displayType = displayType;
-        }
-    }
-
     [SerializeField] private Health health;
 
     public Health Health
@@ -52,11 +29,6 @@ public class HealthImage : MonoBehaviour
         new FlashingFeature()
     };
 
-    private T GetFeature<T>() where T : FeatureToggle
-    {
-        return featureToggles.Find(f => f is T) as T;
-    }
-
     public float CurrentNum => Health.Current;
     public float MaxNum => Health.Max;
 
@@ -65,13 +37,13 @@ public class HealthImage : MonoBehaviour
     {
         image.fillAmount = CurrentNum / MaxNum;
 
-        HealthSlider.Display(GetFeature<TextDisplayFeature2>(), CurrentNum, MaxNum);
+        UIToolkit.Display(UIToolkit.GetFeature<TextDisplayFeature2>(featureToggles), CurrentNum, MaxNum);
 
-        HealthSlider.ColorGradientFeatureCommand(GetFeature<ColorGradientFeature>(), image, CurrentNum, MaxNum);
+        UIToolkit.ColorGradientFeatureCommand(UIToolkit.GetFeature<ColorGradientFeature>(featureToggles), image, CurrentNum, MaxNum);
 
-        HealthSlider.FlashingFeatureCommand(GetFeature<FlashingFeature>(), CurrentNum, MaxNum);
+        UIToolkit.FlashingFeatureCommand(UIToolkit.GetFeature<FlashingFeature>(featureToggles), CurrentNum, MaxNum);
 
-        HealthSlider.UpdateBackgroundFillAnimation(GetFeature<BackgroundFillFeature>(), MaxNum);
+        UIToolkit.UpdateBackgroundFillAnimation(UIToolkit.GetFeature<BackgroundFillFeature>(featureToggles), MaxNum);
     }
 
     private float previousValue;
@@ -89,7 +61,7 @@ public class HealthImage : MonoBehaviour
 
     private void OnValueChangedInternal(float newValue)
     {
-        var bgFeature = GetFeature<BackgroundFillFeature>();
+        var bgFeature = UIToolkit.GetFeature<BackgroundFillFeature>(featureToggles);
         if (bgFeature == null || bgFeature.backgroundFill == null)
         {
             previousValue = newValue;
@@ -101,13 +73,13 @@ public class HealthImage : MonoBehaviour
         if (bgFeature.keepSizeConsistent)
         {
             // Use current background fill position (continues from where it is)
-            startValue = HealthSlider.GetBackgroundFillValue(bgFeature, MaxNum);
+            startValue = UIToolkit.GetBackgroundFillValue(bgFeature, MaxNum);
         }
         else
         {
             // Reset to previous value (starts from previous slider value)
             startValue = previousValue;
-            HealthSlider.SetBackgroundFillAmount(bgFeature, previousValue, MaxNum);
+            UIToolkit.SetBackgroundFillAmount(bgFeature, previousValue, MaxNum);
         }
 
         // If new value is greater than start position, immediately snap to it
@@ -116,13 +88,13 @@ public class HealthImage : MonoBehaviour
             // Stop any ongoing animation
             bgFeature.isAnimating = false;
             // Immediately set to new value
-            HealthSlider.SetBackgroundFillAmount(bgFeature, newValue, MaxNum);
+            UIToolkit.SetBackgroundFillAmount(bgFeature, newValue, MaxNum);
         }
         else
         {
             // HP goes down or stays same - animate from start position
             // Set up animation state
-            HealthSlider.StartBackgroundFillAnimation(startValue, newValue, bgFeature, MaxNum);
+            UIToolkit.StartBackgroundFillAnimation(startValue, newValue, bgFeature, MaxNum);
         }
 
         previousValue = newValue;
