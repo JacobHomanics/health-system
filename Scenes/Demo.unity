@@ -628,6 +628,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Slider (Health)
       objectReference: {fileID: 0}
+    - target: {fileID: 3567502943776357632, guid: e291b316a572d4eeb8f503c0f8c8c6e9, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6448420039629128045, guid: e291b316a572d4eeb8f503c0f8c8c6e9, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
