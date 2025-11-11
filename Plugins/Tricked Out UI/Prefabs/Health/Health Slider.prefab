@@ -91,7 +91,7 @@ MonoBehaviour:
   backgroundFillFeature:
     backgroundFill: {fileID: 7802806129549110227}
     keepSizeConsistent: 1
-    animationSpeed: 10
+    animationSpeed: 100
     speedCurve:
       serializedVersion: 2
       m_Curve:
@@ -105,8 +105,8 @@ MonoBehaviour:
         inWeight: 0
         outWeight: 0
       - serializedVersion: 3
-        time: 1
-        value: 16
+        time: 0.9948932
+        value: 99.976204
         inSlope: 0
         outSlope: 0
         tangentMode: 0

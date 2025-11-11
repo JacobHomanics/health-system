@@ -93,7 +93,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 18
+  m_fontSize: 41.8
   m_fontSizeBase: 62.45
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -171,7 +171,7 @@ GameObject:
   - component: {fileID: 7850032349722820039}
   - component: {fileID: 8022588497519243345}
   m_Layer: 5
-  m_Name: Background Fill
+  m_Name: Fill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -368,8 +368,9 @@ GameObject:
   - component: {fileID: 6649128469621968988}
   - component: {fileID: 55893352393477507}
   - component: {fileID: 6415745808017389151}
+  - component: {fileID: 2864507284970371044}
   m_Layer: 5
-  m_Name: Background Fill (1)
+  m_Name: Background Fill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -427,11 +428,52 @@ MonoBehaviour:
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
-  m_FillAmount: 1
+  m_FillAmount: 0
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &2864507284970371044
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7234652437166366713}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 883441c47cc914cb58af19b6501aecf3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: trickedoutui::JacobHomanics.UI.BackgroundFillFeatureComponent
+  backgroundFillFeature:
+    backgroundFill: {fileID: 6415745808017389151}
+    keepSizeConsistent: 1
+    animationSpeed: 1000
+    speedCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0.3
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 999.998
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    delay: 0
 --- !u!1 &8379327666115908989
 GameObject:
   m_ObjectHideFlags: 0
@@ -444,7 +486,6 @@ GameObject:
   - component: {fileID: 6779303411006689482}
   - component: {fileID: 1687132098462047931}
   - component: {fileID: 1221759318618812148}
-  - component: {fileID: 6039395737376897579}
   m_Layer: 5
   m_Name: Circular Timer (CountUp)
   m_TagString: Untagged
@@ -496,7 +537,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.54901963, g: 0.54901963, b: 0.54901963, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -508,7 +549,7 @@ MonoBehaviour:
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
-  m_FillAmount: 0
+  m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
@@ -527,44 +568,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: uitoolkit::JacobHomanics.UI.DefaultConnector
   currentNum: 0
   maxNum: 5
---- !u!114 &6039395737376897579
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8379327666115908989}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 883441c47cc914cb58af19b6501aecf3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: trickedoutui::JacobHomanics.UI.BackgroundFillFeatureComponent
-  backgroundFillFeature:
-    backgroundFill: {fileID: 1687132098462047931}
-    keepSizeConsistent: 1
-    animationSpeed: 1000
-    speedCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0.3
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 16
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    delay: 0

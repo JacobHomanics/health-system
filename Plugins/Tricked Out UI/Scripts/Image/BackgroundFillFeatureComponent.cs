@@ -111,7 +111,7 @@ namespace JacobHomanics.TrickedOutUI
             // Calculate dynamic animation speed based on difference
             float normalizedDifference = valueDifference / max;
             float speedMultiplier = bgFeature.speedCurve.Evaluate(normalizedDifference);
-            float dynamicSpeed = bgFeature.animationSpeed * speedMultiplier;
+            float dynamicSpeed = bgFeature.animationSpeed * speedMultiplier * Time.deltaTime;
             animationDuration = valueDifference / dynamicSpeed;
         }
 
