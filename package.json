@@ -17,8 +17,5 @@
     "name": "Jacob Homanics",
     "email": "homanicsjake@gmail.com",
     "url": "jacobhomanics.com"
-  },
-  "dependencies": {
-    "com.jacobhomanics.trickedoutui": "0.3.0"
   }
 }

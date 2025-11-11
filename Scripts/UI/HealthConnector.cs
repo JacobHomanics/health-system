@@ -1,5 +1,5 @@
 using UnityEngine;
-using JacobHomanics.UI;
+using JacobHomanics.TrickedOutUI;
 
 namespace JacobHomanics.HealthSystem.UI
 {
