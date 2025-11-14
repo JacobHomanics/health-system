@@ -53,9 +53,12 @@ namespace JacobHomanics.HealthSystem.Editor
             EditorGUILayout.LabelField("Health System", EditorStyles.boldLabel);
             EditorGUILayout.Space();
 
-            // EditorGUILayout.LabelField($"{health.Current:F1} / {health.Max:F1}", EditorStyles.centeredGreyMiniLabel);
             // Health Bar Visualization
             DrawHealthBar();
+
+            // Display health percentage
+            float healthPercent = health.Max > 0 ? (health.Current / health.Max) * 100f : 0f;
+            EditorGUILayout.LabelField($"{healthPercent:F2}%", EditorStyles.centeredGreyMiniLabel);
 
             EditorGUILayout.Space();
 
