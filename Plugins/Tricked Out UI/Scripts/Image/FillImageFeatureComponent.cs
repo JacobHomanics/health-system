@@ -14,12 +14,12 @@ namespace JacobHomanics.TrickedOutUI
 
         void Update()
         {
-            UpdateImage(Image, Current, Max);
+            image.fillAmount = Normalize(Current, Max);
         }
 
-        private void UpdateImage(Image image, float current, float max)
+        private float Normalize(float current, float max)
         {
-            image.fillAmount = current / max;
+            return current / max;
         }
     }
 

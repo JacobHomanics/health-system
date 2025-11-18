@@ -6,13 +6,13 @@ using System.Linq;
 namespace JacobHomanics.TrickedOutUI
 {
     /// <summary>
-    /// Serializable class that pairs a color with a threshold value (0.0 to 1.0).
+    /// Serializable class that pairs a color with a threshold value (0.0 to 100.0).
     /// </summary>
     [System.Serializable]
     public class ColorStop
     {
         public Color color;
-        [Range(0f, 1f)]
+        [Range(0f, 100f)]
         public float threshold;
 
         public ColorStop(Color color, float threshold)
@@ -26,30 +26,34 @@ namespace JacobHomanics.TrickedOutUI
     /// MonoBehaviour component that applies a color gradient to an image based on current and max values.
     /// Supports an arbitrary list of colors and thresholds.
     /// </summary>
-    public class ColorGradientFeatureComponent : BaseCurrentMaxComponent
+    public abstract class ColorGradientFeatureComponent : BaseCurrentMaxComponent
     {
-        public Image image;
 
-        [Tooltip("List of color stops defining the gradient. Thresholds should be between 0.0 and 1.0, and will be automatically sorted.")]
-        public List<ColorStop> colorStops = new List<ColorStop>
+        [Tooltip("List of color stops defining the gradient. Thresholds should be between 0.0 and 100.0, and will be automatically sorted.")]
+        public List<ColorStop> colorStops = new()
         {
-            new ColorStop(Color.red, 0f),
-            new ColorStop(Color.yellow, 0.5f),
-            new ColorStop(Color.green, 1f)
+            new(Color.red, 0f),
+            new(Color.yellow, 50f),
+            new(Color.green, 100f)
         };
 
-        void Update()
+        protected Color HandleColor()
         {
-            ColorGradientFeatureCommand(colorStops, image, Current, Max);
+            return CalculateColor(colorStops, Current, Max);
         }
 
-        public static void ColorGradientFeatureCommand(List<ColorStop> colorStops, Image image, float current, float max)
+        public Color CalculateColor(List<ColorStop> colorStops, float current, float max)
         {
             float healthPercent;
 
-            healthPercent = current / max;
+            healthPercent = Normalize(current, max);
 
             healthPercent = Mathf.Clamp01(healthPercent);
+
+            // Convert healthPercent from 0-1 scale to 0-100 scale to match threshold range
+            float healthPercentScaled = healthPercent * 100f;
+
+            Color finalColor;
 
             // Sort color stops by threshold to ensure proper interpolation
             var sortedStops = colorStops.OrderBy(stop => stop.threshold).ToList();
@@ -57,21 +61,21 @@ namespace JacobHomanics.TrickedOutUI
             // Handle edge cases
             if (sortedStops.Count == 1)
             {
-                image.color = sortedStops[0].color;
-                return;
+                finalColor = sortedStops[0].color;
+                return finalColor;
             }
 
             // Handle cases where healthPercent is outside the range of thresholds
-            if (healthPercent <= sortedStops[0].threshold)
+            if (healthPercentScaled <= sortedStops[0].threshold)
             {
-                image.color = sortedStops[0].color;
-                return;
+                finalColor = sortedStops[0].color;
+                return finalColor;
             }
 
-            if (healthPercent >= sortedStops[sortedStops.Count - 1].threshold)
+            if (healthPercentScaled >= sortedStops[sortedStops.Count - 1].threshold)
             {
-                image.color = sortedStops[sortedStops.Count - 1].color;
-                return;
+                finalColor = sortedStops[sortedStops.Count - 1].color;
+                return finalColor;
             }
 
             // Find the two color stops to interpolate between
@@ -80,7 +84,7 @@ namespace JacobHomanics.TrickedOutUI
 
             for (int i = 0; i < sortedStops.Count - 1; i++)
             {
-                if (healthPercent >= sortedStops[i].threshold && healthPercent <= sortedStops[i + 1].threshold)
+                if (healthPercentScaled >= sortedStops[i].threshold && healthPercentScaled <= sortedStops[i + 1].threshold)
                 {
                     lowerStop = sortedStops[i];
                     upperStop = sortedStops[i + 1];
@@ -92,12 +96,19 @@ namespace JacobHomanics.TrickedOutUI
             float range = upperStop.threshold - lowerStop.threshold;
             if (range <= 0f)
             {
-                image.color = lowerStop.color;
-                return;
+                finalColor = lowerStop.color;
+                return finalColor;
             }
 
-            float t = (healthPercent - lowerStop.threshold) / range;
-            image.color = Color.Lerp(lowerStop.color, upperStop.color, t);
+            float t = (healthPercentScaled - lowerStop.threshold) / range;
+            finalColor = Color.Lerp(lowerStop.color, upperStop.color, t);
+
+            return finalColor;
+        }
+
+        public float Normalize(float value1, float value2)
+        {
+            return value1 / value2;
         }
     }
 }

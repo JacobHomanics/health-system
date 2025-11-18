@@ -6,62 +6,49 @@ namespace JacobHomanics.TrickedOutUI
     /// <summary>
     /// MonoBehaviour component that handles animated background fill based on value changes.
     /// </summary>
-    public class BackgroundFillFeatureComponent : BaseCurrentMaxComponent
+    public abstract class BackgroundFillFeatureComponent : BaseCurrentMaxComponent
     {
         [System.Serializable]
         public class BackgroundFillFeature
         {
-            public Image backgroundFill;
             public bool keepSizeConsistent = true;
-            public float animationSpeed = 10;
-            public AnimationCurve speedCurve = AnimationCurve.EaseInOut(0f, 0.3f, 1f, 16f);
+            public float animationSpeed = 1;
+            [Tooltip("Maps normalized change magnitude (0-1) to speed multiplier. X-axis = change magnitude, Y-axis = speed multiplier. Higher values = faster animation for large changes.")]
+            public AnimationCurve speedMultiplierCurve = AnimationCurve.EaseInOut(0f, 0.3f, 1f, 3f);
             public float delay = 1f;
         }
 
         public BackgroundFillFeature backgroundFillFeature;
 
-        private float previousValue;
+        protected float previousValue;
 
-        private bool isAnimating = false;
-        private float animationFromValue;
-        private float animationToValue;
-        private float animationElapsed;
-        private float animationDuration;
-        private float animationDelayRemaining;
+        protected bool isAnimating = false;
+        protected float animationFromValue;
+        protected float animationToValue;
+        protected float animationElapsed;
+        protected float animationDuration;
+        protected float animationDelayRemaining;
 
-        void Update()
-        {
-            HandleValueChange(Current, backgroundFillFeature, ref previousValue, Max);
-            UpdateBackgroundFillAnimation(backgroundFillFeature, Max);
-        }
-
-        public void HandleValueChange(float newValue, BackgroundFillFeature bgFeature, ref float previousValue, float max)
+        public float HandleValueChange(float newValue, float fillAmount, bool keepSizeConsistent, ref float previousValue, float max, float delay, AnimationCurve speedMultiplierCurve, float animationSpeed)
         {
             if (Mathf.Abs(newValue - previousValue) < 0.001f)
-                return;
-
-            if (bgFeature == null || bgFeature.backgroundFill == null)
-            {
-                previousValue = newValue;
-                return;
-            }
-
+                return fillAmount;
 
             // Get the current background fill value
-            float currentFillValue = GetBackgroundFillValue(bgFeature, max);
+            float currentFillValue = GetBackgroundFillValue(fillAmount, max);
 
             // Check if background fill needs initialization (is at or near 0, indicating uninitialized)
             // Only initialize if it's truly uninitialized, not just different
             if (currentFillValue < 0.01f * max)
             {
                 // Background fill appears uninitialized, initialize it to previousValue
-                SetBackgroundFillAmount(bgFeature, previousValue, max);
+                fillAmount = Normalize(previousValue, max);
                 currentFillValue = previousValue;
             }
 
             // Get the starting value based on whether we want to keep size consistent
             float startValue;
-            if (bgFeature.keepSizeConsistent)
+            if (keepSizeConsistent)
             {
                 // Use current background fill position (continues from where it is)
                 startValue = currentFillValue;
@@ -70,7 +57,7 @@ namespace JacobHomanics.TrickedOutUI
             {
                 // Reset to previous value (starts from previous slider value)
                 startValue = previousValue;
-                SetBackgroundFillAmount(bgFeature, previousValue, max);
+                fillAmount = Normalize(previousValue, max);
             }
 
             // If new value is greater than start position, immediately snap to it
@@ -79,24 +66,26 @@ namespace JacobHomanics.TrickedOutUI
                 // Stop any ongoing animation
                 isAnimating = false;
                 // Immediately set to new value
-                SetBackgroundFillAmount(bgFeature, newValue, max);
+                fillAmount = Normalize(newValue, max);
             }
             else
             {
                 // HP goes down or stays same - animate from start position
                 // Set up animation state
-                StartBackgroundFillAnimation(startValue, newValue, bgFeature, max);
+                var fa = fillAmount;
+                StartBackgroundFillAnimation(startValue, newValue, max, delay, speedMultiplierCurve, animationSpeed, ref fa);
+                fillAmount = fa;
             }
 
             previousValue = newValue;
+            return fillAmount;
         }
-
-        public void StartBackgroundFillAnimation(float fromValue, float toValue, BackgroundFillFeature bgFeature, float max)
+        public void StartBackgroundFillAnimation(float fromValue, float toValue, float max, float delay, AnimationCurve curve, float speed, ref float fillAmount)
         {
             float valueDifference = Mathf.Abs(fromValue - toValue);
             if (valueDifference < 0.001f)
             {
-                SetBackgroundFillAmount(bgFeature, toValue, max);
+                fillAmount = Normalize(toValue, max);
                 isAnimating = false;
                 return;
             }
@@ -106,55 +95,53 @@ namespace JacobHomanics.TrickedOutUI
             animationFromValue = fromValue;
             animationToValue = toValue;
             animationElapsed = 0f;
-            animationDelayRemaining = bgFeature.delay;
+            animationDelayRemaining = delay;
 
             // Calculate dynamic animation speed based on difference
+            // Speed is in "normalized units per second", so we scale by max to get absolute units per second
             float normalizedDifference = valueDifference / max;
-            float speedMultiplier = bgFeature.speedCurve.Evaluate(normalizedDifference);
-            float dynamicSpeed = bgFeature.animationSpeed * speedMultiplier * Time.deltaTime;
+            float speedMultiplier = curve.Evaluate(normalizedDifference);
+            float dynamicSpeed = (speed * speedMultiplier) * max;
             animationDuration = valueDifference / dynamicSpeed;
         }
 
-        public void UpdateBackgroundFillAnimation(BackgroundFillFeature bgFeature, float max)
+        public float UpdateBackgroundFillAnimation(float fillAmount, float max)
         {
             if (!isAnimating)
-                return;
+                return fillAmount;
 
             // Handle delay before animation starts
             if (animationDelayRemaining > 0f)
             {
                 animationDelayRemaining -= Time.deltaTime;
-                return;
+                return fillAmount;
             }
 
             // Update animation
             animationElapsed += Time.deltaTime;
             float t = Mathf.Clamp01(animationElapsed / animationDuration);
             float currentValue = Mathf.Lerp(animationFromValue, animationToValue, t);
-            SetBackgroundFillAmount(bgFeature, currentValue, max);
+            fillAmount = Normalize(currentValue, max);
+
 
             // Check if animation is complete
             if (animationElapsed >= animationDuration)
             {
-                SetBackgroundFillAmount(bgFeature, animationToValue, max);
+                fillAmount = Normalize(animationToValue, max);
                 isAnimating = false;
             }
+
+            return fillAmount;
         }
 
-        public static void SetBackgroundFillAmount(BackgroundFillFeature bgFeature, float amount, float max)
+        public float Normalize(float amount, float max)
         {
-            if (bgFeature != null && bgFeature.backgroundFill != null)
-            {
-
-                bgFeature.backgroundFill.fillAmount = amount / max;
-
-                // bgFeature.backgroundFill.fillAmount = amount / max;
-            }
+            return amount / max;
         }
 
-        public static float GetBackgroundFillValue(BackgroundFillFeature bgFeature, float max)
+        public static float GetBackgroundFillValue(float fillAmount, float max)
         {
-            return bgFeature.backgroundFill.fillAmount * max;
+            return fillAmount * max;
         }
     }
 }
