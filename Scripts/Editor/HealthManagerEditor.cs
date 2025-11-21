@@ -102,41 +102,19 @@ namespace JacobHomanics.HealthSystem.Editor
 
             EditorGUILayout.Space();
 
-            // Health List Section
-            EditorGUILayout.LabelField("Healths", EditorStyles.boldLabel);
-            EditorGUILayout.Space();
 
             // Health List
             if (healthsProp != null)
             {
-                EditorGUILayout.PropertyField(healthsProp, new GUIContent("Health List"), true);
+                EditorGUILayout.PropertyField(healthsProp, new GUIContent("Healths"), true);
             }
 
-            // Current Health Info (read-only display)
-            Health currentHealth = GetCurrentHealth();
-            int currentIndex = GetCurrentHealthIndex();
-            if (currentHealth != null && currentIndex >= 0)
-            {
-                EditorGUILayout.Space();
-                EditorGUILayout.LabelField($"Current Health (Index {currentIndex})", EditorStyles.boldLabel);
-                EditorGUILayout.LabelField($"Current: {currentHealth.Current:F2} / Max: {currentHealth.Max:F2}");
-            }
-            else if (healthsProp != null && healthsProp.arraySize > 0)
-            {
-                EditorGUILayout.Space();
-                EditorGUILayout.HelpBox("No health with health > 0. All healths are depleted.", MessageType.Info);
-            }
-
-            EditorGUILayout.Space();
-
-            // Shield Section
-            EditorGUILayout.LabelField("Shields", EditorStyles.boldLabel);
             EditorGUILayout.Space();
 
             // Shield List
             if (shieldsProp != null)
             {
-                EditorGUILayout.PropertyField(shieldsProp, new GUIContent("Shield List"), true);
+                EditorGUILayout.PropertyField(shieldsProp, new GUIContent("Shields"), true);
             }
 
 
