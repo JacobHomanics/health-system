@@ -67,11 +67,20 @@ namespace JacobHomanics.HealthSystem.Editor
             // Health Bar Visualization
             DrawHealthBar();
 
+            // Editable Current Health Field
+            EditorGUI.BeginChangeCheck();
+            float newCurrent = EditorGUILayout.Slider("Current Health", healthManager.Current, 0, healthManager.Max);
+            if (EditorGUI.EndChangeCheck())
+            {
+                healthManager.Current = newCurrent;
+                EditorUtility.SetDirty(healthManager);
+            }
+
             // Display total health percentage
             float totalHealth = healthManager.Current;
             float totalMax = healthManager.Max;
             float healthPercent = totalMax > 0 ? (totalHealth / totalMax) * 100f : 0f;
-            EditorGUILayout.LabelField($"Total Health: {totalHealth:F2} / {totalMax:F2} ({healthPercent:F2}%)", EditorStyles.centeredGreyMiniLabel);
+            EditorGUILayout.LabelField($"Total: {totalHealth:F2} / {totalMax:F2} ({healthPercent:F2}%)", EditorStyles.centeredGreyMiniLabel);
 
             // Display shield total if shields exist
             if (healthManager.ShieldTotal > 0)

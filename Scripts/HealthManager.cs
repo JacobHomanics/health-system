@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.Events;
 
 namespace JacobHomanics.HealthSystem
@@ -139,6 +140,30 @@ namespace JacobHomanics.HealthSystem
                 }
                 return total;
             }
+            set
+            {
+                // Calculate current total directly to avoid recursion
+                float currentTotal = 0f;
+                foreach (var health in healths)
+                {
+                    if (health != null)
+                        currentTotal += health.Current;
+                }
+
+                float desiredTotal = Mathf.Clamp(value, 0, Max);
+                float difference = desiredTotal - currentTotal;
+
+                if (difference > 0)
+                {
+                    // Increase health - use Heal method (last to first)
+                    Heal(difference);
+                }
+                else if (difference < 0)
+                {
+                    // Decrease health - use Damage method (first to last)
+                    Damage(-difference);
+                }
+            }
         }
 
         public float Max
@@ -199,12 +224,12 @@ namespace JacobHomanics.HealthSystem
                 }
             }
 
-            // Apply remaining damage to healths sequentially, starting from the first health with health > 0
+            // Apply remaining damage to healths sequentially, starting from the first health
             if (remainingDamage > 0)
             {
                 for (int i = 0; i < Healths.Count && remainingDamage > 0; i++)
                 {
-                    if (Healths[i] != null && Healths[i].Current > 0)
+                    if (Healths[i] != null)
                     {
                         float healthDamage = Mathf.Min(Healths[i].Current, remainingDamage);
                         Healths[i].Current -= healthDamage;
@@ -218,10 +243,21 @@ namespace JacobHomanics.HealthSystem
 
         public void Heal(float amount)
         {
-            int currentIndex = GetCurrentHealthIndex();
-            if (currentIndex >= 0 && currentIndex < Healths.Count && Healths[currentIndex] != null)
+            float remainingHeal = amount;
+
+            // Heal healths sequentially (from last to first)
+            for (int i = Healths.Count - 1; i >= 0 && remainingHeal > 0; i--)
             {
-                Healths[currentIndex].Current += amount;
+                if (Healths[i] != null)
+                {
+                    float missingHealth = Healths[i].Max - Healths[i].Current;
+                    if (missingHealth > 0)
+                    {
+                        float healAmount = Mathf.Min(missingHealth, remainingHeal);
+                        Healths[i].Current += healAmount;
+                        remainingHeal -= healAmount;
+                    }
+                }
             }
         }
 
