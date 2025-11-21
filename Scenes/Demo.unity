@@ -438,76 +438,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1004101012}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6b68881ed8aa64979a19c2ee2121b56e, type: 3}
+  m_Script: {fileID: 11500000, guid: d51c6171629d94bb38508061726645a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   healths:
-  - current: 4
-    max: 4
-    onCurrentSet:
-      m_PersistentCalls:
-        m_Calls: []
-    onCurrentChange:
-      m_PersistentCalls:
-        m_Calls: []
-    onCurrentDown:
-      m_PersistentCalls:
-        m_Calls: []
-    onCurrentUp:
-      m_PersistentCalls:
-        m_Calls: []
-    onCurrentMax:
-      m_PersistentCalls:
-        m_Calls: []
-    onCurrentZero:
-      m_PersistentCalls:
-        m_Calls: []
-    onMaxSet:
-      m_PersistentCalls:
-        m_Calls: []
-    onMaxChange:
-      m_PersistentCalls:
-        m_Calls: []
-    onMaxDown:
-      m_PersistentCalls:
-        m_Calls: []
-    onMaxUp:
-      m_PersistentCalls:
-        m_Calls: []
-  - current: 4
-    max: 4
-    onCurrentSet:
-      m_PersistentCalls:
-        m_Calls: []
-    onCurrentChange:
-      m_PersistentCalls:
-        m_Calls: []
-    onCurrentDown:
-      m_PersistentCalls:
-        m_Calls: []
-    onCurrentUp:
-      m_PersistentCalls:
-        m_Calls: []
-    onCurrentMax:
-      m_PersistentCalls:
-        m_Calls: []
-    onCurrentZero:
-      m_PersistentCalls:
-        m_Calls: []
-    onMaxSet:
-      m_PersistentCalls:
-        m_Calls: []
-    onMaxChange:
-      m_PersistentCalls:
-        m_Calls: []
-    onMaxDown:
-      m_PersistentCalls:
-        m_Calls: []
-    onMaxUp:
-      m_PersistentCalls:
-        m_Calls: []
-  - current: 4
-    max: 4
+  - current: 100
+    max: 100
     onCurrentSet:
       m_PersistentCalls:
         m_Calls: []
@@ -539,23 +475,11 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
   shields:
-  - _value: 10
-    color: {r: 0, g: 0.100815535, b: 1, a: 1}
+  - _value: 0
+    color: {r: 0, g: 0.7, b: 1, a: 0.7}
   onCurrentSet:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1234926571}
-        m_TargetAssemblyTypeName: Debugger, Assembly-CSharp
-        m_MethodName: Display
-        m_Mode: 5
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: HERLPERLP
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
   onCurrentChange:
     m_PersistentCalls:
       m_Calls: []
@@ -722,7 +646,7 @@ PrefabInstance:
     - target: {fileID: 3764647198034280281, guid: 3c6194a52a9a64480a2466fcdf8d9903, type: 3}
       propertyPath: health
       value: 
-      objectReference: {fileID: 1004101015}
+      objectReference: {fileID: 0}
     - target: {fileID: 6076070420684786915, guid: 3c6194a52a9a64480a2466fcdf8d9903, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -979,7 +903,7 @@ PrefabInstance:
     - target: {fileID: 7589484659157109371, guid: 5fe459f272fa948a7b8426e7273f770e, type: 3}
       propertyPath: health
       value: 
-      objectReference: {fileID: 1004101015}
+      objectReference: {fileID: 0}
     - target: {fileID: 7713043446385071705, guid: 5fe459f272fa948a7b8426e7273f770e, type: 3}
       propertyPath: m_Name
       value: Health - Horizontal
@@ -1118,7 +1042,7 @@ PrefabInstance:
     - target: {fileID: 7931269997335289072, guid: ae02fb4b81ad24eb5892deaef1f51337, type: 3}
       propertyPath: health
       value: 
-      objectReference: {fileID: 1004101015}
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

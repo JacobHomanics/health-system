@@ -30,8 +30,14 @@ namespace JacobHomanics.HealthSystem
     }
 
     [System.Serializable]
-    public class Health
+    public class HealthData
     {
+        public HealthData(float current, float max)
+        {
+            this.current = current;
+            this.max = max;
+        }
+
         [SerializeField] private float current;
         public float Current
         {
@@ -108,18 +114,18 @@ namespace JacobHomanics.HealthSystem
         public UnityEvent onMaxUp;
     }
 
-    public class HealthManager : MonoBehaviour
+    public class Health : MonoBehaviour
     {
-        [SerializeField] private List<Health> healths = new List<Health>();
-        [SerializeField] private List<Shield> shields = new List<Shield>();
+        [SerializeField] private List<HealthData> healths = new();
+        [SerializeField] private List<Shield> shields = new();
         // [SerializeField] private int currentHealthIndex = 0;
 
-        public List<Health> Healths
+        public List<HealthData> Healths
         {
             get
             {
                 if (healths == null)
-                    healths = new List<Health>();
+                    healths = new List<HealthData>();
                 return healths;
             }
         }
@@ -329,7 +335,15 @@ namespace JacobHomanics.HealthSystem
             Shields[0].value += amount;
             onShieldChanged?.Invoke();
         }
-    }
 
+
+        void Reset()
+        {
+            healths.Add(new HealthData(100, 100));
+
+            shields.Add(new Shield(0));
+        }
+
+    }
 }
 

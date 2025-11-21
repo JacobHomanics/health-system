@@ -4,7 +4,7 @@ using JacobHomanics.HealthSystem;
 
 namespace JacobHomanics.HealthSystem.Editor
 {
-    [CustomPropertyDrawer(typeof(Health))]
+    [CustomPropertyDrawer(typeof(HealthData))]
     public class HealthPropertyDrawer : PropertyDrawer
     {
         private static System.Collections.Generic.Dictionary<string, bool> currentEventsExpanded = new System.Collections.Generic.Dictionary<string, bool>();

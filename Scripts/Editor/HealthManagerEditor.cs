@@ -3,11 +3,11 @@ using UnityEditor;
 
 namespace JacobHomanics.HealthSystem.Editor
 {
-    [CustomEditor(typeof(HealthManager))]
+    [CustomEditor(typeof(Health))]
     [CanEditMultipleObjects]
     public class HealthManagerEditor : UnityEditor.Editor
     {
-        private HealthManager healthManager;
+        private Health healthManager;
         private SerializedProperty healthsProp;
         private SerializedProperty shieldsProp;
         private SerializedProperty onShieldChangedProp;
@@ -29,7 +29,7 @@ namespace JacobHomanics.HealthSystem.Editor
 
         private void OnEnable()
         {
-            healthManager = (HealthManager)target;
+            healthManager = (Health)target;
 
             healthsProp = serializedObject.FindProperty("healths");
             shieldsProp = serializedObject.FindProperty("shields");
@@ -56,7 +56,7 @@ namespace JacobHomanics.HealthSystem.Editor
             return healthManager.Healths.Count > 0 ? 0 : -1;
         }
 
-        private Health GetCurrentHealth()
+        private HealthData GetCurrentHealth()
         {
             int index = GetCurrentHealthIndex();
             if (index >= 0 && index < healthManager.Healths.Count)
@@ -74,10 +74,28 @@ namespace JacobHomanics.HealthSystem.Editor
 
             // Health Header
             EditorGUILayout.LabelField("Health System", EditorStyles.boldLabel);
+
             EditorGUILayout.Space();
+
+
 
             // Health Bar Visualization
             DrawHealthBar();
+
+
+            // Display total health percentage
+            float totalHealth = healthManager.Current;
+            float totalMax = healthManager.Max;
+            float healthPercent = totalMax > 0 ? (totalHealth / totalMax) * 100f : 0f;
+            EditorGUILayout.LabelField($"Total: {totalHealth:F2} / {totalMax:F2} ({healthPercent:F2}%)", EditorStyles.centeredGreyMiniLabel);
+
+            // Display shield total if shields exist
+            if (healthManager.ShieldTotal > 0)
+            {
+                EditorGUILayout.LabelField($"Shield Total: {healthManager.ShieldTotal:F2} ({healthManager.Shields.Count} shields)", EditorStyles.centeredGreyMiniLabel);
+            }
+
+            EditorGUILayout.Space();
 
             EditorGUILayout.Space();
             GUIStyle centeredStyle = new GUIStyle(EditorStyles.label);
@@ -105,25 +123,13 @@ namespace JacobHomanics.HealthSystem.Editor
                 EditorUtility.SetDirty(healthManager);
             }
 
-            // Display total health percentage
-            float totalHealth = healthManager.Current;
-            float totalMax = healthManager.Max;
-            float healthPercent = totalMax > 0 ? (totalHealth / totalMax) * 100f : 0f;
-            EditorGUILayout.LabelField($"Total: {totalHealth:F2} / {totalMax:F2} ({healthPercent:F2}%)", EditorStyles.centeredGreyMiniLabel);
-
-            // Display shield total if shields exist
-            if (healthManager.ShieldTotal > 0)
-            {
-                EditorGUILayout.LabelField($"Shield Total: {healthManager.ShieldTotal:F2} ({healthManager.Shields.Count} shields)", EditorStyles.centeredGreyMiniLabel);
-            }
-
-            EditorGUILayout.Space();
 
 
             // Health List
             if (healthsProp != null)
             {
-                EditorGUILayout.PropertyField(healthsProp, new GUIContent("Healths"), true);
+                if (healthsProp.arraySize > 1)
+                    EditorGUILayout.PropertyField(healthsProp, new GUIContent("Healths"), true);
             }
 
             EditorGUILayout.Space();
@@ -222,6 +228,26 @@ namespace JacobHomanics.HealthSystem.Editor
             }
 
             EditorGUI.indentLevel--;
+
+            EditorGUILayout.LabelField("Advanced", EditorStyles.boldLabel);
+            if (healthManager.Healths.Count == 1)
+            {
+                if (GUILayout.Button("Enable Multi-Health Mode", GUILayout.Height(25)))
+                {
+                    healthManager.Healths.Add(new HealthData(100, 100));
+                    EditorUtility.SetDirty(healthManager);
+                }
+            }
+
+            if (GUILayout.Button("Enable Multi-Shield Mode", GUILayout.Height(25)))
+            {
+                healthManager.Shields.Add(new Shield(100));
+                EditorUtility.SetDirty(healthManager);
+            }
+
+
+
+
             // }
 
             serializedObject.ApplyModifiedProperties();
