@@ -124,10 +124,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   vector2Adapter: {fileID: 3764647198034280281}
   properties:
-    animationDurationUp: 1
-    delayUp: 0.5
-    animationDurationDown: 1
-    delayDown: 0.5
+    animationDurationUp: 0
+    delayUp: 0
+    animationDurationDown: 0
+    delayDown: 0
   image: {fileID: 8906951974439508177}
 --- !u!1 &3728169630442191450
 GameObject:

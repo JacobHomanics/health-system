@@ -303,11 +303,12 @@ namespace JacobHomanics.HealthSystem
             // Apply damage to shields in order
             for (int i = 0; i < Shields.Count && remainingDamage > 0; i++)
             {
-                if (Shields[i] != null && Shields[i].value > 0)
+                if (Shields[i].value > 0)
                 {
                     float shieldDamage = Mathf.Min(Shields[i].value, remainingDamage);
                     Shields[i].value -= shieldDamage;
                     remainingDamage -= shieldDamage;
+                    onShieldChanged?.Invoke();
                 }
             }
 
@@ -316,16 +317,11 @@ namespace JacobHomanics.HealthSystem
             {
                 for (int i = 0; i < Healths.Count && remainingDamage > 0; i++)
                 {
-                    if (Healths[i] != null)
-                    {
-                        float healthDamage = Mathf.Min(Healths[i].Current, remainingDamage);
-                        Healths[i].Current -= healthDamage;
-                        remainingDamage -= healthDamage;
-                    }
+                    float healthDamage = Mathf.Min(Healths[i].Current, remainingDamage);
+                    Healths[i].Current -= healthDamage;
+                    remainingDamage -= healthDamage;
                 }
             }
-
-            onShieldChanged?.Invoke();
         }
 
         public void Heal(float amount)
