@@ -410,10 +410,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healths:
-  - current: 3.93
+  - current: 0.93000007
     max: 3.93
   shields:
-  - _value: 34
+  - _value: 0
     color: {r: 0, g: 0.14352083, b: 1, a: 0.7}
 --- !u!1 &1234926570
 GameObject:

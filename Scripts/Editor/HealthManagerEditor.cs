@@ -25,7 +25,13 @@ namespace JacobHomanics.HealthSystem.Editor
         private float healAmount = 1f;
         private float shieldRestoreAmount = 1f;
         private float shieldDamageAmount = 1f;
-        private Color newShieldColor = new Color(0f, 0.7f, 1f, 0.7f);
+        private Color newShieldColor = new Color(0f, 0.7f, 0.7f);
+
+        // Animation for lagged lost health bar
+        private float displayedHealth = 0f; // The lagged health value (what we display)
+        private float previousCurrentHealth = 0f;
+        private double lastUpdateTime = 0f;
+        private const float animationSpeed = 2f; // How fast the lagged health follows (higher = faster)
 
         private void OnEnable()
         {
@@ -40,6 +46,11 @@ namespace JacobHomanics.HealthSystem.Editor
             onCurrentUpProp = serializedObject.FindProperty("onCurrentUp");
             onCurrentMaxProp = serializedObject.FindProperty("onCurrentMax");
             onCurrentZeroProp = serializedObject.FindProperty("onCurrentZero");
+
+            // Initialize lagged health animation
+            displayedHealth = health.Current;
+            previousCurrentHealth = health.Current;
+            lastUpdateTime = EditorApplication.timeSinceStartup;
         }
 
         private int GetCurrentHealthIndex()
@@ -76,6 +87,62 @@ namespace JacobHomanics.HealthSystem.Editor
             EditorGUILayout.LabelField("Health System", EditorStyles.boldLabel);
 
             EditorGUILayout.Space();
+
+            // Animate lagged health bar
+            float currentHealth = health.Current;
+            bool healthIncreased = currentHealth > previousCurrentHealth;
+            bool healthDecreased = currentHealth < previousCurrentHealth;
+
+            // If health increased (healing), snap immediately to target - no animation
+            if (healthIncreased)
+            {
+                displayedHealth = currentHealth;
+                lastUpdateTime = EditorApplication.timeSinceStartup;
+            }
+            // If health decreased (damage), preserve displayedHealth at previous value, then animate
+            else if (healthDecreased)
+            {
+                // On first frame of damage, ensure displayedHealth is at the previous health value
+                // This creates the gap that will animate down
+                if (displayedHealth <= currentHealth || Mathf.Abs(displayedHealth - previousCurrentHealth) < 0.01f)
+                {
+                    // Set displayedHealth to previous value to create the lag effect
+                    displayedHealth = previousCurrentHealth;
+                    lastUpdateTime = EditorApplication.timeSinceStartup;
+                }
+
+                // Animate displayed health towards current health
+                if (Mathf.Abs(displayedHealth - currentHealth) > 0.01f)
+                {
+                    // Calculate delta time
+                    double currentTime = EditorApplication.timeSinceStartup;
+                    float deltaTime = (float)(currentTime - lastUpdateTime);
+                    lastUpdateTime = currentTime;
+
+                    // Smoothly animate displayed health towards current health
+                    // displayedHealth can be greater than currentHealth when lagging behind
+                    displayedHealth = Mathf.Lerp(displayedHealth, currentHealth, animationSpeed * deltaTime);
+
+                    // Force repaint if still animating
+                    Repaint();
+                }
+            }
+            // If health didn't change but displayedHealth is still catching up, continue animation
+            else if (Mathf.Abs(displayedHealth - currentHealth) > 0.01f && displayedHealth > currentHealth)
+            {
+                // Calculate delta time
+                double currentTime = EditorApplication.timeSinceStartup;
+                float deltaTime = (float)(currentTime - lastUpdateTime);
+                lastUpdateTime = currentTime;
+
+                // Continue animating displayed health towards current health
+                displayedHealth = Mathf.Lerp(displayedHealth, currentHealth, animationSpeed * deltaTime);
+
+                // Force repaint if still animating
+                Repaint();
+            }
+
+            previousCurrentHealth = currentHealth;
 
             // Health Bar Visualization (always visible)
             DrawHealthBar();
@@ -427,7 +494,7 @@ namespace JacobHomanics.HealthSystem.Editor
             // Background
             EditorGUI.DrawRect(rect, new Color(0.2f, 0.2f, 0.2f, 1f));
 
-            // Health bar (green to red gradient)
+            // Health bar (green to red gradient) - draw first so lost health bar appears on top
             Rect healthRect = new Rect(rect.x, rect.y, rect.width * healthPercent, rect.height);
 
             // Color gradient: green (high) -> yellow (mid) -> red (low)
@@ -446,6 +513,28 @@ namespace JacobHomanics.HealthSystem.Editor
             }
 
             EditorGUI.DrawRect(healthRect, healthColor);
+
+            // Health lost bar (lagged behind version - shows missing health that's animating down)
+            // The lost health bar shows the gap between current health and the lagged displayed health
+            float displayedHealthPercent = totalMax > 0 ? displayedHealth / totalMax : 0;
+            displayedHealthPercent = Mathf.Clamp01(displayedHealthPercent);
+
+            // Calculate the gap between current health and displayed health (the lagged portion)
+            // When displayedHealth > currentHealth, there's a gap showing the lost health animating down
+            if (displayedHealth > totalHealth + 0.01f) // Add small epsilon to avoid floating point issues
+            {
+                // Draw lost health bar between current health position and displayed health position
+                float lostStartX = rect.x + rect.width * healthPercent;
+                float lostEndX = rect.x + rect.width * displayedHealthPercent;
+                float lostWidth = lostEndX - lostStartX;
+
+                if (lostWidth > 0.1f)
+                {
+                    Rect lostRect = new Rect(lostStartX, rect.y, lostWidth, rect.height);
+                    Color lostColor = new Color(0.4f, 0.1f, 0.1f, 0.8f); // Dark red, more opaque so it's visible
+                    EditorGUI.DrawRect(lostRect, lostColor);
+                }
+            }
 
             // Draw shield overlays if shields exist
             if (health.Shield > 0)
