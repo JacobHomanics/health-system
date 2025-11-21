@@ -410,7 +410,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healths:
-  - current: 3.93
+  - current: 1.4000001
     max: 3.93
     onCurrentSet:
       m_PersistentCalls:

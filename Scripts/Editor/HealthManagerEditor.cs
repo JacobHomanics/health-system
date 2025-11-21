@@ -19,7 +19,7 @@ namespace JacobHomanics.HealthSystem.Editor
         private SerializedProperty onCurrentZeroProp;
 
         private int selectedMainTab = 0;
-        private readonly string[] mainTabNames = { "Health", "Shield" };
+        private readonly string[] mainTabNames = { "System", "Health", "Shield" };
 
         private float damageAmount = 1f;
         private float healAmount = 1f;
@@ -96,6 +96,11 @@ namespace JacobHomanics.HealthSystem.Editor
             // Display content based on selected main tab
             if (selectedMainTab == 0)
             {
+                // System Tab
+                DrawSystemTab();
+            }
+            else if (selectedMainTab == 1)
+            {
                 // Health Tab
                 DrawHealthTab();
             }
@@ -106,6 +111,95 @@ namespace JacobHomanics.HealthSystem.Editor
             }
 
             serializedObject.ApplyModifiedProperties();
+        }
+
+        private void DrawSystemTab()
+        {
+            EditorGUILayout.LabelField("System Overview", EditorStyles.boldLabel);
+            EditorGUILayout.Space();
+
+            EditorGUILayout.LabelField("Actions", EditorStyles.boldLabel);
+
+            EditorGUILayout.BeginHorizontal();
+            damageAmount = EditorGUILayout.FloatField("Damage", damageAmount);
+            if (GUILayout.Button("Apply", GUILayout.Height(18), GUILayout.Width(120)))
+            {
+                health.Damage(damageAmount);
+                EditorUtility.SetDirty(health);
+            }
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            healAmount = EditorGUILayout.FloatField("Heal", healAmount);
+            if (GUILayout.Button("Apply", GUILayout.Height(18), GUILayout.Width(120)))
+            {
+                health.Heal(healAmount);
+                EditorUtility.SetDirty(health);
+            }
+            EditorGUILayout.EndHorizontal();
+            // System Statistics
+            // GUIStyle centeredStyle = new GUIStyle(EditorStyles.label);
+            // centeredStyle.alignment = TextAnchor.MiddleCenter;
+
+            // EditorGUILayout.LabelField("Statistics", EditorStyles.boldLabel);
+            // EditorGUI.indentLevel++;
+
+            // float totalHealth = health.Current;
+            // float totalMax = health.Max;
+            // float healthPercent = totalMax > 0 ? (totalHealth / totalMax) * 100f : 0f;
+            // float totalShield = health.Shield;
+
+            // EditorGUILayout.LabelField($"Total Health: {totalHealth:F2} / {totalMax:F2} ({healthPercent:F2}%)");
+            // EditorGUILayout.LabelField($"Total Shield: {totalShield:F2}");
+            // EditorGUILayout.LabelField($"Health Count: {health.Healths.Count}");
+            // EditorGUILayout.LabelField($"Shield Count: {health.Shields.Count}");
+
+            // EditorGUI.indentLevel--;
+
+            // EditorGUILayout.Space(10);
+
+            // // System Status
+            // EditorGUILayout.LabelField("Status", EditorStyles.boldLabel);
+            // EditorGUI.indentLevel++;
+
+            // string healthStatus = totalHealth <= 0 ? "Dead" : (totalHealth >= totalMax ? "Full Health" : "Injured");
+            // string shieldStatus = totalShield > 0 ? "Active" : "None";
+
+            // EditorGUILayout.LabelField($"Health Status: {healthStatus}");
+            // EditorGUILayout.LabelField($"Shield Status: {shieldStatus}");
+
+            // EditorGUI.indentLevel--;
+
+            // EditorGUILayout.Space(10);
+
+            // // Quick Actions
+            // EditorGUILayout.LabelField("Quick Actions", EditorStyles.boldLabel);
+
+            // EditorGUILayout.BeginHorizontal();
+            // if (GUILayout.Button("Reset to Full Health", GUILayout.Height(25)))
+            // {
+            //     health.Current = health.Max;
+            //     EditorUtility.SetDirty(health);
+            // }
+
+            // if (GUILayout.Button("Reset All", GUILayout.Height(25)))
+            // {
+            //     health.Current = health.Max;
+            //     health.Shield = 0;
+            //     EditorUtility.SetDirty(health);
+            // }
+            // EditorGUILayout.EndHorizontal();
+
+            // EditorGUILayout.Space(5);
+
+            // EditorGUILayout.BeginHorizontal();
+            // if (GUILayout.Button("Kill (Set to 0)", GUILayout.Height(25)))
+            // {
+            //     health.Current = 0;
+            //     health.Shield = 0;
+            //     EditorUtility.SetDirty(health);
+            // }
+            // EditorGUILayout.EndHorizontal();
         }
 
         private void DrawHealthTab()
@@ -151,7 +245,7 @@ namespace JacobHomanics.HealthSystem.Editor
             damageAmount = EditorGUILayout.FloatField("Damage", damageAmount);
             if (GUILayout.Button("Apply", GUILayout.Height(18), GUILayout.Width(120)))
             {
-                health.Damage(damageAmount);
+                health.Current -= damageAmount;
                 EditorUtility.SetDirty(health);
             }
             EditorGUILayout.EndHorizontal();
@@ -160,7 +254,7 @@ namespace JacobHomanics.HealthSystem.Editor
             healAmount = EditorGUILayout.FloatField("Heal", healAmount);
             if (GUILayout.Button("Apply", GUILayout.Height(18), GUILayout.Width(120)))
             {
-                health.Heal(healAmount);
+                health.Current += healAmount;
                 EditorUtility.SetDirty(health);
             }
             EditorGUILayout.EndHorizontal();
