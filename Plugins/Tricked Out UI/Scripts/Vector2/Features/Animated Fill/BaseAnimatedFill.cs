@@ -14,6 +14,10 @@ namespace JacobHomanics.TrickedOutUI
             [Tooltip("Duration in seconds for the animation to complete")]
             public float animationDuration = 1f;
             public float delay = 0.5f;
+            [Tooltip("If true, animates when value increases. If false, immediately jumps to target when going up.")]
+            public bool animateUp = true;
+            [Tooltip("If true, animates when value decreases. If false, immediately jumps to target when going down.")]
+            public bool animateDown = true;
         }
 
         public Properties properties;
@@ -22,10 +26,10 @@ namespace JacobHomanics.TrickedOutUI
 
         protected bool isAnimating = false;
         protected float animationFromValue;
-        protected float animationToValue;
+        public float animationToValue { get; set; }
         protected float animationElapsed;
         protected float animationDuration;
-        protected float animationDelayRemaining;
+        public float animationDelayRemaining { get; set; }
 
         public float HandleValueChange(float newValue, float fillAmount, ref float previousValue, float max, float delay, float duration)
         {
@@ -75,6 +79,21 @@ namespace JacobHomanics.TrickedOutUI
                 }
 
                 startValue = currentFillValue;
+            }
+
+            // Check direction and apply animateUp/animateDown flags
+            bool isGoingUp = newValue > startValue;
+            if (isGoingUp && !properties.animateUp)
+            {
+                // Going up but animateUp is false - jump immediately
+                duration = 0f;
+                delay = 0f;
+            }
+            else if (!isGoingUp && !properties.animateDown)
+            {
+                // Going down but animateDown is false - jump immediately
+                duration = 0f;
+                delay = 0f;
             }
 
             // Set up animation state

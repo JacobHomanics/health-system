@@ -126,6 +126,8 @@ MonoBehaviour:
   properties:
     animationDuration: 0
     delay: 0
+    animateUp: 1
+    animateDown: 1
   image: {fileID: 1515526499450694859}
 --- !u!1 &2402465509382115337
 GameObject:
@@ -428,7 +430,39 @@ MonoBehaviour:
   _valueComponent: {fileID: 832859650198315705}
   _featureComponents: []
   text: {fileID: 3274102911853211164}
-  health: {fileID: 0}
+  health:
+    current: 0
+    max: 0
+    onCurrentSet:
+      m_PersistentCalls:
+        m_Calls: []
+    onCurrentChange:
+      m_PersistentCalls:
+        m_Calls: []
+    onCurrentDown:
+      m_PersistentCalls:
+        m_Calls: []
+    onCurrentUp:
+      m_PersistentCalls:
+        m_Calls: []
+    onCurrentMax:
+      m_PersistentCalls:
+        m_Calls: []
+    onCurrentZero:
+      m_PersistentCalls:
+        m_Calls: []
+    onMaxSet:
+      m_PersistentCalls:
+        m_Calls: []
+    onMaxChange:
+      m_PersistentCalls:
+        m_Calls: []
+    onMaxDown:
+      m_PersistentCalls:
+        m_Calls: []
+    onMaxUp:
+      m_PersistentCalls:
+        m_Calls: []
 --- !u!1 &4477248620661428372
 GameObject:
   m_ObjectHideFlags: 0
@@ -1113,6 +1147,8 @@ MonoBehaviour:
   properties:
     animationDuration: 0
     delay: 0
+    animateUp: 1
+    animateDown: 1
   image: {fileID: 6811176319144346838}
 --- !u!114 &4983366690528232861
 MonoBehaviour:
@@ -1317,6 +1353,8 @@ MonoBehaviour:
   properties:
     animationDuration: 1
     delay: 0.5
+    animateUp: 0
+    animateDown: 1
   image: {fileID: 6556679128424701734}
 --- !u!1 &7713043446385071705
 GameObject:
