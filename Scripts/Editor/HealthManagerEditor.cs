@@ -152,17 +152,20 @@ namespace JacobHomanics.HealthSystem.Editor
                         if (valueProp != null)
                         {
                             EditorGUI.BeginChangeCheck();
-                            float newValue = EditorGUILayout.FloatField(valueProp.floatValue);
+                            float newValue = EditorGUILayout.FloatField("Value", valueProp.floatValue);
                             if (EditorGUI.EndChangeCheck())
                             {
                                 valueProp.floatValue = Mathf.Max(0, newValue);
+                                serializedObject.ApplyModifiedProperties();
                             }
                         }
 
                         if (colorProp != null)
                         {
-                            EditorGUILayout.PropertyField(colorProp, GUIContent.none);
+                            EditorGUILayout.PropertyField(colorProp, new GUIContent("Color"));
+                            serializedObject.ApplyModifiedProperties();
                         }
+
                     }
                 }
                 else
