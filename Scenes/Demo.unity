@@ -426,10 +426,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d51c6171629d94bb38508061726645a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  current: 14.3
+  current: 30
   max: 30
   shields:
-  - 10.22
+  - _value: 13.1
+    color: {r: 1, g: 0.5952402, b: 0, a: 1}
+  - _value: 14.41
+    color: {r: 0, g: 0.1548035, b: 0.93333334, a: 1}
+  - _value: 49.5
+    color: {r: 0.93333334, g: 0, b: 0.76995575, a: 1}
   onCurrentSet:
     m_PersistentCalls:
       m_Calls: []

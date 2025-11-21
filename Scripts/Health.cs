@@ -7,7 +7,12 @@ namespace JacobHomanics.HealthSystem
     [System.Serializable]
     public class Shield
     {
-        public float value;
+        [SerializeField] private float _value;
+        public float value
+        {
+            get => _value;
+            set => _value = Mathf.Max(0, value);
+        }
         public Color color = new Color(0f, 0.7f, 1f, 0.7f); // Default cyan/blue
 
         public Shield(float value, Color color)
@@ -88,7 +93,7 @@ namespace JacobHomanics.HealthSystem
                 foreach (var shield in Shields)
                 {
                     if (shield != null)
-                        total += shield.value;
+                        total += Mathf.Max(0, shield.value);
                 }
                 return total;
             }
@@ -139,6 +144,11 @@ namespace JacobHomanics.HealthSystem
                 if (Shields[i] == null || Shields[i].value <= 0)
                 {
                     Shields.RemoveAt(i);
+                }
+                else
+                {
+                    // Ensure shield value is clamped to zero (should already be done by property, but double-check)
+                    Shields[i].value = Mathf.Max(0, Shields[i].value);
                 }
             }
 
