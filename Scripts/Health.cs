@@ -293,7 +293,7 @@ namespace JacobHomanics.HealthSystem
                     currentTotal += shield.value;
                 }
 
-                float desiredTotal = Mathf.Clamp(value, 0, Max);
+                float desiredTotal = Mathf.Max(0, value);
                 float difference = desiredTotal - currentTotal;
 
                 if (difference > 0)
