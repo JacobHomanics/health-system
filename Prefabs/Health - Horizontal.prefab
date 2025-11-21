@@ -124,10 +124,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   vector2Adapter: {fileID: 7589484659157109371}
   properties:
-    animationDuration: 0
-    delay: 0
-    animateUp: 1
-    animateDown: 1
+    animationDurationUp: 1
+    delayUp: 0.5
+    animationDurationDown: 1
+    delayDown: 0.5
   image: {fileID: 1515526499450694859}
 --- !u!1 &2402465509382115337
 GameObject:
@@ -1145,10 +1145,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   vector2Adapter: {fileID: 7589484659157109371}
   properties:
-    animationDuration: 0
-    delay: 0
-    animateUp: 1
-    animateDown: 1
+    animationDurationUp: 0
+    delayUp: 0
+    animationDurationDown: 0
+    delayDown: 0
   image: {fileID: 6811176319144346838}
 --- !u!114 &4983366690528232861
 MonoBehaviour:
@@ -1351,10 +1351,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   vector2Adapter: {fileID: 7589484659157109371}
   properties:
-    animationDuration: 1
-    delay: 0.5
-    animateUp: 0
-    animateDown: 1
+    animationDurationUp: 0
+    delayUp: 0
+    animationDurationDown: 1
+    delayDown: 0.5
   image: {fileID: 6556679128424701734}
 --- !u!1 &7713043446385071705
 GameObject:

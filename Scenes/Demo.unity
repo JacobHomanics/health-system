@@ -695,10 +695,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 6775412513794051979, guid: 3c6194a52a9a64480a2466fcdf8d9903, type: 3}
-      propertyPath: properties.animateUp
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -896,10 +892,6 @@ PrefabInstance:
     - target: {fileID: 4733074380815551700, guid: ae02fb4b81ad24eb5892deaef1f51337, type: 3}
       propertyPath: m_Name
       value: Health - Circular (Percentage)
-      objectReference: {fileID: 0}
-    - target: {fileID: 4774384001569071834, guid: ae02fb4b81ad24eb5892deaef1f51337, type: 3}
-      propertyPath: properties.animateUp
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7931269997335289072, guid: ae02fb4b81ad24eb5892deaef1f51337, type: 3}
       propertyPath: health
