@@ -32,16 +32,16 @@ namespace JacobHomanics.HealthSystem.Editor
             {
                 EditorGUI.indentLevel++;
 
-                // Current field with clamping
+                // Current field as slider
                 if (currentProp != null && maxProp != null)
                 {
                     EditorGUI.BeginChangeCheck();
                     float maxValue = maxProp.floatValue;
-                    float newCurrent = EditorGUI.FloatField(new Rect(position.x, yPos, position.width, lineHeight), new GUIContent("Current"), currentProp.floatValue);
+                    float currentValue = currentProp.floatValue;
+                    float newCurrent = EditorGUI.Slider(new Rect(position.x, yPos, position.width, lineHeight), new GUIContent("Current"), currentValue, 0, maxValue);
                     if (EditorGUI.EndChangeCheck())
                     {
-                        // Clamp to 0 and Max
-                        currentProp.floatValue = Mathf.Clamp(newCurrent, 0, maxValue);
+                        currentProp.floatValue = newCurrent;
                     }
                 }
                 else

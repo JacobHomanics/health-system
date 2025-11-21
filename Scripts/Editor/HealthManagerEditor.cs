@@ -93,6 +93,18 @@ namespace JacobHomanics.HealthSystem.Editor
                 EditorUtility.SetDirty(healthManager);
             }
 
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Max Health", centeredStyle);
+
+            // Editable Max Health Field
+            EditorGUI.BeginChangeCheck();
+            float newMax = EditorGUILayout.FloatField(healthManager.Max);
+            if (EditorGUI.EndChangeCheck())
+            {
+                healthManager.Max = newMax;
+                EditorUtility.SetDirty(healthManager);
+            }
+
             // Display total health percentage
             float totalHealth = healthManager.Current;
             float totalMax = healthManager.Max;

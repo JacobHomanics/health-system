@@ -71,7 +71,24 @@ namespace JacobHomanics.HealthSystem
             }
             set
             {
+                var previous = max;
                 max = value;
+                onMaxSet?.Invoke();
+
+                if (max != previous)
+                    onMaxChange?.Invoke();
+
+                if (max < previous)
+                    onMaxDown?.Invoke();
+
+                if (max > previous)
+                    onMaxUp?.Invoke();
+
+                // Clamp current to new max value
+                if (current > max)
+                {
+                    Current = max;
+                }
             }
         }
 
@@ -190,6 +207,48 @@ namespace JacobHomanics.HealthSystem
                     total += health.Max;
                 }
                 return total;
+            }
+            set
+            {
+                // Calculate current total max
+                float currentTotalMax = 0f;
+                foreach (var health in healths)
+                {
+                    if (health != null)
+                        currentTotalMax += health.Max;
+                }
+
+                float desiredTotal = Mathf.Max(0, value);
+                float difference = desiredTotal - currentTotalMax;
+
+                if (difference > 0)
+                {
+                    // Increase max - fill sequentially from last to first
+                    float remaining = difference;
+                    for (int i = healths.Count - 1; i >= 0 && remaining > 0; i--)
+                    {
+                        if (healths[i] != null)
+                        {
+                            healths[i].Max += remaining;
+                            remaining = 0;
+                            break; // Only fill the last health
+                        }
+                    }
+                }
+                else if (difference < 0)
+                {
+                    // Decrease max - remove sequentially from last to first
+                    float remaining = -difference;
+                    for (int i = healths.Count - 1; i >= 0 && remaining > 0; i--)
+                    {
+                        if (healths[i] != null && remaining > 0)
+                        {
+                            float reduction = Mathf.Min(healths[i].Max, remaining);
+                            healths[i].Max -= reduction;
+                            remaining -= reduction;
+                        }
+                    }
+                }
             }
         }
 

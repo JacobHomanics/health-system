@@ -442,8 +442,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healths:
-  - current: 98.5
-    max: 98.5
+  - current: 4
+    max: 4
     onCurrentSet:
       m_PersistentCalls:
         m_Calls: []
@@ -474,8 +474,8 @@ MonoBehaviour:
     onMaxUp:
       m_PersistentCalls:
         m_Calls: []
-  - current: 134.5
-    max: 134.5
+  - current: 300
+    max: 300
     onCurrentSet:
       m_PersistentCalls:
         m_Calls: []
@@ -506,8 +506,8 @@ MonoBehaviour:
     onMaxUp:
       m_PersistentCalls:
         m_Calls: []
-  - current: 30
-    max: 30
+  - current: 496
+    max: 496
     onCurrentSet:
       m_PersistentCalls:
         m_Calls: []
