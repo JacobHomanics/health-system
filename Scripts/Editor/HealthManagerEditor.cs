@@ -134,10 +134,42 @@ namespace JacobHomanics.HealthSystem.Editor
 
             EditorGUILayout.Space();
 
-            // Shield List
+            // Shield List or Simplified View
             if (shieldsProp != null)
             {
-                EditorGUILayout.PropertyField(shieldsProp, new GUIContent("Shields"), true);
+                if (shieldsProp.arraySize == 1)
+                {
+                    // Simplified view for single shield
+                    SerializedProperty shieldProp = shieldsProp.GetArrayElementAtIndex(0);
+                    if (shieldProp != null)
+                    {
+                        SerializedProperty valueProp = shieldProp.FindPropertyRelative("_value");
+                        SerializedProperty colorProp = shieldProp.FindPropertyRelative("color");
+
+                        EditorGUILayout.LabelField("Shield", centeredStyle);
+
+
+                        if (valueProp != null)
+                        {
+                            EditorGUI.BeginChangeCheck();
+                            float newValue = EditorGUILayout.FloatField(valueProp.floatValue);
+                            if (EditorGUI.EndChangeCheck())
+                            {
+                                valueProp.floatValue = Mathf.Max(0, newValue);
+                            }
+                        }
+
+                        if (colorProp != null)
+                        {
+                            EditorGUILayout.PropertyField(colorProp, GUIContent.none);
+                        }
+                    }
+                }
+                else
+                {
+                    // List view for multiple shields
+                    EditorGUILayout.PropertyField(shieldsProp, new GUIContent("Shields"), true);
+                }
             }
 
 
@@ -238,19 +270,44 @@ namespace JacobHomanics.HealthSystem.Editor
                     EditorUtility.SetDirty(healthManager);
                 }
             }
-
-            if (GUILayout.Button("Enable Multi-Shield Mode", GUILayout.Height(25)))
+            else
             {
-                healthManager.Shields.Add(new Shield(100));
-                EditorUtility.SetDirty(healthManager);
+                if (GUILayout.Button("Disable Multi-Health Mode", GUILayout.Height(25)))
+                {
+                    for (int i = healthManager.Healths.Count - 1; i >= 1; i--)
+                    {
+                        healthManager.Healths.Remove(healthManager.Healths[i]);
+                    }
+                    EditorUtility.SetDirty(healthManager);
+                }
             }
 
+            if (healthManager.Shields.Count == 1)
+            {
+                if (GUILayout.Button("Enable Multi-Shield Mode", GUILayout.Height(25)))
+                {
+                    healthManager.Shields.Add(new Shield(100));
+                    EditorUtility.SetDirty(healthManager);
+                }
+            }
+            else
+            {
+                if (GUILayout.Button("Disable Multi-Shield Mode", GUILayout.Height(25)))
+                {
+                    for (int i = healthManager.Shields.Count - 1; i >= 1; i--)
+                    {
+                        healthManager.Shields.Remove(healthManager.Shields[i]);
+                    }
+                    EditorUtility.SetDirty(healthManager);
+                }
 
 
 
-            // }
 
-            serializedObject.ApplyModifiedProperties();
+                // }
+
+                serializedObject.ApplyModifiedProperties();
+            }
         }
 
         private void DrawHealthBar()
