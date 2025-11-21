@@ -122,8 +122,6 @@ namespace JacobHomanics.HealthSystem.Editor
                 EditorUtility.SetDirty(health);
             }
 
-
-
             // Health List
             if (healthsProp != null)
             {

@@ -39,12 +39,27 @@ namespace JacobHomanics.TrickedOutUI
                 return fillAmount;
             }
 
-            // If already animating (including during delay), use the stored starting value
-            // to avoid recalculating from fillAmount which might have drifted
+            // If already animating, calculate the current animated value to continue from there
             float startValue;
             if (isAnimating)
             {
-                startValue = animationFromValue;
+                // Calculate current value based on animation progress
+                if (animationDelayRemaining > 0f)
+                {
+                    // Still in delay, use the starting value
+                    startValue = animationFromValue;
+                }
+                else if (animationDuration > 0f)
+                {
+                    // Calculate current interpolated value
+                    float t = Mathf.Clamp01(animationElapsed / animationDuration);
+                    startValue = Mathf.Lerp(animationFromValue, animationToValue, t);
+                }
+                else
+                {
+                    // Duration was 0, should be at target
+                    startValue = animationToValue;
+                }
             }
             else
             {
