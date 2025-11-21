@@ -25,6 +25,7 @@ namespace JacobHomanics.HealthSystem.Editor
         private float damageAmount = 1f;
         private float healAmount = 1f;
         private float shieldRestoreAmount = 1f;
+        private float shieldDamageAmount = 1f;
         private Color newShieldColor = new Color(0f, 0.7f, 1f, 0.7f);
 
         private void OnEnable()
@@ -178,10 +179,12 @@ namespace JacobHomanics.HealthSystem.Editor
 
             EditorGUILayout.Space(10);
 
-            // Quick Test Actions
+            EditorGUILayout.LabelField("Actions", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Health");
+
             EditorGUILayout.BeginHorizontal();
-            damageAmount = EditorGUILayout.FloatField("Damage Amount", damageAmount);
-            if (GUILayout.Button("Apply Damage", GUILayout.Height(18), GUILayout.Width(120)))
+            damageAmount = EditorGUILayout.FloatField("Damage", damageAmount);
+            if (GUILayout.Button("Apply", GUILayout.Height(18), GUILayout.Width(120)))
             {
                 health.Damage(damageAmount);
                 EditorUtility.SetDirty(health);
@@ -189,22 +192,39 @@ namespace JacobHomanics.HealthSystem.Editor
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
-            healAmount = EditorGUILayout.FloatField("Heal Amount", healAmount);
-            if (GUILayout.Button("Apply Heal", GUILayout.Height(18), GUILayout.Width(120)))
+            healAmount = EditorGUILayout.FloatField("Heal", healAmount);
+            if (GUILayout.Button("Apply", GUILayout.Height(18), GUILayout.Width(120)))
             {
                 health.Heal(healAmount);
                 EditorUtility.SetDirty(health);
             }
             EditorGUILayout.EndHorizontal();
 
+            EditorGUILayout.Space();
+
+            EditorGUILayout.LabelField("Shield");
+
+            // Quick Test Actions
+
+
             EditorGUILayout.BeginHorizontal();
-            shieldRestoreAmount = EditorGUILayout.FloatField("Shield Amount", shieldRestoreAmount);
-            if (GUILayout.Button("Restore Shield", GUILayout.Height(18), GUILayout.Width(120)))
+            shieldDamageAmount = EditorGUILayout.FloatField("Damage", shieldDamageAmount);
+            if (GUILayout.Button("Apply", GUILayout.Height(18), GUILayout.Width(120)))
             {
-                health.RestoreShield(shieldRestoreAmount);
+                health.Shield -= shieldDamageAmount;
                 EditorUtility.SetDirty(health);
             }
             EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            shieldRestoreAmount = EditorGUILayout.FloatField("Restore", shieldRestoreAmount);
+            if (GUILayout.Button("Apply", GUILayout.Height(18), GUILayout.Width(120)))
+            {
+                health.Shield += shieldRestoreAmount;
+                EditorUtility.SetDirty(health);
+            }
+            EditorGUILayout.EndHorizontal();
+
 
 
 
@@ -343,11 +363,11 @@ namespace JacobHomanics.HealthSystem.Editor
             EditorGUI.DrawRect(healthRect, healthColor);
 
             // Draw shield overlays if shields exist
-            if (health.ShieldTotal > 0)
+            if (health.Shield > 0)
             {
                 // Calculate shield as percentage of total (health + shield)
                 // Since shield has no max, we'll use a visual representation based on health max
-                float totalValue = totalMax + health.ShieldTotal;
+                float totalValue = totalMax + health.Shield;
                 float currentX = rect.x + rect.width;
 
                 // Draw each shield from right to left, stacked

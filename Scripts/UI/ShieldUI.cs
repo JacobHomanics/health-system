@@ -20,8 +20,8 @@ public class ShieldUI : MonoBehaviour
         //         float shieldPercent = totalValue > 0 ? health.ShieldCurrent / totalValue : 0;
         //         shieldPercent = Mathf.Clamp01(shieldPercent);
 
-        float totalMax = healthAdapter.Y + healthAdapter.health.ShieldTotal;
-        float shieldPercent = totalMax > 0 ? healthAdapter.health.ShieldTotal / totalMax : 0;
+        float totalMax = healthAdapter.Y + healthAdapter.health.Shield;
+        float shieldPercent = totalMax > 0 ? healthAdapter.health.Shield / totalMax : 0;
         shieldPercent = Mathf.Clamp01(shieldPercent);
         image.fillAmount = shieldPercent;
     }

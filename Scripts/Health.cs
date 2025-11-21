@@ -165,8 +165,7 @@ namespace JacobHomanics.HealthSystem
                 float currentTotal = 0f;
                 foreach (var health in healths)
                 {
-                    if (health != null)
-                        currentTotal += health.Current;
+                    currentTotal += health.Current;
                 }
 
                 float desiredTotal = Mathf.Clamp(value, 0, Max);
@@ -178,16 +177,15 @@ namespace JacobHomanics.HealthSystem
                     float remainingHeal = difference;
                     for (int i = Healths.Count - 1; i >= 0 && remainingHeal > 0; i--)
                     {
-                        if (Healths[i] != null)
+
+                        float missingHealth = Healths[i].Max - Healths[i].Current;
+                        if (missingHealth > 0)
                         {
-                            float missingHealth = Healths[i].Max - Healths[i].Current;
-                            if (missingHealth > 0)
-                            {
-                                float healAmount = Mathf.Min(missingHealth, remainingHeal);
-                                Healths[i].Current += healAmount;
-                                remainingHeal -= healAmount;
-                            }
+                            float healAmount = Mathf.Min(missingHealth, remainingHeal);
+                            Healths[i].Current += healAmount;
+                            remainingHeal -= healAmount;
                         }
+
                     }
                 }
                 else if (difference < 0)
@@ -196,12 +194,11 @@ namespace JacobHomanics.HealthSystem
                     float remainingDamage = -difference;
                     for (int i = 0; i < Healths.Count && remainingDamage > 0; i++)
                     {
-                        if (Healths[i] != null)
-                        {
-                            float healthDamage = Mathf.Min(Healths[i].Current, remainingDamage);
-                            Healths[i].Current -= healthDamage;
-                            remainingDamage -= healthDamage;
-                        }
+
+                        float healthDamage = Mathf.Min(Healths[i].Current, remainingDamage);
+                        Healths[i].Current -= healthDamage;
+                        remainingDamage -= healthDamage;
+
                     }
                 }
 
@@ -242,8 +239,7 @@ namespace JacobHomanics.HealthSystem
                 float currentTotalMax = 0f;
                 foreach (var health in healths)
                 {
-                    if (health != null)
-                        currentTotalMax += health.Max;
+                    currentTotalMax += health.Max;
                 }
 
                 float desiredTotal = Mathf.Max(0, value);
@@ -255,12 +251,9 @@ namespace JacobHomanics.HealthSystem
                     float remaining = difference;
                     for (int i = healths.Count - 1; i >= 0 && remaining > 0; i--)
                     {
-                        if (healths[i] != null)
-                        {
-                            healths[i].Max += remaining;
-                            remaining = 0;
-                            break; // Only fill the last health
-                        }
+                        healths[i].Max += remaining;
+                        remaining = 0;
+                        break; // Only fill the last health
                     }
                 }
                 else if (difference < 0)
@@ -280,17 +273,47 @@ namespace JacobHomanics.HealthSystem
             }
         }
 
-        public float ShieldTotal
+        public float Shield
         {
             get
             {
                 float total = 0f;
                 foreach (var shield in Shields)
                 {
-                    if (shield != null)
-                        total += Mathf.Max(0, shield.value);
+                    total += Mathf.Max(0, shield.value);
                 }
                 return total;
+            }
+            set
+            {
+                // Calculate current total directly to avoid recursion
+                float currentTotal = 0f;
+                foreach (var shield in shields)
+                {
+                    currentTotal += shield.value;
+                }
+
+                float desiredTotal = Mathf.Clamp(value, 0, Max);
+                float difference = desiredTotal - currentTotal;
+
+                if (difference > 0)
+                {
+                    // Increase shield - fill sequentially from last to first
+                    float remainingHeal = difference;
+
+                    Shields[0].value += remainingHeal;
+                }
+                else if (difference < 0)
+                {
+                    // Decrease health - remove sequentially from first to last
+                    float remainingDamage = -difference;
+                    for (int i = 0; i < Shields.Count && remainingDamage > 0; i++)
+                    {
+                        float healthDamage = Mathf.Min(Shields[i].value, remainingDamage);
+                        Shields[i].value -= healthDamage;
+                        remainingDamage -= healthDamage;
+                    }
+                }
             }
         }
 
@@ -331,15 +354,12 @@ namespace JacobHomanics.HealthSystem
             // Heal healths sequentially (from last to first)
             for (int i = Healths.Count - 1; i >= 0 && remainingHeal > 0; i--)
             {
-                if (Healths[i] != null)
+                float missingHealth = Healths[i].Max - Healths[i].Current;
+                if (missingHealth > 0)
                 {
-                    float missingHealth = Healths[i].Max - Healths[i].Current;
-                    if (missingHealth > 0)
-                    {
-                        float healAmount = Mathf.Min(missingHealth, remainingHeal);
-                        Healths[i].Current += healAmount;
-                        remainingHeal -= healAmount;
-                    }
+                    float healAmount = Mathf.Min(missingHealth, remainingHeal);
+                    Healths[i].Current += healAmount;
+                    remainingHeal -= healAmount;
                 }
             }
         }
@@ -350,6 +370,8 @@ namespace JacobHomanics.HealthSystem
             {
                 Shields.Add(new Shield(0f));
             }
+
+
             Shields[0].value += amount;
             onShieldChanged?.Invoke();
         }
