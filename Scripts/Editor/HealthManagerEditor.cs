@@ -237,6 +237,13 @@ namespace JacobHomanics.HealthSystem.Editor
                 EditorUtility.SetDirty(health);
             }
 
+            if (GUILayout.Button("Set Shield to 0", GUILayout.Height(25)))
+            {
+                health.Shield = 0;
+                EditorUtility.SetDirty(health);
+            }
+
+
             if (GUILayout.Button("Set Current Health to Max", GUILayout.Height(25)))
             {
                 health.Current = health.Max;
