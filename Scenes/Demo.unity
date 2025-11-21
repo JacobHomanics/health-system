@@ -442,7 +442,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healths:
-  - current: 0.334
+  - current: 2.429
     max: 5
     onCurrentSet:
       m_PersistentCalls:
@@ -475,7 +475,7 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
   shields:
-  - _value: 8
+  - _value: 0
     color: {r: 0, g: 0.14352083, b: 1, a: 0.7}
   onCurrentSet:
     m_PersistentCalls:

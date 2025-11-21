@@ -7,7 +7,7 @@ namespace JacobHomanics.HealthSystem.Editor
     [CanEditMultipleObjects]
     public class HealthManagerEditor : UnityEditor.Editor
     {
-        private Health healthManager;
+        private Health health;
         private SerializedProperty healthsProp;
         private SerializedProperty shieldsProp;
         private SerializedProperty onShieldChangedProp;
@@ -29,7 +29,7 @@ namespace JacobHomanics.HealthSystem.Editor
 
         private void OnEnable()
         {
-            healthManager = (Health)target;
+            health = (Health)target;
 
             healthsProp = serializedObject.FindProperty("healths");
             shieldsProp = serializedObject.FindProperty("shields");
@@ -45,23 +45,23 @@ namespace JacobHomanics.HealthSystem.Editor
         private int GetCurrentHealthIndex()
         {
             // Find the first health that still has health > 0, starting from the beginning
-            for (int i = 0; i < healthManager.Healths.Count; i++)
+            for (int i = 0; i < health.Healths.Count; i++)
             {
-                if (healthManager.Healths[i] != null && healthManager.Healths[i].Current > 0)
+                if (health.Healths[i] != null && health.Healths[i].Current > 0)
                 {
                     return i;
                 }
             }
             // If no health has health, return the first index (or -1 if list is empty)
-            return healthManager.Healths.Count > 0 ? 0 : -1;
+            return health.Healths.Count > 0 ? 0 : -1;
         }
 
         private HealthData GetCurrentHealth()
         {
             int index = GetCurrentHealthIndex();
-            if (index >= 0 && index < healthManager.Healths.Count)
+            if (index >= 0 && index < health.Healths.Count)
             {
-                return healthManager.Healths[index];
+                return health.Healths[index];
             }
             return null;
         }
@@ -84,16 +84,16 @@ namespace JacobHomanics.HealthSystem.Editor
 
 
             // Display total health percentage
-            float totalHealth = healthManager.Current;
-            float totalMax = healthManager.Max;
+            float totalHealth = health.Current;
+            float totalMax = health.Max;
             float healthPercent = totalMax > 0 ? (totalHealth / totalMax) * 100f : 0f;
             EditorGUILayout.LabelField($"Total: {totalHealth:F2} / {totalMax:F2} ({healthPercent:F2}%)", EditorStyles.centeredGreyMiniLabel);
 
             // Display shield total if shields exist
-            if (healthManager.ShieldTotal > 0)
-            {
-                EditorGUILayout.LabelField($"Shield Total: {healthManager.ShieldTotal:F2} ({healthManager.Shields.Count} shields)", EditorStyles.centeredGreyMiniLabel);
-            }
+            // if (health.ShieldTotal > 0)
+            // {
+            //     EditorGUILayout.LabelField($"Shield Total: {health.ShieldTotal:F2} ({health.Shields.Count} shields)", EditorStyles.centeredGreyMiniLabel);
+            // }
 
             EditorGUILayout.Space();
 
@@ -104,11 +104,11 @@ namespace JacobHomanics.HealthSystem.Editor
 
             // Editable Current Health Field
             EditorGUI.BeginChangeCheck();
-            float newCurrent = EditorGUILayout.Slider(healthManager.Current, 0, healthManager.Max);
+            float newCurrent = EditorGUILayout.Slider(health.Current, 0, health.Max);
             if (EditorGUI.EndChangeCheck())
             {
-                healthManager.Current = newCurrent;
-                EditorUtility.SetDirty(healthManager);
+                health.Current = newCurrent;
+                EditorUtility.SetDirty(health);
             }
 
             EditorGUILayout.Space();
@@ -116,11 +116,11 @@ namespace JacobHomanics.HealthSystem.Editor
 
             // Editable Max Health Field
             EditorGUI.BeginChangeCheck();
-            float newMax = EditorGUILayout.FloatField(healthManager.Max);
+            float newMax = EditorGUILayout.FloatField(health.Max);
             if (EditorGUI.EndChangeCheck())
             {
-                healthManager.Max = newMax;
-                EditorUtility.SetDirty(healthManager);
+                health.Max = newMax;
+                EditorUtility.SetDirty(health);
             }
 
 
@@ -186,8 +186,8 @@ namespace JacobHomanics.HealthSystem.Editor
             damageAmount = EditorGUILayout.FloatField("Damage Amount", damageAmount);
             if (GUILayout.Button("Apply Damage", GUILayout.Height(18), GUILayout.Width(120)))
             {
-                healthManager.Damage(damageAmount);
-                EditorUtility.SetDirty(healthManager);
+                health.Damage(damageAmount);
+                EditorUtility.SetDirty(health);
             }
             EditorGUILayout.EndHorizontal();
 
@@ -195,8 +195,8 @@ namespace JacobHomanics.HealthSystem.Editor
             healAmount = EditorGUILayout.FloatField("Heal Amount", healAmount);
             if (GUILayout.Button("Apply Heal", GUILayout.Height(18), GUILayout.Width(120)))
             {
-                healthManager.Heal(healAmount);
-                EditorUtility.SetDirty(healthManager);
+                health.Heal(healAmount);
+                EditorUtility.SetDirty(health);
             }
             EditorGUILayout.EndHorizontal();
 
@@ -204,8 +204,8 @@ namespace JacobHomanics.HealthSystem.Editor
             shieldRestoreAmount = EditorGUILayout.FloatField("Shield Amount", shieldRestoreAmount);
             if (GUILayout.Button("Restore Shield", GUILayout.Height(18), GUILayout.Width(120)))
             {
-                healthManager.RestoreShield(shieldRestoreAmount);
-                EditorUtility.SetDirty(healthManager);
+                health.RestoreShield(shieldRestoreAmount);
+                EditorUtility.SetDirty(health);
             }
             EditorGUILayout.EndHorizontal();
 
@@ -216,14 +216,14 @@ namespace JacobHomanics.HealthSystem.Editor
 
             if (GUILayout.Button("Set Current Health to 0", GUILayout.Height(25)))
             {
-                healthManager.Current = 0;
-                EditorUtility.SetDirty(healthManager);
+                health.Current = 0;
+                EditorUtility.SetDirty(health);
             }
 
             if (GUILayout.Button("Set Current Health to Max", GUILayout.Height(25)))
             {
-                healthManager.Current = healthManager.Max;
-                EditorUtility.SetDirty(healthManager);
+                health.Current = health.Max;
+                EditorUtility.SetDirty(health);
             }
 
             EditorGUILayout.EndHorizontal();
@@ -265,43 +265,43 @@ namespace JacobHomanics.HealthSystem.Editor
             EditorGUI.indentLevel--;
 
             EditorGUILayout.LabelField("Advanced", EditorStyles.boldLabel);
-            if (healthManager.Healths.Count == 1)
+            if (health.Healths.Count == 1)
             {
                 if (GUILayout.Button("Enable Multi-Health Mode", GUILayout.Height(25)))
                 {
-                    healthManager.Healths.Add(new HealthData(100, 100));
-                    EditorUtility.SetDirty(healthManager);
+                    health.Healths.Add(new HealthData(100, 100));
+                    EditorUtility.SetDirty(health);
                 }
             }
             else
             {
                 if (GUILayout.Button("Disable Multi-Health Mode", GUILayout.Height(25)))
                 {
-                    for (int i = healthManager.Healths.Count - 1; i >= 1; i--)
+                    for (int i = health.Healths.Count - 1; i >= 1; i--)
                     {
-                        healthManager.Healths.Remove(healthManager.Healths[i]);
+                        health.Healths.Remove(health.Healths[i]);
                     }
-                    EditorUtility.SetDirty(healthManager);
+                    EditorUtility.SetDirty(health);
                 }
             }
 
-            if (healthManager.Shields.Count == 1)
+            if (health.Shields.Count == 1)
             {
                 if (GUILayout.Button("Enable Multi-Shield Mode", GUILayout.Height(25)))
                 {
-                    healthManager.Shields.Add(new Shield(100));
-                    EditorUtility.SetDirty(healthManager);
+                    health.Shields.Add(new Shield(100));
+                    EditorUtility.SetDirty(health);
                 }
             }
             else
             {
                 if (GUILayout.Button("Disable Multi-Shield Mode", GUILayout.Height(25)))
                 {
-                    for (int i = healthManager.Shields.Count - 1; i >= 1; i--)
+                    for (int i = health.Shields.Count - 1; i >= 1; i--)
                     {
-                        healthManager.Shields.Remove(healthManager.Shields[i]);
+                        health.Shields.Remove(health.Shields[i]);
                     }
-                    EditorUtility.SetDirty(healthManager);
+                    EditorUtility.SetDirty(health);
                 }
 
 
@@ -317,8 +317,8 @@ namespace JacobHomanics.HealthSystem.Editor
         {
             Rect rect = GUILayoutUtility.GetRect(18, 18, GUILayout.ExpandWidth(true));
 
-            float totalHealth = healthManager.Current;
-            float totalMax = healthManager.Max;
+            float totalHealth = health.Current;
+            float totalMax = health.Max;
             float healthPercent = totalMax > 0 ? totalHealth / totalMax : 0;
             healthPercent = Mathf.Clamp01(healthPercent);
 
@@ -346,26 +346,26 @@ namespace JacobHomanics.HealthSystem.Editor
             EditorGUI.DrawRect(healthRect, healthColor);
 
             // Draw shield overlays if shields exist
-            if (healthManager.ShieldTotal > 0)
+            if (health.ShieldTotal > 0)
             {
                 // Calculate shield as percentage of total (health + shield)
                 // Since shield has no max, we'll use a visual representation based on health max
-                float totalValue = totalMax + healthManager.ShieldTotal;
+                float totalValue = totalMax + health.ShieldTotal;
                 float currentX = rect.x + rect.width;
 
                 // Draw each shield from right to left, stacked
-                for (int i = healthManager.Shields.Count - 1; i >= 0; i--)
+                for (int i = health.Shields.Count - 1; i >= 0; i--)
                 {
-                    if (healthManager.Shields[i] != null && healthManager.Shields[i].value > 0)
+                    if (health.Shields[i] != null && health.Shields[i].value > 0)
                     {
-                        float shieldPercent = totalValue > 0 ? healthManager.Shields[i].value / totalValue : 0;
+                        float shieldPercent = totalValue > 0 ? health.Shields[i].value / totalValue : 0;
                         shieldPercent = Mathf.Clamp01(shieldPercent);
 
                         float shieldWidth = rect.width * shieldPercent;
                         Rect shieldRect = new Rect(currentX - shieldWidth, rect.y, shieldWidth, rect.height);
 
                         // Use the shield's own color
-                        EditorGUI.DrawRect(shieldRect, healthManager.Shields[i].color);
+                        EditorGUI.DrawRect(shieldRect, health.Shields[i].color);
 
                         currentX -= shieldWidth;
                     }
