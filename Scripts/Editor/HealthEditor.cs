@@ -11,7 +11,6 @@ namespace JacobHomanics.HealthSystem.Editor
         private SerializedProperty currentProp;
         private SerializedProperty maxProp;
         private SerializedProperty shieldCurrentProp;
-        private SerializedProperty shieldMaxProp;
         private SerializedProperty onCurrentSetProp;
         private SerializedProperty onCurrentChangeProp;
         private SerializedProperty onCurrentDownProp;
@@ -26,16 +25,11 @@ namespace JacobHomanics.HealthSystem.Editor
         private SerializedProperty onShieldCurrentChangeProp;
         private SerializedProperty onShieldCurrentDownProp;
         private SerializedProperty onShieldCurrentUpProp;
-        private SerializedProperty onShieldCurrentMaxProp;
         private SerializedProperty onShieldCurrentZeroProp;
-        private SerializedProperty onShieldMaxSetProp;
-        private SerializedProperty onShieldMaxChangeProp;
-        private SerializedProperty onShieldMaxDownProp;
-        private SerializedProperty onShieldMaxUpProp;
 
         private bool showEvents = true;
         private int selectedEventTab = 0;
-        private readonly string[] eventTabNames = { "Current Health", "Max Health", "Current Shield", "Max Shield" };
+        private readonly string[] eventTabNames = { "Current Health", "Max Health", "Current Shield" };
 
         private float damageAmount = 1f;
         private float healAmount = 1f;
@@ -48,7 +42,6 @@ namespace JacobHomanics.HealthSystem.Editor
             currentProp = serializedObject.FindProperty("current");
             maxProp = serializedObject.FindProperty("max");
             shieldCurrentProp = serializedObject.FindProperty("shieldCurrent");
-            shieldMaxProp = serializedObject.FindProperty("shieldMax");
             onCurrentSetProp = serializedObject.FindProperty("onCurrentSet");
             onCurrentChangeProp = serializedObject.FindProperty("onCurrentChange");
             onCurrentDownProp = serializedObject.FindProperty("onCurrentDown");
@@ -63,12 +56,7 @@ namespace JacobHomanics.HealthSystem.Editor
             onShieldCurrentChangeProp = serializedObject.FindProperty("onShieldCurrentChange");
             onShieldCurrentDownProp = serializedObject.FindProperty("onShieldCurrentDown");
             onShieldCurrentUpProp = serializedObject.FindProperty("onShieldCurrentUp");
-            onShieldCurrentMaxProp = serializedObject.FindProperty("onShieldCurrentMax");
             onShieldCurrentZeroProp = serializedObject.FindProperty("onShieldCurrentZero");
-            onShieldMaxSetProp = serializedObject.FindProperty("onShieldMaxSet");
-            onShieldMaxChangeProp = serializedObject.FindProperty("onShieldMaxChange");
-            onShieldMaxDownProp = serializedObject.FindProperty("onShieldMaxDown");
-            onShieldMaxUpProp = serializedObject.FindProperty("onShieldMaxUp");
         }
 
         public override void OnInspectorGUI()
@@ -88,11 +76,10 @@ namespace JacobHomanics.HealthSystem.Editor
             float healthPercent = health.Max > 0 ? (health.Current / health.Max) * 100f : 0f;
             EditorGUILayout.LabelField($"Health: {healthPercent:F2}%", EditorStyles.centeredGreyMiniLabel);
 
-            // Display shield percentage if shield exists
-            if (health.ShieldMax > 0)
+            // Display shield value if shield exists
+            if (health.ShieldCurrent > 0)
             {
-                float shieldPercent = health.ShieldMax > 0 ? (health.ShieldCurrent / health.ShieldMax) * 100f : 0f;
-                EditorGUILayout.LabelField($"Shield: {shieldPercent:F2}%", EditorStyles.centeredGreyMiniLabel);
+                EditorGUILayout.LabelField($"Shield: {health.ShieldCurrent:F2}", EditorStyles.centeredGreyMiniLabel);
             }
 
             EditorGUILayout.Space();
@@ -127,25 +114,13 @@ namespace JacobHomanics.HealthSystem.Editor
             EditorGUILayout.LabelField("Shield", EditorStyles.boldLabel);
             EditorGUILayout.Space();
 
-            // Shield Slider
+            // Shield Value Field
             EditorGUI.BeginChangeCheck();
-            float newShieldCurrent = EditorGUILayout.Slider("Current Shield", health.ShieldCurrent, 0, health.ShieldMax);
+            float newShieldCurrent = EditorGUILayout.FloatField("Current Shield", health.ShieldCurrent);
             if (EditorGUI.EndChangeCheck())
             {
                 health.ShieldCurrent = newShieldCurrent;
                 EditorUtility.SetDirty(health);
-            }
-
-            EditorGUI.BeginChangeCheck();
-            EditorGUILayout.PropertyField(shieldMaxProp, new GUIContent("Max Shield"));
-            if (EditorGUI.EndChangeCheck())
-            {
-                serializedObject.ApplyModifiedProperties();
-                // Ensure shield current doesn't exceed new max
-                if (health.ShieldCurrent > health.ShieldMax)
-                {
-                    health.ShieldCurrent = health.ShieldMax;
-                }
             }
 
             EditorGUILayout.Space();
@@ -198,24 +173,15 @@ namespace JacobHomanics.HealthSystem.Editor
 
             EditorGUILayout.EndHorizontal();
 
-            if (health.ShieldMax > 0)
+            EditorGUILayout.BeginHorizontal();
+
+            if (GUILayout.Button("Set Shield to 0", GUILayout.Height(25)))
             {
-                EditorGUILayout.BeginHorizontal();
-
-                if (GUILayout.Button("Set Shield to 0", GUILayout.Height(25)))
-                {
-                    health.ShieldCurrent = 0;
-                    EditorUtility.SetDirty(health);
-                }
-
-                if (GUILayout.Button("Set Shield to Max", GUILayout.Height(25)))
-                {
-                    health.ShieldCurrent = health.ShieldMax;
-                    EditorUtility.SetDirty(health);
-                }
-
-                EditorGUILayout.EndHorizontal();
+                health.ShieldCurrent = 0;
+                EditorUtility.SetDirty(health);
             }
+
+            EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.Space(10);
 
@@ -252,23 +218,14 @@ namespace JacobHomanics.HealthSystem.Editor
                 EditorGUILayout.PropertyField(onMaxDownProp);
                 EditorGUILayout.PropertyField(onMaxUpProp);
             }
-            else if (selectedEventTab == 2)
+            else
             {
                 // Current Shield Events
                 EditorGUILayout.PropertyField(onShieldCurrentSetProp);
                 EditorGUILayout.PropertyField(onShieldCurrentChangeProp);
                 EditorGUILayout.PropertyField(onShieldCurrentDownProp);
                 EditorGUILayout.PropertyField(onShieldCurrentUpProp);
-                EditorGUILayout.PropertyField(onShieldCurrentMaxProp);
                 EditorGUILayout.PropertyField(onShieldCurrentZeroProp);
-            }
-            else
-            {
-                // Max Shield Events
-                EditorGUILayout.PropertyField(onShieldMaxSetProp);
-                EditorGUILayout.PropertyField(onShieldMaxChangeProp);
-                EditorGUILayout.PropertyField(onShieldMaxDownProp);
-                EditorGUILayout.PropertyField(onShieldMaxUpProp);
             }
 
             EditorGUI.indentLevel--;
@@ -308,11 +265,12 @@ namespace JacobHomanics.HealthSystem.Editor
             EditorGUI.DrawRect(healthRect, healthColor);
 
             // Draw shield overlay if shield exists
-            if (health.ShieldMax > 0 && health.ShieldCurrent > 0)
+            if (health.ShieldCurrent > 0)
             {
                 // Calculate shield as percentage of total (health + shield)
-                float totalMax = health.Max + health.ShieldMax;
-                float shieldPercent = totalMax > 0 ? health.ShieldCurrent / totalMax : 0;
+                // Since shield has no max, we'll use a visual representation based on health max
+                float totalValue = health.Max + health.ShieldCurrent;
+                float shieldPercent = totalValue > 0 ? health.ShieldCurrent / totalValue : 0;
                 shieldPercent = Mathf.Clamp01(shieldPercent);
 
                 // Draw shield bar on top of health (cyan/blue color)

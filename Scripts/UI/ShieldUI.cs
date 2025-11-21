@@ -16,7 +16,11 @@ public class ShieldUI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float totalMax = healthAdapter.Y + healthAdapter.health.ShieldMax;
+        //   float totalValue = health.Max + health.ShieldCurrent;
+        //         float shieldPercent = totalValue > 0 ? health.ShieldCurrent / totalValue : 0;
+        //         shieldPercent = Mathf.Clamp01(shieldPercent);
+
+        float totalMax = healthAdapter.Y + healthAdapter.health.ShieldCurrent;
         float shieldPercent = totalMax > 0 ? healthAdapter.health.ShieldCurrent / totalMax : 0;
         shieldPercent = Mathf.Clamp01(shieldPercent);
         image.fillAmount = shieldPercent;

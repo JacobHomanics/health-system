@@ -428,8 +428,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   current: 16.6
   max: 30
-  shieldCurrent: 5
-  shieldMax: 5
+  shieldCurrent: 196
   onCurrentSet:
     m_PersistentCalls:
       m_Calls: []
@@ -484,22 +483,7 @@ MonoBehaviour:
   onShieldCurrentUp:
     m_PersistentCalls:
       m_Calls: []
-  onShieldCurrentMax:
-    m_PersistentCalls:
-      m_Calls: []
   onShieldCurrentZero:
-    m_PersistentCalls:
-      m_Calls: []
-  onShieldMaxSet:
-    m_PersistentCalls:
-      m_Calls: []
-  onShieldMaxChange:
-    m_PersistentCalls:
-      m_Calls: []
-  onShieldMaxDown:
-    m_PersistentCalls:
-      m_Calls: []
-  onShieldMaxUp:
     m_PersistentCalls:
       m_Calls: []
 --- !u!4 &1004101014

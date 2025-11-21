@@ -59,7 +59,7 @@ namespace JacobHomanics.HealthSystem
             set
             {
                 var previous = shieldCurrent;
-                shieldCurrent = Mathf.Clamp(value, 0, ShieldMax);
+                shieldCurrent = Mathf.Max(0, value);
                 onShieldCurrentSet?.Invoke();
 
                 if (shieldCurrent != previous)
@@ -73,33 +73,6 @@ namespace JacobHomanics.HealthSystem
 
                 if (shieldCurrent == 0)
                     onShieldCurrentZero?.Invoke();
-
-                if (shieldCurrent == ShieldMax)
-                    onShieldCurrentMax?.Invoke();
-            }
-        }
-
-        [SerializeField] private float shieldMax;
-        public float ShieldMax
-        {
-            get
-            {
-                return shieldMax;
-            }
-            set
-            {
-                var previous = shieldMax;
-                shieldMax = value;
-                onShieldMaxSet?.Invoke();
-
-                if (shieldMax != previous)
-                    onShieldMaxChange?.Invoke(shieldMax);
-
-                if (shieldMax < previous)
-                    onShieldMaxDown?.Invoke();
-
-                if (shieldMax > previous)
-                    onShieldMaxUp?.Invoke();
             }
         }
 
@@ -123,14 +96,7 @@ namespace JacobHomanics.HealthSystem
 
         public UnityEvent onShieldCurrentDown;
         public UnityEvent onShieldCurrentUp;
-        public UnityEvent onShieldCurrentMax;
         public UnityEvent onShieldCurrentZero;
-
-        public UnityEvent onShieldMaxSet;
-        public UnityEvent<float> onShieldMaxChange;
-
-        public UnityEvent onShieldMaxDown;
-        public UnityEvent onShieldMaxUp;
 
         public void Damage(float amount)
         {
