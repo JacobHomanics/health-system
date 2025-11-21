@@ -25,6 +25,9 @@ namespace JacobHomanics.HealthSystem.Editor
         private int selectedEventTab = 0;
         private readonly string[] eventTabNames = { "Current Health", "Max Health" };
 
+        private float damageAmount = 1f;
+        private float healAmount = 1f;
+
         private void OnEnable()
         {
             health = (Health)target;
@@ -63,6 +66,17 @@ namespace JacobHomanics.HealthSystem.Editor
             EditorGUILayout.Space();
 
             // Max Health
+
+
+            // Health Slider (read-only in play mode to show current state)
+            EditorGUI.BeginChangeCheck();
+            float newCurrent = EditorGUILayout.Slider("Current Health", health.Current, 0, health.Max);
+            if (EditorGUI.EndChangeCheck())
+            {
+                health.Current = newCurrent;
+                EditorUtility.SetDirty(health);
+            }
+
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(maxProp, new GUIContent("Max Health"));
             if (EditorGUI.EndChangeCheck())
@@ -75,61 +89,28 @@ namespace JacobHomanics.HealthSystem.Editor
                 }
             }
 
-            // EditorGUILayout.Space();
-
-            // Current Health (read-only display with slider)
-            EditorGUI.BeginDisabledGroup(Application.isPlaying);
-            // EditorGUILayout.PropertyField(currentProp, new GUIContent("Current Health"));
-            EditorGUI.EndDisabledGroup();
-
-            // Health Slider (read-only in play mode to show current state)
-            EditorGUI.BeginChangeCheck();
-            float newCurrent = EditorGUILayout.Slider("Current Health", health.Current, 0, health.Max);
-            if (EditorGUI.EndChangeCheck())
-            {
-                health.Current = newCurrent;
-                EditorUtility.SetDirty(health);
-            }
-
             EditorGUILayout.Space();
 
 
             EditorGUILayout.Space(10);
 
             // Quick Test Actions
-            // if (Application.isPlaying)
-            // {
-            // EditorGUILayout.LabelField("Quick Test Actions", EditorStyles.boldLabel);
             EditorGUILayout.BeginHorizontal();
-
-            if (GUILayout.Button("Damage 1", GUILayout.Height(25)))
+            damageAmount = EditorGUILayout.FloatField("Damage Amount", damageAmount);
+            if (GUILayout.Button("Apply Damage", GUILayout.Height(18), GUILayout.Width(120)))
             {
-                health.Current -= 1;
+                health.Current -= damageAmount;
                 EditorUtility.SetDirty(health);
             }
-
-            if (GUILayout.Button("Damage 10", GUILayout.Height(25)))
-            {
-                health.Current -= 10;
-                EditorUtility.SetDirty(health);
-            }
-
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
-
-            if (GUILayout.Button("Heal 1", GUILayout.Height(25)))
+            healAmount = EditorGUILayout.FloatField("Heal Amount", healAmount);
+            if (GUILayout.Button("Apply Heal", GUILayout.Height(18), GUILayout.Width(120)))
             {
-                health.Current += 1;
+                health.Current += healAmount;
                 EditorUtility.SetDirty(health);
             }
-
-            if (GUILayout.Button("Heal 10", GUILayout.Height(25)))
-            {
-                health.Current += 10;
-                EditorUtility.SetDirty(health);
-            }
-
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.Space(5);
@@ -148,11 +129,6 @@ namespace JacobHomanics.HealthSystem.Editor
             }
 
             EditorGUILayout.EndHorizontal();
-            // }
-            // else
-            // {
-            //     // EditorGUILayout.HelpBox("Quick test actions are available in Play Mode", MessageType.Info);
-            // }
 
             EditorGUILayout.Space(10);
 
