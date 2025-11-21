@@ -376,7 +376,7 @@ GameObject:
   - component: {fileID: 1004101014}
   - component: {fileID: 1004101015}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: Health System
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -391,7 +391,7 @@ Transform:
   m_GameObject: {fileID: 1004101012}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1106.8059, y: 607.07446, z: -2.6520522}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -410,8 +410,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healths:
-  - current: 3.93
-    max: 3.93
+  - current: 10
+    max: 10
   shields:
   - _value: 0
     color: {r: 0, g: 0.14352083, b: 1, a: 0.7}
