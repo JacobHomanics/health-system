@@ -11,10 +11,16 @@ namespace JacobHomanics.HealthSystem.Editor
         private SerializedProperty healthsProp;
         private SerializedProperty shieldsProp;
         private SerializedProperty onShieldChangedProp;
+        private SerializedProperty onCurrentSetProp;
+        private SerializedProperty onCurrentChangeProp;
+        private SerializedProperty onCurrentDownProp;
+        private SerializedProperty onCurrentUpProp;
+        private SerializedProperty onCurrentMaxProp;
+        private SerializedProperty onCurrentZeroProp;
 
         private bool showEvents = true;
         private int selectedEventTab = 0;
-        private readonly string[] eventTabNames = { "Current Health", "Max Health", "Shield" };
+        private readonly string[] eventTabNames = { "Current Health", "Shield" };
 
         private float damageAmount = 1f;
         private float healAmount = 1f;
@@ -28,6 +34,12 @@ namespace JacobHomanics.HealthSystem.Editor
             healthsProp = serializedObject.FindProperty("healths");
             shieldsProp = serializedObject.FindProperty("shields");
             onShieldChangedProp = serializedObject.FindProperty("onShieldChanged");
+            onCurrentSetProp = serializedObject.FindProperty("onCurrentSet");
+            onCurrentChangeProp = serializedObject.FindProperty("onCurrentChange");
+            onCurrentDownProp = serializedObject.FindProperty("onCurrentDown");
+            onCurrentUpProp = serializedObject.FindProperty("onCurrentUp");
+            onCurrentMaxProp = serializedObject.FindProperty("onCurrentMax");
+            onCurrentZeroProp = serializedObject.FindProperty("onCurrentZero");
         }
 
         private int GetCurrentHealthIndex()
@@ -138,7 +150,7 @@ namespace JacobHomanics.HealthSystem.Editor
             damageAmount = EditorGUILayout.FloatField("Damage Amount", damageAmount);
             if (GUILayout.Button("Apply Damage", GUILayout.Height(18), GUILayout.Width(120)))
             {
-                healthManager.Damage(damageAmount);
+                healthManager.Current -= damageAmount;
                 EditorUtility.SetDirty(healthManager);
             }
             EditorGUILayout.EndHorizontal();
@@ -147,7 +159,7 @@ namespace JacobHomanics.HealthSystem.Editor
             healAmount = EditorGUILayout.FloatField("Heal Amount", healAmount);
             if (GUILayout.Button("Apply Heal", GUILayout.Height(18), GUILayout.Width(120)))
             {
-                healthManager.Heal(healAmount);
+                healthManager.Current += healAmount;
                 EditorUtility.SetDirty(healthManager);
             }
             EditorGUILayout.EndHorizontal();
@@ -161,15 +173,7 @@ namespace JacobHomanics.HealthSystem.Editor
             }
             EditorGUILayout.EndHorizontal();
 
-            EditorGUILayout.BeginHorizontal();
-            newShieldColor = EditorGUILayout.ColorField("Shield Color", newShieldColor);
-            if (GUILayout.Button("Add New Shield", GUILayout.Height(18), GUILayout.Width(120)))
-            {
-                healthManager.Shields.Add(new Shield(shieldRestoreAmount, newShieldColor));
-                healthManager.onShieldChanged?.Invoke();
-                EditorUtility.SetDirty(healthManager);
-            }
-            EditorGUILayout.EndHorizontal();
+
 
             EditorGUILayout.Space(5);
             EditorGUILayout.BeginHorizontal();
@@ -192,16 +196,6 @@ namespace JacobHomanics.HealthSystem.Editor
 
             EditorGUILayout.EndHorizontal();
 
-            EditorGUILayout.BeginHorizontal();
-
-            if (GUILayout.Button("Clear All Shields", GUILayout.Height(25)))
-            {
-                healthManager.Shields.Clear();
-                healthManager.onShieldChanged?.Invoke();
-                EditorUtility.SetDirty(healthManager);
-            }
-
-            EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.Space(10);
 
@@ -219,49 +213,16 @@ namespace JacobHomanics.HealthSystem.Editor
 
             EditorGUILayout.Space(5);
 
-            // Get current health index once for all event tabs
-            int currentHealthIndex = GetCurrentHealthIndex();
-
             // Display events based on selected tab
             if (selectedEventTab == 0)
             {
-                // Current Health Events (from the current health)
-                if (currentHealthIndex >= 0 && healthsProp != null && currentHealthIndex < healthsProp.arraySize)
-                {
-                    SerializedProperty currentHealthProp = healthsProp.GetArrayElementAtIndex(currentHealthIndex);
-                    if (currentHealthProp != null)
-                    {
-                        EditorGUILayout.PropertyField(currentHealthProp.FindPropertyRelative("onCurrentSet"));
-                        EditorGUILayout.PropertyField(currentHealthProp.FindPropertyRelative("onCurrentChange"));
-                        EditorGUILayout.PropertyField(currentHealthProp.FindPropertyRelative("onCurrentDown"));
-                        EditorGUILayout.PropertyField(currentHealthProp.FindPropertyRelative("onCurrentUp"));
-                        EditorGUILayout.PropertyField(currentHealthProp.FindPropertyRelative("onCurrentMax"));
-                        EditorGUILayout.PropertyField(currentHealthProp.FindPropertyRelative("onCurrentZero"));
-                    }
-                }
-                else
-                {
-                    EditorGUILayout.HelpBox("No health with health > 0. Add a health to the list and set its current value > 0.", MessageType.Info);
-                }
-            }
-            else if (selectedEventTab == 1)
-            {
-                // Max Health Events (from the current health)
-                if (currentHealthIndex >= 0 && healthsProp != null && currentHealthIndex < healthsProp.arraySize)
-                {
-                    SerializedProperty currentHealthProp = healthsProp.GetArrayElementAtIndex(currentHealthIndex);
-                    if (currentHealthProp != null)
-                    {
-                        EditorGUILayout.PropertyField(currentHealthProp.FindPropertyRelative("onMaxSet"));
-                        EditorGUILayout.PropertyField(currentHealthProp.FindPropertyRelative("onMaxChange"));
-                        EditorGUILayout.PropertyField(currentHealthProp.FindPropertyRelative("onMaxDown"));
-                        EditorGUILayout.PropertyField(currentHealthProp.FindPropertyRelative("onMaxUp"));
-                    }
-                }
-                else
-                {
-                    EditorGUILayout.HelpBox("No health with health > 0. Add a health to the list and set its current value > 0.", MessageType.Info);
-                }
+                // Current Health Events (from HealthManager)
+                EditorGUILayout.PropertyField(onCurrentSetProp);
+                EditorGUILayout.PropertyField(onCurrentChangeProp);
+                EditorGUILayout.PropertyField(onCurrentDownProp);
+                EditorGUILayout.PropertyField(onCurrentUpProp);
+                EditorGUILayout.PropertyField(onCurrentMaxProp);
+                EditorGUILayout.PropertyField(onCurrentZeroProp);
             }
             else
             {

@@ -442,23 +442,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healths:
-  - current: 0
+  - current: 98.5
     max: 98.5
     onCurrentSet:
       m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 0}
-          m_TargetAssemblyTypeName: 
-          m_MethodName: 
-          m_Mode: 1
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: 
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
+        m_Calls: []
     onCurrentChange:
       m_PersistentCalls:
         m_Calls: []
@@ -486,7 +474,7 @@ MonoBehaviour:
     onMaxUp:
       m_PersistentCalls:
         m_Calls: []
-  - current: 120.8
+  - current: 134.5
     max: 134.5
     onCurrentSet:
       m_PersistentCalls:
@@ -553,6 +541,36 @@ MonoBehaviour:
   shields:
   - _value: 0
     color: {r: 0, g: 0.100815535, b: 1, a: 1}
+  onCurrentSet:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1234926571}
+        m_TargetAssemblyTypeName: Debugger, Assembly-CSharp
+        m_MethodName: Display
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: HERLPERLP
+          m_BoolArgument: 0
+        m_CallState: 2
+  onCurrentChange:
+    m_PersistentCalls:
+      m_Calls: []
+  onCurrentDown:
+    m_PersistentCalls:
+      m_Calls: []
+  onCurrentUp:
+    m_PersistentCalls:
+      m_Calls: []
+  onCurrentMax:
+    m_PersistentCalls:
+      m_Calls: []
+  onCurrentZero:
+    m_PersistentCalls:
+      m_Calls: []
   onShieldChanged:
     m_PersistentCalls:
       m_Calls: []

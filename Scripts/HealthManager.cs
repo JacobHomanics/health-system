@@ -117,17 +117,13 @@ namespace JacobHomanics.HealthSystem
             }
         }
 
-        // public int CurrentHealthIndex
-        // {
-        //     get => currentHealthIndex;
-        //     set
-        //     {
-        //         if (value >= 0 && value < Healths.Count)
-        //         {
-        //             currentHealthIndex = value;
-        //         }
-        //     }
-        // }
+        public UnityEvent onCurrentSet;
+        public UnityEvent<float> onCurrentChange;
+
+        public UnityEvent onCurrentDown;
+        public UnityEvent onCurrentUp;
+        public UnityEvent onCurrentMax;
+        public UnityEvent onCurrentZero;
 
         public float Current
         {
@@ -163,6 +159,24 @@ namespace JacobHomanics.HealthSystem
                     // Decrease health - use Damage method (first to last)
                     Damage(-difference);
                 }
+
+                onCurrentSet?.Invoke();
+
+                if (value != currentTotal)
+                    onCurrentChange?.Invoke(value);
+
+                if (value < currentTotal)
+                    onCurrentDown?.Invoke();
+
+                if (value > currentTotal)
+                    onCurrentUp?.Invoke();
+
+                if (value == 0)
+                    onCurrentZero?.Invoke();
+
+                if (value == Max)
+                    onCurrentMax?.Invoke();
+
             }
         }
 
@@ -195,21 +209,7 @@ namespace JacobHomanics.HealthSystem
 
         public UnityEvent onShieldChanged;
 
-        private int GetCurrentHealthIndex()
-        {
-            // Find the first health that still has health > 0, starting from the beginning
-            for (int i = 0; i < Healths.Count; i++)
-            {
-                if (Healths[i] != null && Healths[i].Current > 0)
-                {
-                    return i;
-                }
-            }
-            // If no health has health, return the first index (or -1 if list is empty)
-            return Healths.Count > 0 ? 0 : -1;
-        }
-
-        public void Damage(float amount)
+        private void Damage(float amount)
         {
             float remainingDamage = amount;
 
@@ -241,7 +241,7 @@ namespace JacobHomanics.HealthSystem
             onShieldChanged?.Invoke();
         }
 
-        public void Heal(float amount)
+        private void Heal(float amount)
         {
             float remainingHeal = amount;
 
