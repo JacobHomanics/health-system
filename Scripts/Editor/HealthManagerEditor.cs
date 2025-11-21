@@ -30,8 +30,11 @@ namespace JacobHomanics.HealthSystem.Editor
         // Animation for lagged lost health bar
         private float displayedHealth = 0f; // The lagged health value (what we display)
         private float previousCurrentHealth = 0f;
-        private double lastUpdateTime = 0f;
-        private const float animationSpeed = 2f; // How fast the lagged health follows (higher = faster)
+        private float startHealth = 0f; // Starting health value for animation
+        private float targetHealth = 0f; // Target health value for animation
+        private double animationStartTime = 0f; // When the current animation started
+        private bool isAnimating = false;
+        private const float animationDuration = 0.5f; // Duration in seconds for the animation
 
         private void OnEnable()
         {
@@ -50,7 +53,10 @@ namespace JacobHomanics.HealthSystem.Editor
             // Initialize lagged health animation
             displayedHealth = health.Current;
             previousCurrentHealth = health.Current;
-            lastUpdateTime = EditorApplication.timeSinceStartup;
+            startHealth = health.Current;
+            targetHealth = health.Current;
+            isAnimating = false;
+            animationStartTime = EditorApplication.timeSinceStartup;
         }
 
         private int GetCurrentHealthIndex()
@@ -88,7 +94,7 @@ namespace JacobHomanics.HealthSystem.Editor
 
             EditorGUILayout.Space();
 
-            // Animate lagged health bar
+            // Animate lagged health bar (duration-based)
             float currentHealth = health.Current;
             bool healthIncreased = currentHealth > previousCurrentHealth;
             bool healthDecreased = currentHealth < previousCurrentHealth;
@@ -97,49 +103,42 @@ namespace JacobHomanics.HealthSystem.Editor
             if (healthIncreased)
             {
                 displayedHealth = currentHealth;
-                lastUpdateTime = EditorApplication.timeSinceStartup;
+                startHealth = currentHealth;
+                targetHealth = currentHealth;
+                isAnimating = false;
             }
-            // If health decreased (damage), preserve displayedHealth at previous value, then animate
+            // If health decreased (damage), start new animation
             else if (healthDecreased)
             {
-                // On first frame of damage, ensure displayedHealth is at the previous health value
-                // This creates the gap that will animate down
-                if (displayedHealth <= currentHealth || Mathf.Abs(displayedHealth - previousCurrentHealth) < 0.01f)
+                // On first frame of damage, set up animation from previous health to current health
+                startHealth = previousCurrentHealth;
+                targetHealth = currentHealth;
+                displayedHealth = startHealth;
+                animationStartTime = EditorApplication.timeSinceStartup;
+                isAnimating = true;
+            }
+
+            // Update animation if in progress
+            if (isAnimating)
+            {
+                double currentTime = EditorApplication.timeSinceStartup;
+                float elapsed = (float)(currentTime - animationStartTime);
+                float progress = Mathf.Clamp01(elapsed / animationDuration);
+
+                // Interpolate from start to target
+                displayedHealth = Mathf.Lerp(startHealth, targetHealth, progress);
+
+                // Check if animation is complete
+                if (progress >= 1f || Mathf.Abs(displayedHealth - targetHealth) < 0.01f)
                 {
-                    // Set displayedHealth to previous value to create the lag effect
-                    displayedHealth = previousCurrentHealth;
-                    lastUpdateTime = EditorApplication.timeSinceStartup;
+                    displayedHealth = targetHealth;
+                    isAnimating = false;
                 }
-
-                // Animate displayed health towards current health
-                if (Mathf.Abs(displayedHealth - currentHealth) > 0.01f)
+                else
                 {
-                    // Calculate delta time
-                    double currentTime = EditorApplication.timeSinceStartup;
-                    float deltaTime = (float)(currentTime - lastUpdateTime);
-                    lastUpdateTime = currentTime;
-
-                    // Smoothly animate displayed health towards current health
-                    // displayedHealth can be greater than currentHealth when lagging behind
-                    displayedHealth = Mathf.Lerp(displayedHealth, currentHealth, animationSpeed * deltaTime);
-
-                    // Force repaint if still animating
+                    // Force repaint for smooth animation
                     Repaint();
                 }
-            }
-            // If health didn't change but displayedHealth is still catching up, continue animation
-            else if (Mathf.Abs(displayedHealth - currentHealth) > 0.01f && displayedHealth > currentHealth)
-            {
-                // Calculate delta time
-                double currentTime = EditorApplication.timeSinceStartup;
-                float deltaTime = (float)(currentTime - lastUpdateTime);
-                lastUpdateTime = currentTime;
-
-                // Continue animating displayed health towards current health
-                displayedHealth = Mathf.Lerp(displayedHealth, currentHealth, animationSpeed * deltaTime);
-
-                // Force repaint if still animating
-                Repaint();
             }
 
             previousCurrentHealth = currentHealth;
