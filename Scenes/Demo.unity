@@ -474,8 +474,8 @@ MonoBehaviour:
     onMaxUp:
       m_PersistentCalls:
         m_Calls: []
-  - current: 300
-    max: 300
+  - current: 4
+    max: 4
     onCurrentSet:
       m_PersistentCalls:
         m_Calls: []
@@ -506,8 +506,8 @@ MonoBehaviour:
     onMaxUp:
       m_PersistentCalls:
         m_Calls: []
-  - current: 496
-    max: 496
+  - current: 4
+    max: 4
     onCurrentSet:
       m_PersistentCalls:
         m_Calls: []
@@ -539,7 +539,7 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
   shields:
-  - _value: 0
+  - _value: 10
     color: {r: 0, g: 0.100815535, b: 1, a: 1}
   onCurrentSet:
     m_PersistentCalls:
