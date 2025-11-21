@@ -49,6 +49,60 @@ namespace JacobHomanics.HealthSystem
             }
         }
 
+        [SerializeField] private float shieldCurrent;
+        public float ShieldCurrent
+        {
+            get
+            {
+                return shieldCurrent;
+            }
+            set
+            {
+                var previous = shieldCurrent;
+                shieldCurrent = Mathf.Clamp(value, 0, ShieldMax);
+                onShieldCurrentSet?.Invoke();
+
+                if (shieldCurrent != previous)
+                    onShieldCurrentChange?.Invoke(shieldCurrent);
+
+                if (shieldCurrent < previous)
+                    onShieldCurrentDown?.Invoke();
+
+                if (shieldCurrent > previous)
+                    onShieldCurrentUp?.Invoke();
+
+                if (shieldCurrent == 0)
+                    onShieldCurrentZero?.Invoke();
+
+                if (shieldCurrent == ShieldMax)
+                    onShieldCurrentMax?.Invoke();
+            }
+        }
+
+        [SerializeField] private float shieldMax;
+        public float ShieldMax
+        {
+            get
+            {
+                return shieldMax;
+            }
+            set
+            {
+                var previous = shieldMax;
+                shieldMax = value;
+                onShieldMaxSet?.Invoke();
+
+                if (shieldMax != previous)
+                    onShieldMaxChange?.Invoke(shieldMax);
+
+                if (shieldMax < previous)
+                    onShieldMaxDown?.Invoke();
+
+                if (shieldMax > previous)
+                    onShieldMaxUp?.Invoke();
+            }
+        }
+
         public UnityEvent onCurrentSet;
         public UnityEvent<float> onCurrentChange;
 
@@ -64,14 +118,46 @@ namespace JacobHomanics.HealthSystem
         public UnityEvent onMaxDown;
         public UnityEvent onMaxUp;
 
+        public UnityEvent onShieldCurrentSet;
+        public UnityEvent<float> onShieldCurrentChange;
+
+        public UnityEvent onShieldCurrentDown;
+        public UnityEvent onShieldCurrentUp;
+        public UnityEvent onShieldCurrentMax;
+        public UnityEvent onShieldCurrentZero;
+
+        public UnityEvent onShieldMaxSet;
+        public UnityEvent<float> onShieldMaxChange;
+
+        public UnityEvent onShieldMaxDown;
+        public UnityEvent onShieldMaxUp;
+
         public void Damage(float amount)
         {
-            Current -= amount;
+            if (ShieldCurrent > 0)
+            {
+                float remainingDamage = amount - ShieldCurrent;
+                ShieldCurrent -= amount;
+
+                if (remainingDamage > 0)
+                {
+                    Current -= remainingDamage;
+                }
+            }
+            else
+            {
+                Current -= amount;
+            }
         }
 
         public void Heal(float amount)
         {
             Current += amount;
+        }
+
+        public void RestoreShield(float amount)
+        {
+            ShieldCurrent += amount;
         }
     }
 
