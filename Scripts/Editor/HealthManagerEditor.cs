@@ -19,6 +19,8 @@ namespace JacobHomanics.HealthSystem.Editor
         private SerializedProperty onCurrentZeroProp;
 
         private bool showEvents = true;
+        private int selectedMainTab = 0;
+        private readonly string[] mainTabNames = { "Health", "Shield" };
         private int selectedEventTab = 0;
         private readonly string[] eventTabNames = { "Current Health", "Shield" };
 
@@ -78,11 +80,8 @@ namespace JacobHomanics.HealthSystem.Editor
 
             EditorGUILayout.Space();
 
-
-
-            // Health Bar Visualization
+            // Health Bar Visualization (always visible)
             DrawHealthBar();
-
 
             // Display total health percentage
             float totalHealth = health.Current;
@@ -90,167 +89,24 @@ namespace JacobHomanics.HealthSystem.Editor
             float healthPercent = totalMax > 0 ? (totalHealth / totalMax) * 100f : 0f;
             EditorGUILayout.LabelField($"Total: {totalHealth:F2} / {totalMax:F2} ({healthPercent:F2}%)", EditorStyles.centeredGreyMiniLabel);
 
-            // Display shield total if shields exist
-            // if (health.ShieldTotal > 0)
-            // {
-            //     EditorGUILayout.LabelField($"Shield Total: {health.ShieldTotal:F2} ({health.Shields.Count} shields)", EditorStyles.centeredGreyMiniLabel);
-            // }
-
-            EditorGUILayout.Space();
-
-            EditorGUILayout.Space();
-            GUIStyle centeredStyle = new GUIStyle(EditorStyles.label);
-            centeredStyle.alignment = TextAnchor.MiddleCenter;
-            EditorGUILayout.LabelField("Current Health", centeredStyle);
-
-            // Editable Current Health Field
-            EditorGUI.BeginChangeCheck();
-            float newCurrent = EditorGUILayout.Slider(health.Current, 0, health.Max);
-            if (EditorGUI.EndChangeCheck())
-            {
-                health.Current = newCurrent;
-                EditorUtility.SetDirty(health);
-            }
-
-            EditorGUILayout.Space();
-
-            // Editable Max Health Field
-            EditorGUI.BeginChangeCheck();
-            float newMax = EditorGUILayout.FloatField("Max Health", health.Max);
-            if (EditorGUI.EndChangeCheck())
-            {
-                health.Max = newMax;
-                EditorUtility.SetDirty(health);
-            }
-
-            // Health List
-            if (healthsProp != null)
-            {
-                if (healthsProp.arraySize > 1)
-                    EditorGUILayout.PropertyField(healthsProp, new GUIContent("Healths"), true);
-            }
-
-            EditorGUILayout.Space();
-
-            // Shield List or Simplified View
-            if (shieldsProp != null)
-            {
-                if (shieldsProp.arraySize == 1)
-                {
-                    // Simplified view for single shield
-                    SerializedProperty shieldProp = shieldsProp.GetArrayElementAtIndex(0);
-                    if (shieldProp != null)
-                    {
-                        SerializedProperty valueProp = shieldProp.FindPropertyRelative("_value");
-                        SerializedProperty colorProp = shieldProp.FindPropertyRelative("color");
-
-                        EditorGUILayout.LabelField("Shield", centeredStyle);
-
-
-                        if (valueProp != null)
-                        {
-                            EditorGUI.BeginChangeCheck();
-                            float newValue = EditorGUILayout.FloatField("Value", valueProp.floatValue);
-                            if (EditorGUI.EndChangeCheck())
-                            {
-                                valueProp.floatValue = Mathf.Max(0, newValue);
-                                serializedObject.ApplyModifiedProperties();
-                            }
-                        }
-
-                        if (colorProp != null)
-                        {
-                            EditorGUILayout.PropertyField(colorProp, new GUIContent("Color"));
-                            serializedObject.ApplyModifiedProperties();
-                        }
-
-                    }
-                }
-                else
-                {
-                    // List view for multiple shields
-                    EditorGUILayout.PropertyField(shieldsProp, new GUIContent("Shields"), true);
-                }
-            }
-
-
-            EditorGUILayout.Space();
-
-
             EditorGUILayout.Space(10);
 
-            EditorGUILayout.LabelField("Actions", EditorStyles.boldLabel);
-            EditorGUILayout.LabelField("Health");
-
-            EditorGUILayout.BeginHorizontal();
-            damageAmount = EditorGUILayout.FloatField("Damage", damageAmount);
-            if (GUILayout.Button("Apply", GUILayout.Height(18), GUILayout.Width(120)))
-            {
-                health.Damage(damageAmount);
-                EditorUtility.SetDirty(health);
-            }
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.BeginHorizontal();
-            healAmount = EditorGUILayout.FloatField("Heal", healAmount);
-            if (GUILayout.Button("Apply", GUILayout.Height(18), GUILayout.Width(120)))
-            {
-                health.Heal(healAmount);
-                EditorUtility.SetDirty(health);
-            }
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.Space();
-
-            EditorGUILayout.LabelField("Shield");
-
-            // Quick Test Actions
-
-
-            EditorGUILayout.BeginHorizontal();
-            shieldDamageAmount = EditorGUILayout.FloatField("Damage", shieldDamageAmount);
-            if (GUILayout.Button("Apply", GUILayout.Height(18), GUILayout.Width(120)))
-            {
-                health.Shield -= shieldDamageAmount;
-                EditorUtility.SetDirty(health);
-            }
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.BeginHorizontal();
-            shieldRestoreAmount = EditorGUILayout.FloatField("Restore", shieldRestoreAmount);
-            if (GUILayout.Button("Apply", GUILayout.Height(18), GUILayout.Width(120)))
-            {
-                health.Shield += shieldRestoreAmount;
-                EditorUtility.SetDirty(health);
-            }
-            EditorGUILayout.EndHorizontal();
-
-
-
+            // Main Tab Selection
+            selectedMainTab = GUILayout.Toolbar(selectedMainTab, mainTabNames);
 
             EditorGUILayout.Space(5);
-            EditorGUILayout.BeginHorizontal();
 
-            if (GUILayout.Button("Set Current Health to 0", GUILayout.Height(25)))
+            // Display content based on selected main tab
+            if (selectedMainTab == 0)
             {
-                health.Current = 0;
-                EditorUtility.SetDirty(health);
+                // Health Tab
+                DrawHealthTab();
             }
-
-            if (GUILayout.Button("Set Shield to 0", GUILayout.Height(25)))
+            else
             {
-                health.Shield = 0;
-                EditorUtility.SetDirty(health);
+                // Shield Tab
+                DrawShieldTab();
             }
-
-
-            if (GUILayout.Button("Set Current Health to Max", GUILayout.Height(25)))
-            {
-                health.Current = health.Max;
-                EditorUtility.SetDirty(health);
-            }
-
-            EditorGUILayout.EndHorizontal();
 
 
             EditorGUILayout.Space(10);
@@ -259,9 +115,6 @@ namespace JacobHomanics.HealthSystem.Editor
             EditorGUILayout.Space();
 
             // Events Section
-            // showEvents = EditorGUILayout.Foldout(showEvents, "Unity Events", true);
-            // if (showEvents)
-            // {
             EditorGUI.indentLevel++;
 
             // Tab selection
@@ -287,6 +140,8 @@ namespace JacobHomanics.HealthSystem.Editor
             }
 
             EditorGUI.indentLevel--;
+
+            EditorGUILayout.Space(10);
 
             EditorGUILayout.LabelField("Advanced", EditorStyles.boldLabel);
             if (health.Healths.Count == 1)
@@ -327,13 +182,158 @@ namespace JacobHomanics.HealthSystem.Editor
                     }
                     EditorUtility.SetDirty(health);
                 }
+            }
 
+            serializedObject.ApplyModifiedProperties();
+        }
 
+        private void DrawHealthTab()
+        {
+            GUIStyle centeredStyle = new GUIStyle(EditorStyles.label);
+            centeredStyle.alignment = TextAnchor.MiddleCenter;
+            EditorGUILayout.LabelField("Current Health", centeredStyle);
 
+            // Editable Current Health Field
+            EditorGUI.BeginChangeCheck();
+            float newCurrent = EditorGUILayout.Slider(health.Current, 0, health.Max);
+            if (EditorGUI.EndChangeCheck())
+            {
+                health.Current = newCurrent;
+                EditorUtility.SetDirty(health);
+            }
 
-                // }
+            EditorGUILayout.Space();
 
-                serializedObject.ApplyModifiedProperties();
+            // Editable Max Health Field
+            EditorGUI.BeginChangeCheck();
+            float newMax = EditorGUILayout.FloatField("Max Health", health.Max);
+            if (EditorGUI.EndChangeCheck())
+            {
+                health.Max = newMax;
+                EditorUtility.SetDirty(health);
+            }
+
+            EditorGUILayout.Space();
+
+            // Health List
+            if (healthsProp != null)
+            {
+                if (healthsProp.arraySize > 1)
+                    EditorGUILayout.PropertyField(healthsProp, new GUIContent("Healths"), true);
+            }
+
+            EditorGUILayout.Space(10);
+
+            EditorGUILayout.LabelField("Actions", EditorStyles.boldLabel);
+
+            EditorGUILayout.BeginHorizontal();
+            damageAmount = EditorGUILayout.FloatField("Damage", damageAmount);
+            if (GUILayout.Button("Apply", GUILayout.Height(18), GUILayout.Width(120)))
+            {
+                health.Damage(damageAmount);
+                EditorUtility.SetDirty(health);
+            }
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            healAmount = EditorGUILayout.FloatField("Heal", healAmount);
+            if (GUILayout.Button("Apply", GUILayout.Height(18), GUILayout.Width(120)))
+            {
+                health.Heal(healAmount);
+                EditorUtility.SetDirty(health);
+            }
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.Space(5);
+            EditorGUILayout.BeginHorizontal();
+
+            if (GUILayout.Button("Set Current Health to 0", GUILayout.Height(25)))
+            {
+                health.Current = 0;
+                EditorUtility.SetDirty(health);
+            }
+
+            if (GUILayout.Button("Set Current Health to Max", GUILayout.Height(25)))
+            {
+                health.Current = health.Max;
+                EditorUtility.SetDirty(health);
+            }
+
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private void DrawShieldTab()
+        {
+            GUIStyle centeredStyle = new GUIStyle(EditorStyles.label);
+            centeredStyle.alignment = TextAnchor.MiddleCenter;
+
+            // Shield List or Simplified View
+            if (shieldsProp != null)
+            {
+                if (shieldsProp.arraySize == 1)
+                {
+                    // Simplified view for single shield
+                    SerializedProperty shieldProp = shieldsProp.GetArrayElementAtIndex(0);
+                    if (shieldProp != null)
+                    {
+                        SerializedProperty valueProp = shieldProp.FindPropertyRelative("_value");
+                        SerializedProperty colorProp = shieldProp.FindPropertyRelative("color");
+
+                        EditorGUILayout.LabelField("Shield", centeredStyle);
+
+                        if (valueProp != null)
+                        {
+                            EditorGUI.BeginChangeCheck();
+                            float newValue = EditorGUILayout.FloatField("Value", valueProp.floatValue);
+                            if (EditorGUI.EndChangeCheck())
+                            {
+                                valueProp.floatValue = Mathf.Max(0, newValue);
+                                serializedObject.ApplyModifiedProperties();
+                            }
+                        }
+
+                        if (colorProp != null)
+                        {
+                            EditorGUILayout.PropertyField(colorProp, new GUIContent("Color"));
+                            serializedObject.ApplyModifiedProperties();
+                        }
+                    }
+                }
+                else
+                {
+                    // List view for multiple shields
+                    EditorGUILayout.PropertyField(shieldsProp, new GUIContent("Shields"), true);
+                }
+            }
+
+            EditorGUILayout.Space(10);
+
+            EditorGUILayout.LabelField("Actions", EditorStyles.boldLabel);
+
+            EditorGUILayout.BeginHorizontal();
+            shieldDamageAmount = EditorGUILayout.FloatField("Damage", shieldDamageAmount);
+            if (GUILayout.Button("Apply", GUILayout.Height(18), GUILayout.Width(120)))
+            {
+                health.Shield -= shieldDamageAmount;
+                EditorUtility.SetDirty(health);
+            }
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            shieldRestoreAmount = EditorGUILayout.FloatField("Restore", shieldRestoreAmount);
+            if (GUILayout.Button("Apply", GUILayout.Height(18), GUILayout.Width(120)))
+            {
+                health.Shield += shieldRestoreAmount;
+                EditorUtility.SetDirty(health);
+            }
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.Space(5);
+
+            if (GUILayout.Button("Set Shield to 0", GUILayout.Height(25)))
+            {
+                health.Shield = 0;
+                EditorUtility.SetDirty(health);
             }
         }
 
