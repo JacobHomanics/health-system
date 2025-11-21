@@ -186,7 +186,7 @@ namespace JacobHomanics.HealthSystem.Editor
             damageAmount = EditorGUILayout.FloatField("Damage Amount", damageAmount);
             if (GUILayout.Button("Apply Damage", GUILayout.Height(18), GUILayout.Width(120)))
             {
-                healthManager.Current -= damageAmount;
+                healthManager.Damage(damageAmount);
                 EditorUtility.SetDirty(healthManager);
             }
             EditorGUILayout.EndHorizontal();
@@ -195,7 +195,7 @@ namespace JacobHomanics.HealthSystem.Editor
             healAmount = EditorGUILayout.FloatField("Heal Amount", healAmount);
             if (GUILayout.Button("Apply Heal", GUILayout.Height(18), GUILayout.Width(120)))
             {
-                healthManager.Current += healAmount;
+                healthManager.Heal(healAmount);
                 EditorUtility.SetDirty(healthManager);
             }
             EditorGUILayout.EndHorizontal();

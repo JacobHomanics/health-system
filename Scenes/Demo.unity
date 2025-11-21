@@ -442,7 +442,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healths:
-  - current: 5
+  - current: 0.334
     max: 5
     onCurrentSet:
       m_PersistentCalls:
@@ -475,8 +475,8 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
   shields:
-  - _value: 0
-    color: {r: 0, g: 0.7, b: 1, a: 0.7}
+  - _value: 8
+    color: {r: 0, g: 0.14352083, b: 1, a: 0.7}
   onCurrentSet:
     m_PersistentCalls:
       m_Calls: []
@@ -646,7 +646,7 @@ PrefabInstance:
     - target: {fileID: 3764647198034280281, guid: 3c6194a52a9a64480a2466fcdf8d9903, type: 3}
       propertyPath: health
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1004101015}
     - target: {fileID: 6076070420684786915, guid: 3c6194a52a9a64480a2466fcdf8d9903, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -903,7 +903,7 @@ PrefabInstance:
     - target: {fileID: 7589484659157109371, guid: 5fe459f272fa948a7b8426e7273f770e, type: 3}
       propertyPath: health
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1004101015}
     - target: {fileID: 7713043446385071705, guid: 5fe459f272fa948a7b8426e7273f770e, type: 3}
       propertyPath: m_Name
       value: Health - Horizontal
@@ -1042,7 +1042,7 @@ PrefabInstance:
     - target: {fileID: 7931269997335289072, guid: ae02fb4b81ad24eb5892deaef1f51337, type: 3}
       propertyPath: health
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1004101015}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

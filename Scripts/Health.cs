@@ -174,13 +174,35 @@ namespace JacobHomanics.HealthSystem
 
                 if (difference > 0)
                 {
-                    // Increase health - use Heal method (last to first)
-                    Heal(difference);
+                    // Increase health - fill sequentially from last to first (without affecting shields)
+                    float remainingHeal = difference;
+                    for (int i = Healths.Count - 1; i >= 0 && remainingHeal > 0; i--)
+                    {
+                        if (Healths[i] != null)
+                        {
+                            float missingHealth = Healths[i].Max - Healths[i].Current;
+                            if (missingHealth > 0)
+                            {
+                                float healAmount = Mathf.Min(missingHealth, remainingHeal);
+                                Healths[i].Current += healAmount;
+                                remainingHeal -= healAmount;
+                            }
+                        }
+                    }
                 }
                 else if (difference < 0)
                 {
-                    // Decrease health - use Damage method (first to last)
-                    Damage(-difference);
+                    // Decrease health - remove sequentially from first to last (without affecting shields)
+                    float remainingDamage = -difference;
+                    for (int i = 0; i < Healths.Count && remainingDamage > 0; i++)
+                    {
+                        if (Healths[i] != null)
+                        {
+                            float healthDamage = Mathf.Min(Healths[i].Current, remainingDamage);
+                            Healths[i].Current -= healthDamage;
+                            remainingDamage -= healthDamage;
+                        }
+                    }
                 }
 
                 onCurrentSet?.Invoke();
@@ -274,7 +296,7 @@ namespace JacobHomanics.HealthSystem
 
         public UnityEvent onShieldChanged;
 
-        private void Damage(float amount)
+        public void Damage(float amount)
         {
             float remainingDamage = amount;
 
@@ -306,7 +328,7 @@ namespace JacobHomanics.HealthSystem
             onShieldChanged?.Invoke();
         }
 
-        private void Heal(float amount)
+        public void Heal(float amount)
         {
             float remainingHeal = amount;
 
