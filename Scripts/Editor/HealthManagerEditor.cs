@@ -32,9 +32,12 @@ namespace JacobHomanics.HealthSystem.Editor
         private float previousCurrentHealth = 0f;
         private float startHealth = 0f; // Starting health value for animation
         private float targetHealth = 0f; // Target health value for animation
-        private double animationStartTime = 0f; // When the current animation started
+        private float animationElapsed = 0f; // Elapsed time during animation
+        private float animationDelayRemaining = 0f; // Remaining delay time
         private bool isAnimating = false;
         private const float animationDuration = 0.5f; // Duration in seconds for the animation
+        private const float animationDelay = 0.2f; // Delay in seconds before animation starts
+        private double lastUpdateTime = 0f; // For calculating deltaTime
 
         private void OnEnable()
         {
@@ -56,7 +59,9 @@ namespace JacobHomanics.HealthSystem.Editor
             startHealth = health.Current;
             targetHealth = health.Current;
             isAnimating = false;
-            animationStartTime = EditorApplication.timeSinceStartup;
+            animationElapsed = 0f;
+            animationDelayRemaining = 0f;
+            lastUpdateTime = EditorApplication.timeSinceStartup;
         }
 
         private int GetCurrentHealthIndex()
@@ -94,50 +99,110 @@ namespace JacobHomanics.HealthSystem.Editor
 
             EditorGUILayout.Space();
 
-            // Animate lagged health bar (duration-based)
+            // Animate lagged health bar (duration-based with delay, similar to BaseAnimatedFill)
             float currentHealth = health.Current;
             bool healthIncreased = currentHealth > previousCurrentHealth;
             bool healthDecreased = currentHealth < previousCurrentHealth;
 
-            // If health increased (healing), snap immediately to target - no animation
+            // Calculate deltaTime and clamp it to prevent large jumps
+            double currentTime = EditorApplication.timeSinceStartup;
+            float deltaTime = (float)(currentTime - lastUpdateTime);
+            deltaTime = Mathf.Clamp(deltaTime, 0f, 0.1f); // Clamp to max 100ms to prevent large jumps
+            lastUpdateTime = currentTime;
+
+            // If health increased (healing), snap immediately to target - no animation or delay
             if (healthIncreased)
             {
                 displayedHealth = currentHealth;
                 startHealth = currentHealth;
                 targetHealth = currentHealth;
                 isAnimating = false;
+                animationDelayRemaining = 0f;
+                animationElapsed = 0f;
             }
-            // If health decreased (damage), start new animation
+            // If health decreased (damage), start new animation with delay
             else if (healthDecreased)
             {
-                // On first frame of damage, set up animation from previous health to current health
-                startHealth = previousCurrentHealth;
-                targetHealth = currentHealth;
-                displayedHealth = startHealth;
-                animationStartTime = EditorApplication.timeSinceStartup;
-                isAnimating = true;
-            }
-
-            // Update animation if in progress
-            if (isAnimating)
-            {
-                double currentTime = EditorApplication.timeSinceStartup;
-                float elapsed = (float)(currentTime - animationStartTime);
-                float progress = Mathf.Clamp01(elapsed / animationDuration);
-
-                // Interpolate from start to target
-                displayedHealth = Mathf.Lerp(startHealth, targetHealth, progress);
-
-                // Check if animation is complete
-                if (progress >= 1f || Mathf.Abs(displayedHealth - targetHealth) < 0.01f)
+                // If already animating, calculate current value to continue from there
+                float startValue;
+                if (isAnimating)
                 {
-                    displayedHealth = targetHealth;
-                    isAnimating = false;
+                    // Calculate current value based on animation progress
+                    if (animationDelayRemaining > 0f)
+                    {
+                        // Still in delay, use the starting value
+                        startValue = startHealth;
+                    }
+                    else if (animationDuration > 0f)
+                    {
+                        // Calculate current interpolated value
+                        float t = Mathf.Clamp01(animationElapsed / animationDuration);
+                        startValue = Mathf.Lerp(startHealth, targetHealth, t);
+                    }
+                    else
+                    {
+                        // Duration was 0, should be at target
+                        startValue = targetHealth;
+                    }
                 }
                 else
                 {
-                    // Force repaint for smooth animation
-                    Repaint();
+                    // Not animating, use current displayed health
+                    startValue = displayedHealth;
+                }
+
+                // Start new animation from current position to new target
+                startHealth = startValue;
+                targetHealth = currentHealth;
+                displayedHealth = startHealth;
+                animationDelayRemaining = animationDelay;
+                animationElapsed = 0f;
+                isAnimating = true;
+            }
+
+            // Update animation (handles both delay and animation phases)
+            if (isAnimating)
+            {
+                // Handle delay before animation starts
+                if (animationDelayRemaining > 0f)
+                {
+                    animationDelayRemaining -= deltaTime;
+                    // During delay, maintain displayedHealth at start value
+                    displayedHealth = startHealth;
+
+                    // If delay just completed, reset animation elapsed
+                    if (animationDelayRemaining <= 0f)
+                    {
+                        animationElapsed = 0f;
+                        animationDelayRemaining = 0f; // Ensure it's exactly 0
+                    }
+                    else
+                    {
+                        // Force repaint to continue checking delay
+                        Repaint();
+                    }
+                }
+                // Animation phase (after delay)
+                else
+                {
+                    // Update animation elapsed time
+                    animationElapsed += deltaTime;
+                    float progress = Mathf.Clamp01(animationElapsed / animationDuration);
+
+                    // Interpolate from start to target
+                    displayedHealth = Mathf.Lerp(startHealth, targetHealth, progress);
+
+                    // Check if animation is complete
+                    if (progress >= 1f || Mathf.Abs(displayedHealth - targetHealth) < 0.01f)
+                    {
+                        displayedHealth = targetHealth;
+                        isAnimating = false;
+                    }
+                    else
+                    {
+                        // Force repaint for smooth animation
+                        Repaint();
+                    }
                 }
             }
 
