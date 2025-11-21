@@ -18,11 +18,8 @@ namespace JacobHomanics.HealthSystem.Editor
         private SerializedProperty onCurrentMaxProp;
         private SerializedProperty onCurrentZeroProp;
 
-        private bool showEvents = true;
         private int selectedMainTab = 0;
         private readonly string[] mainTabNames = { "Health", "Shield" };
-        private int selectedEventTab = 0;
-        private readonly string[] eventTabNames = { "Current Health", "Shield" };
 
         private float damageAmount = 1f;
         private float healAmount = 1f;
@@ -108,82 +105,6 @@ namespace JacobHomanics.HealthSystem.Editor
                 DrawShieldTab();
             }
 
-
-            EditorGUILayout.Space(10);
-
-            EditorGUILayout.LabelField("Events", EditorStyles.boldLabel);
-            EditorGUILayout.Space();
-
-            // Events Section
-            EditorGUI.indentLevel++;
-
-            // Tab selection
-            selectedEventTab = GUILayout.Toolbar(selectedEventTab, eventTabNames);
-
-            EditorGUILayout.Space(5);
-
-            // Display events based on selected tab
-            if (selectedEventTab == 0)
-            {
-                // Current Health Events (from HealthManager)
-                EditorGUILayout.PropertyField(onCurrentSetProp);
-                EditorGUILayout.PropertyField(onCurrentChangeProp);
-                EditorGUILayout.PropertyField(onCurrentDownProp);
-                EditorGUILayout.PropertyField(onCurrentUpProp);
-                EditorGUILayout.PropertyField(onCurrentMaxProp);
-                EditorGUILayout.PropertyField(onCurrentZeroProp);
-            }
-            else
-            {
-                // Shield Events
-                EditorGUILayout.PropertyField(onShieldChangedProp);
-            }
-
-            EditorGUI.indentLevel--;
-
-            EditorGUILayout.Space(10);
-
-            EditorGUILayout.LabelField("Advanced", EditorStyles.boldLabel);
-            if (health.Healths.Count == 1)
-            {
-                if (GUILayout.Button("Enable Multi-Health Mode", GUILayout.Height(25)))
-                {
-                    health.Healths.Add(new HealthData(100, 100));
-                    EditorUtility.SetDirty(health);
-                }
-            }
-            else
-            {
-                if (GUILayout.Button("Disable Multi-Health Mode", GUILayout.Height(25)))
-                {
-                    for (int i = health.Healths.Count - 1; i >= 1; i--)
-                    {
-                        health.Healths.Remove(health.Healths[i]);
-                    }
-                    EditorUtility.SetDirty(health);
-                }
-            }
-
-            if (health.Shields.Count == 1)
-            {
-                if (GUILayout.Button("Enable Multi-Shield Mode", GUILayout.Height(25)))
-                {
-                    health.Shields.Add(new Shield(100));
-                    EditorUtility.SetDirty(health);
-                }
-            }
-            else
-            {
-                if (GUILayout.Button("Disable Multi-Shield Mode", GUILayout.Height(25)))
-                {
-                    for (int i = health.Shields.Count - 1; i >= 1; i--)
-                    {
-                        health.Shields.Remove(health.Shields[i]);
-                    }
-                    EditorUtility.SetDirty(health);
-                }
-            }
-
             serializedObject.ApplyModifiedProperties();
         }
 
@@ -260,6 +181,43 @@ namespace JacobHomanics.HealthSystem.Editor
             }
 
             EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.Space(10);
+
+            EditorGUILayout.LabelField("Events", EditorStyles.boldLabel);
+            EditorGUILayout.Space();
+
+            EditorGUI.indentLevel++;
+            EditorGUILayout.PropertyField(onCurrentSetProp);
+            EditorGUILayout.PropertyField(onCurrentChangeProp);
+            EditorGUILayout.PropertyField(onCurrentDownProp);
+            EditorGUILayout.PropertyField(onCurrentUpProp);
+            EditorGUILayout.PropertyField(onCurrentMaxProp);
+            EditorGUILayout.PropertyField(onCurrentZeroProp);
+            EditorGUI.indentLevel--;
+
+            EditorGUILayout.Space(10);
+
+            EditorGUILayout.LabelField("Advanced", EditorStyles.boldLabel);
+            if (health.Healths.Count == 1)
+            {
+                if (GUILayout.Button("Enable Multi-Health Mode", GUILayout.Height(25)))
+                {
+                    health.Healths.Add(new HealthData(100, 100));
+                    EditorUtility.SetDirty(health);
+                }
+            }
+            else
+            {
+                if (GUILayout.Button("Disable Multi-Health Mode", GUILayout.Height(25)))
+                {
+                    for (int i = health.Healths.Count - 1; i >= 1; i--)
+                    {
+                        health.Healths.Remove(health.Healths[i]);
+                    }
+                    EditorUtility.SetDirty(health);
+                }
+            }
         }
 
         private void DrawShieldTab()
@@ -334,6 +292,38 @@ namespace JacobHomanics.HealthSystem.Editor
             {
                 health.Shield = 0;
                 EditorUtility.SetDirty(health);
+            }
+
+            EditorGUILayout.Space(10);
+
+            EditorGUILayout.LabelField("Events", EditorStyles.boldLabel);
+            EditorGUILayout.Space();
+
+            EditorGUI.indentLevel++;
+            EditorGUILayout.PropertyField(onShieldChangedProp);
+            EditorGUI.indentLevel--;
+
+            EditorGUILayout.Space(10);
+
+            EditorGUILayout.LabelField("Advanced", EditorStyles.boldLabel);
+            if (health.Shields.Count == 1)
+            {
+                if (GUILayout.Button("Enable Multi-Shield Mode", GUILayout.Height(25)))
+                {
+                    health.Shields.Add(new Shield(100));
+                    EditorUtility.SetDirty(health);
+                }
+            }
+            else
+            {
+                if (GUILayout.Button("Disable Multi-Shield Mode", GUILayout.Height(25)))
+                {
+                    for (int i = health.Shields.Count - 1; i >= 1; i--)
+                    {
+                        health.Shields.Remove(health.Shields[i]);
+                    }
+                    EditorUtility.SetDirty(health);
+                }
             }
         }
 
