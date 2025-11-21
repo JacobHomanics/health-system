@@ -118,6 +118,17 @@ namespace JacobHomanics.HealthSystem.Editor
             EditorGUILayout.LabelField("System Overview", EditorStyles.boldLabel);
             EditorGUILayout.Space();
 
+            // Display health and shield information
+            float currentHealth = health.Current;
+            float maxHealth = health.Max;
+            float totalShield = health.Shield;
+
+            EditorGUILayout.LabelField($"Current Health: {currentHealth:F2}");
+            EditorGUILayout.LabelField($"Max Health: {maxHealth:F2}");
+            EditorGUILayout.LabelField($"Shield: {totalShield:F2}");
+
+            EditorGUILayout.Space(10);
+
             EditorGUILayout.LabelField("Actions", EditorStyles.boldLabel);
 
             EditorGUILayout.BeginHorizontal();
