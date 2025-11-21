@@ -1,12 +1,10 @@
-using JacobHomanics.HealthSystem;
-using JacobHomanics.HealthSystem.UI;
 using JacobHomanics.TrickedOutUI;
 using UnityEngine;
 
 public class DamageLossUI : MonoBehaviour
 {
     public AnimatedImageFill animatedImageFill;
-    public Health health;
+    public BaseVector2Adapter adapter;
 
     [Header("Damage Animation Settings")]
     [Tooltip("Duration for damage animation when health decreases")]
@@ -14,55 +12,46 @@ public class DamageLossUI : MonoBehaviour
     [Tooltip("Delay before damage animation starts when health decreases")]
     public float damageDelay = 0.5f;
 
-    private float previousHealth;
-    private float maxHealthReached;
+    private float previous;
+    private float maxReached;
 
     void Start()
     {
-        if (health == null)
-            health = GetComponent<Health>();
-
-        if (health != null)
-        {
-            previousHealth = health.Current;
-            maxHealthReached = health.Current;
-        }
+        previous = adapter.X;
+        maxReached = adapter.X;
     }
 
     void Update()
     {
-        if (health == null || animatedImageFill == null)
-            return;
-
-        float currentHealth = health.Current;
+        float current = adapter.X;
 
         // Update max health reached
-        if (currentHealth > maxHealthReached)
+        if (current > maxReached)
         {
-            maxHealthReached = currentHealth;
+            maxReached = current;
         }
 
         // Check if health changed
-        if (currentHealth != previousHealth)
+        if (current != previous)
         {
-            if (currentHealth > previousHealth)
+            if (current > previous)
             {
                 // Health went up - only set duration and delay to 0 if we've reached or exceeded max health
-                if (currentHealth >= maxHealthReached)
+                if (current >= maxReached)
                 {
                     animatedImageFill.properties.animationDuration = 0f;
                     animatedImageFill.properties.delay = 0f;
                 }
                 // If health went up but is still below maxHealthReached, keep damage animation settings
             }
-            else if (currentHealth < previousHealth)
+            else if (current < previous)
             {
                 // Health went down - set duration and delay to configured values
                 animatedImageFill.properties.animationDuration = damageDuration;
                 animatedImageFill.properties.delay = damageDelay;
             }
 
-            previousHealth = currentHealth;
+            previous = current;
         }
     }
 }

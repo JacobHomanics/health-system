@@ -153,7 +153,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animatedImageFill: {fileID: 563572869}
-  health: {fileID: 1004101013}
+  adapter: {fileID: 8644825051552034703}
   damageDuration: 1
   damageDelay: 0.5
 --- !u!1 &925050377
@@ -955,6 +955,17 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 563572872}
   m_SourcePrefab: {fileID: 100100000, guid: 5fe459f272fa948a7b8426e7273f770e, type: 3}
+--- !u!114 &8644825051552034703 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7589484659157109371, guid: 5fe459f272fa948a7b8426e7273f770e, type: 3}
+  m_PrefabInstance: {fileID: 8644825051552034702}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c01a358d890284439adf397de3670703, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &8866116305054211258
 PrefabInstance:
   m_ObjectHideFlags: 0
