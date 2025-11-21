@@ -112,11 +112,10 @@ namespace JacobHomanics.HealthSystem.Editor
             }
 
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Max Health", centeredStyle);
 
             // Editable Max Health Field
             EditorGUI.BeginChangeCheck();
-            float newMax = EditorGUILayout.FloatField(health.Max);
+            float newMax = EditorGUILayout.FloatField("Max Health", health.Max);
             if (EditorGUI.EndChangeCheck())
             {
                 health.Max = newMax;
