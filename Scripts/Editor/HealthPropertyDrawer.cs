@@ -9,6 +9,8 @@ namespace JacobHomanics.HealthSystem.Editor
     {
         private static System.Collections.Generic.Dictionary<string, bool> currentEventsExpanded = new System.Collections.Generic.Dictionary<string, bool>();
         private static System.Collections.Generic.Dictionary<string, bool> maxEventsExpanded = new System.Collections.Generic.Dictionary<string, bool>();
+        private static System.Collections.Generic.Dictionary<string, float> damageAmounts = new System.Collections.Generic.Dictionary<string, float>();
+        private static System.Collections.Generic.Dictionary<string, float> healAmounts = new System.Collections.Generic.Dictionary<string, float>();
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
@@ -50,6 +52,48 @@ namespace JacobHomanics.HealthSystem.Editor
 
                 // Max field
                 EditorGUI.PropertyField(new Rect(position.x, yPos, position.width, lineHeight), maxProp, new GUIContent("Max"));
+                yPos += lineHeight + spacing;
+
+                // Damage and Heal buttons
+                string damageKey = property.propertyPath + "_damage";
+                string healKey = property.propertyPath + "_heal";
+                
+                if (!damageAmounts.ContainsKey(damageKey))
+                    damageAmounts[damageKey] = 1f;
+                if (!healAmounts.ContainsKey(healKey))
+                    healAmounts[healKey] = 1f;
+
+                float buttonWidth = (position.width - spacing) / 2f;
+                float inputWidth = buttonWidth * 0.6f;
+                float btnWidth = buttonWidth * 0.4f;
+
+                // Damage section
+                EditorGUI.LabelField(new Rect(position.x, yPos, 60, lineHeight), "Damage:");
+                damageAmounts[damageKey] = EditorGUI.FloatField(new Rect(position.x + 65, yPos, inputWidth - 65, lineHeight), damageAmounts[damageKey]);
+                if (GUI.Button(new Rect(position.x + inputWidth, yPos, btnWidth, lineHeight), "Apply"))
+                {
+                    if (currentProp != null)
+                    {
+                        float currentValue = currentProp.floatValue;
+                        currentProp.floatValue = Mathf.Max(0, currentValue - damageAmounts[damageKey]);
+                        property.serializedObject.ApplyModifiedProperties();
+                    }
+                }
+                yPos += lineHeight + spacing;
+
+                // Heal section
+                EditorGUI.LabelField(new Rect(position.x, yPos, 60, lineHeight), "Heal:");
+                healAmounts[healKey] = EditorGUI.FloatField(new Rect(position.x + 65, yPos, inputWidth - 65, lineHeight), healAmounts[healKey]);
+                if (GUI.Button(new Rect(position.x + inputWidth, yPos, btnWidth, lineHeight), "Apply"))
+                {
+                    if (currentProp != null && maxProp != null)
+                    {
+                        float currentValue = currentProp.floatValue;
+                        float maxValue = maxProp.floatValue;
+                        currentProp.floatValue = Mathf.Min(maxValue, currentValue + healAmounts[healKey]);
+                        property.serializedObject.ApplyModifiedProperties();
+                    }
+                }
                 yPos += lineHeight + spacing;
 
                 // Events - Current Health (with foldout)
@@ -150,6 +194,10 @@ namespace JacobHomanics.HealthSystem.Editor
             // Current and Max fields
             height += EditorGUIUtility.singleLineHeight + spacing; // Current
             height += EditorGUIUtility.singleLineHeight + spacing; // Max
+            
+            // Damage and Heal buttons
+            height += EditorGUIUtility.singleLineHeight + spacing; // Damage
+            height += EditorGUIUtility.singleLineHeight + spacing; // Heal
             
             // Current Health Events section (foldout)
             string currentEventsKey = property.propertyPath + "_currentEvents";

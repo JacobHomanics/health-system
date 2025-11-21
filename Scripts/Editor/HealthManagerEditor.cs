@@ -79,9 +79,14 @@ namespace JacobHomanics.HealthSystem.Editor
             // Health Bar Visualization
             DrawHealthBar();
 
+            EditorGUILayout.Space();
+            GUIStyle centeredStyle = new GUIStyle(EditorStyles.label);
+            centeredStyle.alignment = TextAnchor.MiddleCenter;
+            EditorGUILayout.LabelField("Current Health", centeredStyle);
+
             // Editable Current Health Field
             EditorGUI.BeginChangeCheck();
-            float newCurrent = EditorGUILayout.Slider("Current Health", healthManager.Current, 0, healthManager.Max);
+            float newCurrent = EditorGUILayout.Slider(healthManager.Current, 0, healthManager.Max);
             if (EditorGUI.EndChangeCheck())
             {
                 healthManager.Current = newCurrent;
@@ -156,20 +161,16 @@ namespace JacobHomanics.HealthSystem.Editor
             EditorGUILayout.Space(5);
             EditorGUILayout.BeginHorizontal();
 
-            Health currentHealthForButtons = GetCurrentHealth();
-            if (currentHealthForButtons != null)
+            if (GUILayout.Button("Set Current Health to 0", GUILayout.Height(25)))
             {
-                if (GUILayout.Button("Set Current Health to 0", GUILayout.Height(25)))
-                {
-                    currentHealthForButtons.Current = 0;
-                    EditorUtility.SetDirty(healthManager);
-                }
+                healthManager.Current = 0;
+                EditorUtility.SetDirty(healthManager);
+            }
 
-                if (GUILayout.Button("Set Current Health to Max", GUILayout.Height(25)))
-                {
-                    currentHealthForButtons.Current = currentHealthForButtons.Max;
-                    EditorUtility.SetDirty(healthManager);
-                }
+            if (GUILayout.Button("Set Current Health to Max", GUILayout.Height(25)))
+            {
+                healthManager.Current = healthManager.Max;
+                EditorUtility.SetDirty(healthManager);
             }
 
             EditorGUILayout.EndHorizontal();
