@@ -1,8 +1,27 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace JacobHomanics.HealthSystem
 {
+    [System.Serializable]
+    public class Shield
+    {
+        public float value;
+        public Color color = new Color(0f, 0.7f, 1f, 0.7f); // Default cyan/blue
+
+        public Shield(float value, Color color)
+        {
+            this.value = value;
+            this.color = color;
+        }
+
+        public Shield(float value)
+        {
+            this.value = value;
+            this.color = new Color(0f, 0.7f, 1f, 0.7f);
+        }
+    }
 
     public class Health : MonoBehaviour
     {
@@ -49,30 +68,29 @@ namespace JacobHomanics.HealthSystem
             }
         }
 
-        [SerializeField] private float shieldCurrent;
-        public float ShieldCurrent
+        [SerializeField] private List<Shield> shields = new List<Shield>();
+
+        public List<Shield> Shields
         {
             get
             {
-                return shieldCurrent;
+                if (shields == null)
+                    shields = new List<Shield>();
+                return shields;
             }
-            set
+        }
+
+        public float ShieldTotal
+        {
+            get
             {
-                var previous = shieldCurrent;
-                shieldCurrent = Mathf.Max(0, value);
-                onShieldCurrentSet?.Invoke();
-
-                if (shieldCurrent != previous)
-                    onShieldCurrentChange?.Invoke(shieldCurrent);
-
-                if (shieldCurrent < previous)
-                    onShieldCurrentDown?.Invoke();
-
-                if (shieldCurrent > previous)
-                    onShieldCurrentUp?.Invoke();
-
-                if (shieldCurrent == 0)
-                    onShieldCurrentZero?.Invoke();
+                float total = 0f;
+                foreach (var shield in Shields)
+                {
+                    if (shield != null)
+                        total += shield.value;
+                }
+                return total;
             }
         }
 
@@ -91,29 +109,46 @@ namespace JacobHomanics.HealthSystem
         public UnityEvent onMaxDown;
         public UnityEvent onMaxUp;
 
-        public UnityEvent onShieldCurrentSet;
-        public UnityEvent<float> onShieldCurrentChange;
-
-        public UnityEvent onShieldCurrentDown;
-        public UnityEvent onShieldCurrentUp;
-        public UnityEvent onShieldCurrentZero;
+        public UnityEvent onShieldChanged;
 
         public void Damage(float amount)
         {
-            if (ShieldCurrent > 0)
-            {
-                float remainingDamage = amount - ShieldCurrent;
-                ShieldCurrent -= amount;
+            float remainingDamage = amount;
 
-                if (remainingDamage > 0)
+            // Apply damage to shields in order
+            for (int i = 0; i < Shields.Count && remainingDamage > 0; i++)
+            {
+                if (Shields[i] != null && Shields[i].value > 0)
                 {
-                    Current -= remainingDamage;
+                    float shieldDamage = Mathf.Min(Shields[i].value, remainingDamage);
+                    Shields[i].value -= shieldDamage;
+                    remainingDamage -= shieldDamage;
+
+                    // Remove empty shields
+                    if (Shields[i].value <= 0)
+                    {
+                        Shields.RemoveAt(i);
+                        i--; // Adjust index after removal
+                    }
                 }
             }
-            else
+
+            // Clean up any zero or negative shields
+            for (int i = Shields.Count - 1; i >= 0; i--)
             {
-                Current -= amount;
+                if (Shields[i] == null || Shields[i].value <= 0)
+                {
+                    Shields.RemoveAt(i);
+                }
             }
+
+            // Apply remaining damage to health
+            if (remainingDamage > 0)
+            {
+                Current -= remainingDamage;
+            }
+
+            onShieldChanged?.Invoke();
         }
 
         public void Heal(float amount)
@@ -123,8 +158,35 @@ namespace JacobHomanics.HealthSystem
 
         public void RestoreShield(float amount)
         {
-            ShieldCurrent += amount;
+            if (Shields.Count == 0)
+            {
+                Shields.Add(new Shield(0f));
+            }
+            Shields[0].value += amount;
+            onShieldChanged?.Invoke();
+        }
+
+        public void AddShield(float amount)
+        {
+            Shields.Add(new Shield(amount));
+            onShieldChanged?.Invoke();
+        }
+
+        public void AddShield(float amount, Color color)
+        {
+            Shields.Add(new Shield(amount, color));
+            onShieldChanged?.Invoke();
+        }
+
+        public void RemoveShield(int index)
+        {
+            if (index >= 0 && index < Shields.Count)
+            {
+                Shields.RemoveAt(index);
+                onShieldChanged?.Invoke();
+            }
         }
     }
 
 }
+

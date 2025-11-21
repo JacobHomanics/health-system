@@ -426,9 +426,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d51c6171629d94bb38508061726645a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  current: 16.6
+  current: 14.3
   max: 30
-  shieldCurrent: 196
+  shields:
+  - 10.22
   onCurrentSet:
     m_PersistentCalls:
       m_Calls: []
@@ -471,19 +472,7 @@ MonoBehaviour:
   onMaxUp:
     m_PersistentCalls:
       m_Calls: []
-  onShieldCurrentSet:
-    m_PersistentCalls:
-      m_Calls: []
-  onShieldCurrentChange:
-    m_PersistentCalls:
-      m_Calls: []
-  onShieldCurrentDown:
-    m_PersistentCalls:
-      m_Calls: []
-  onShieldCurrentUp:
-    m_PersistentCalls:
-      m_Calls: []
-  onShieldCurrentZero:
+  onShieldChanged:
     m_PersistentCalls:
       m_Calls: []
 --- !u!4 &1004101014

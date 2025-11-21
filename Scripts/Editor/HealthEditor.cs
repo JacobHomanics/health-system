@@ -10,7 +10,7 @@ namespace JacobHomanics.HealthSystem.Editor
         private Health health;
         private SerializedProperty currentProp;
         private SerializedProperty maxProp;
-        private SerializedProperty shieldCurrentProp;
+        private SerializedProperty shieldsProp;
         private SerializedProperty onCurrentSetProp;
         private SerializedProperty onCurrentChangeProp;
         private SerializedProperty onCurrentDownProp;
@@ -21,19 +21,16 @@ namespace JacobHomanics.HealthSystem.Editor
         private SerializedProperty onMaxChangeProp;
         private SerializedProperty onMaxDownProp;
         private SerializedProperty onMaxUpProp;
-        private SerializedProperty onShieldCurrentSetProp;
-        private SerializedProperty onShieldCurrentChangeProp;
-        private SerializedProperty onShieldCurrentDownProp;
-        private SerializedProperty onShieldCurrentUpProp;
-        private SerializedProperty onShieldCurrentZeroProp;
+        private SerializedProperty onShieldChangedProp;
 
         private bool showEvents = true;
         private int selectedEventTab = 0;
-        private readonly string[] eventTabNames = { "Current Health", "Max Health", "Current Shield" };
+        private readonly string[] eventTabNames = { "Current Health", "Max Health", "Shield" };
 
         private float damageAmount = 1f;
         private float healAmount = 1f;
         private float shieldRestoreAmount = 1f;
+        private Color newShieldColor = new Color(0f, 0.7f, 1f, 0.7f);
 
         private void OnEnable()
         {
@@ -41,7 +38,7 @@ namespace JacobHomanics.HealthSystem.Editor
 
             currentProp = serializedObject.FindProperty("current");
             maxProp = serializedObject.FindProperty("max");
-            shieldCurrentProp = serializedObject.FindProperty("shieldCurrent");
+            shieldsProp = serializedObject.FindProperty("shields");
             onCurrentSetProp = serializedObject.FindProperty("onCurrentSet");
             onCurrentChangeProp = serializedObject.FindProperty("onCurrentChange");
             onCurrentDownProp = serializedObject.FindProperty("onCurrentDown");
@@ -52,11 +49,7 @@ namespace JacobHomanics.HealthSystem.Editor
             onMaxChangeProp = serializedObject.FindProperty("onMaxChange");
             onMaxDownProp = serializedObject.FindProperty("onMaxDown");
             onMaxUpProp = serializedObject.FindProperty("onMaxUp");
-            onShieldCurrentSetProp = serializedObject.FindProperty("onShieldCurrentSet");
-            onShieldCurrentChangeProp = serializedObject.FindProperty("onShieldCurrentChange");
-            onShieldCurrentDownProp = serializedObject.FindProperty("onShieldCurrentDown");
-            onShieldCurrentUpProp = serializedObject.FindProperty("onShieldCurrentUp");
-            onShieldCurrentZeroProp = serializedObject.FindProperty("onShieldCurrentZero");
+            onShieldChangedProp = serializedObject.FindProperty("onShieldChanged");
         }
 
         public override void OnInspectorGUI()
@@ -76,10 +69,10 @@ namespace JacobHomanics.HealthSystem.Editor
             float healthPercent = health.Max > 0 ? (health.Current / health.Max) * 100f : 0f;
             EditorGUILayout.LabelField($"Health: {healthPercent:F2}%", EditorStyles.centeredGreyMiniLabel);
 
-            // Display shield value if shield exists
-            if (health.ShieldCurrent > 0)
+            // Display shield total if shields exist
+            if (health.ShieldTotal > 0)
             {
-                EditorGUILayout.LabelField($"Shield: {health.ShieldCurrent:F2}", EditorStyles.centeredGreyMiniLabel);
+                EditorGUILayout.LabelField($"Shield Total: {health.ShieldTotal:F2} ({health.Shields.Count} shields)", EditorStyles.centeredGreyMiniLabel);
             }
 
             EditorGUILayout.Space();
@@ -111,17 +104,15 @@ namespace JacobHomanics.HealthSystem.Editor
             EditorGUILayout.Space();
 
             // Shield Section
-            EditorGUILayout.LabelField("Shield", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Shields", EditorStyles.boldLabel);
             EditorGUILayout.Space();
 
-            // Shield Value Field
-            EditorGUI.BeginChangeCheck();
-            float newShieldCurrent = EditorGUILayout.FloatField("Current Shield", health.ShieldCurrent);
-            if (EditorGUI.EndChangeCheck())
+            // Shield List
+            if (shieldsProp != null)
             {
-                health.ShieldCurrent = newShieldCurrent;
-                EditorUtility.SetDirty(health);
+                EditorGUILayout.PropertyField(shieldsProp, new GUIContent("Shield List"), true);
             }
+
 
             EditorGUILayout.Space();
 
@@ -148,10 +139,19 @@ namespace JacobHomanics.HealthSystem.Editor
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
-            shieldRestoreAmount = EditorGUILayout.FloatField("Shield Restore", shieldRestoreAmount);
+            shieldRestoreAmount = EditorGUILayout.FloatField("Shield Amount", shieldRestoreAmount);
             if (GUILayout.Button("Restore Shield", GUILayout.Height(18), GUILayout.Width(120)))
             {
                 health.RestoreShield(shieldRestoreAmount);
+                EditorUtility.SetDirty(health);
+            }
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            newShieldColor = EditorGUILayout.ColorField("Shield Color", newShieldColor);
+            if (GUILayout.Button("Add New Shield", GUILayout.Height(18), GUILayout.Width(120)))
+            {
+                health.AddShield(shieldRestoreAmount, newShieldColor);
                 EditorUtility.SetDirty(health);
             }
             EditorGUILayout.EndHorizontal();
@@ -175,9 +175,10 @@ namespace JacobHomanics.HealthSystem.Editor
 
             EditorGUILayout.BeginHorizontal();
 
-            if (GUILayout.Button("Set Shield to 0", GUILayout.Height(25)))
+            if (GUILayout.Button("Clear All Shields", GUILayout.Height(25)))
             {
-                health.ShieldCurrent = 0;
+                health.Shields.Clear();
+                health.onShieldChanged?.Invoke();
                 EditorUtility.SetDirty(health);
             }
 
@@ -220,12 +221,8 @@ namespace JacobHomanics.HealthSystem.Editor
             }
             else
             {
-                // Current Shield Events
-                EditorGUILayout.PropertyField(onShieldCurrentSetProp);
-                EditorGUILayout.PropertyField(onShieldCurrentChangeProp);
-                EditorGUILayout.PropertyField(onShieldCurrentDownProp);
-                EditorGUILayout.PropertyField(onShieldCurrentUpProp);
-                EditorGUILayout.PropertyField(onShieldCurrentZeroProp);
+                // Shield Events
+                EditorGUILayout.PropertyField(onShieldChangedProp);
             }
 
             EditorGUI.indentLevel--;
@@ -264,22 +261,31 @@ namespace JacobHomanics.HealthSystem.Editor
 
             EditorGUI.DrawRect(healthRect, healthColor);
 
-            // Draw shield overlay if shield exists
-            if (health.ShieldCurrent > 0)
+            // Draw shield overlays if shields exist
+            if (health.ShieldTotal > 0)
             {
                 // Calculate shield as percentage of total (health + shield)
                 // Since shield has no max, we'll use a visual representation based on health max
-                float totalValue = health.Max + health.ShieldCurrent;
-                float shieldPercent = totalValue > 0 ? health.ShieldCurrent / totalValue : 0;
-                shieldPercent = Mathf.Clamp01(shieldPercent);
+                float totalValue = health.Max + health.ShieldTotal;
+                float currentX = rect.x + rect.width;
 
-                // Draw shield bar on top of health (cyan/blue color)
-                float shieldWidth = rect.width * shieldPercent;
-                Rect shieldRect = new Rect(rect.x + rect.width - shieldWidth, rect.y, shieldWidth, rect.height);
+                // Draw each shield from right to left, stacked
+                for (int i = health.Shields.Count - 1; i >= 0; i--)
+                {
+                    if (health.Shields[i] != null && health.Shields[i].value > 0)
+                    {
+                        float shieldPercent = totalValue > 0 ? health.Shields[i].value / totalValue : 0;
+                        shieldPercent = Mathf.Clamp01(shieldPercent);
 
-                // Semi-transparent cyan/blue for shield
-                Color shieldColor = new Color(0f, 0.7f, 1f, 0.7f);
-                EditorGUI.DrawRect(shieldRect, shieldColor);
+                        float shieldWidth = rect.width * shieldPercent;
+                        Rect shieldRect = new Rect(currentX - shieldWidth, rect.y, shieldWidth, rect.height);
+
+                        // Use the shield's own color
+                        EditorGUI.DrawRect(shieldRect, health.Shields[i].color);
+
+                        currentX -= shieldWidth;
+                    }
+                }
             }
 
             // Border
