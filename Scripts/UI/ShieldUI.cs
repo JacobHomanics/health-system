@@ -1,0 +1,24 @@
+using JacobHomanics.HealthSystem.UI;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class ShieldUI : MonoBehaviour
+{
+    public HealthAdapter healthAdapter;
+    public Image image;
+
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Start()
+    {
+
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        float totalMax = healthAdapter.Y + healthAdapter.health.ShieldMax;
+        float shieldPercent = totalMax > 0 ? healthAdapter.health.ShieldCurrent / totalMax : 0;
+        shieldPercent = Mathf.Clamp01(shieldPercent);
+        image.fillAmount = shieldPercent;
+    }
+}
