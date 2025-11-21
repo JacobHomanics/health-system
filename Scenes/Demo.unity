@@ -429,11 +429,11 @@ MonoBehaviour:
   current: 30
   max: 30
   shields:
-  - _value: 13.1
+  - _value: 2.4000006
     color: {r: 1, g: 0.5952402, b: 0, a: 1}
-  - _value: 14.41
+  - _value: 19.300001
     color: {r: 0, g: 0.1548035, b: 0.93333334, a: 1}
-  - _value: 49.5
+  - _value: 64.1
     color: {r: 0.93333334, g: 0, b: 0.76995575, a: 1}
   onCurrentSet:
     m_PersistentCalls:
