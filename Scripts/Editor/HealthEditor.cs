@@ -138,24 +138,6 @@ namespace JacobHomanics.HealthSystem.Editor
             }
             EditorGUILayout.EndHorizontal();
 
-            EditorGUILayout.BeginHorizontal();
-            shieldRestoreAmount = EditorGUILayout.FloatField("Shield Amount", shieldRestoreAmount);
-            if (GUILayout.Button("Restore Shield", GUILayout.Height(18), GUILayout.Width(120)))
-            {
-                health.RestoreShield(shieldRestoreAmount);
-                EditorUtility.SetDirty(health);
-            }
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.BeginHorizontal();
-            newShieldColor = EditorGUILayout.ColorField("Shield Color", newShieldColor);
-            if (GUILayout.Button("Add New Shield", GUILayout.Height(18), GUILayout.Width(120)))
-            {
-                health.AddShield(shieldRestoreAmount, newShieldColor);
-                EditorUtility.SetDirty(health);
-            }
-            EditorGUILayout.EndHorizontal();
-
             EditorGUILayout.Space(5);
             EditorGUILayout.BeginHorizontal();
 
@@ -168,17 +150,6 @@ namespace JacobHomanics.HealthSystem.Editor
             if (GUILayout.Button("Set Health to Max", GUILayout.Height(25)))
             {
                 health.Current = health.Max;
-                EditorUtility.SetDirty(health);
-            }
-
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.BeginHorizontal();
-
-            if (GUILayout.Button("Clear All Shields", GUILayout.Height(25)))
-            {
-                health.Shields.Clear();
-                health.onShieldChanged?.Invoke();
                 EditorUtility.SetDirty(health);
             }
 
