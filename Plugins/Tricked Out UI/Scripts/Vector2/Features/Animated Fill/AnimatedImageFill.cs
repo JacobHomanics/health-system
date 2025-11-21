@@ -10,10 +10,13 @@ namespace JacobHomanics.TrickedOutUI
     {
         public Image image;
 
-
-        void Start()
+        void OnEnable()
         {
-            image.fillAmount = X / Y;
+            if (Y > 0f)
+            {
+                image.fillAmount = X / Y;
+                previousValue = X;
+            }
         }
 
         void Update()
