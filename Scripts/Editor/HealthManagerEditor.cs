@@ -278,17 +278,6 @@ namespace JacobHomanics.HealthSystem.Editor
 
             EditorGUILayout.Space(10);
 
-            EditorGUILayout.LabelField("Events", EditorStyles.boldLabel);
-            EditorGUILayout.Space();
-
-            EditorGUI.indentLevel++;
-            EditorGUILayout.PropertyField(onCurrentSetProp);
-            EditorGUILayout.PropertyField(onCurrentChangeProp);
-            EditorGUILayout.PropertyField(onCurrentDownProp);
-            EditorGUILayout.PropertyField(onCurrentUpProp);
-            EditorGUILayout.PropertyField(onCurrentMaxProp);
-            EditorGUILayout.PropertyField(onCurrentZeroProp);
-            EditorGUI.indentLevel--;
 
             EditorGUILayout.Space(10);
 
@@ -390,12 +379,6 @@ namespace JacobHomanics.HealthSystem.Editor
 
             EditorGUILayout.Space(10);
 
-            EditorGUILayout.LabelField("Events", EditorStyles.boldLabel);
-            EditorGUILayout.Space();
-
-            EditorGUI.indentLevel++;
-            EditorGUILayout.PropertyField(onShieldChangedProp);
-            EditorGUI.indentLevel--;
 
             EditorGUILayout.Space(10);
 

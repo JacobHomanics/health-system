@@ -57,7 +57,7 @@ namespace JacobHomanics.HealthSystem.Editor
                 // Damage and Heal buttons
                 string damageKey = property.propertyPath + "_damage";
                 string healKey = property.propertyPath + "_heal";
-                
+
                 if (!damageAmounts.ContainsKey(damageKey))
                     damageAmounts[damageKey] = 1f;
                 if (!healAmounts.ContainsKey(healKey))
@@ -94,90 +94,7 @@ namespace JacobHomanics.HealthSystem.Editor
                         property.serializedObject.ApplyModifiedProperties();
                     }
                 }
-                yPos += lineHeight + spacing;
-
-                // Events - Current Health (with foldout)
-                string currentEventsKey = property.propertyPath + "_currentEvents";
-                if (!currentEventsExpanded.ContainsKey(currentEventsKey))
-                    currentEventsExpanded[currentEventsKey] = false;
-
-                currentEventsExpanded[currentEventsKey] = EditorGUI.Foldout(new Rect(position.x, yPos, position.width, lineHeight), currentEventsExpanded[currentEventsKey], "Current Health Events", true);
-                yPos += lineHeight + spacing;
-
-                if (currentEventsExpanded[currentEventsKey])
-                {
-                    EditorGUI.indentLevel++;
-
-                    SerializedProperty onCurrentSetProp = property.FindPropertyRelative("onCurrentSet");
-                    float propHeight = EditorGUI.GetPropertyHeight(onCurrentSetProp);
-                    EditorGUI.PropertyField(new Rect(position.x, yPos, position.width, propHeight), onCurrentSetProp);
-                    yPos += propHeight + spacing;
-
-                    SerializedProperty onCurrentChangeProp = property.FindPropertyRelative("onCurrentChange");
-                    propHeight = EditorGUI.GetPropertyHeight(onCurrentChangeProp);
-                    EditorGUI.PropertyField(new Rect(position.x, yPos, position.width, propHeight), onCurrentChangeProp);
-                    yPos += propHeight + spacing;
-
-                    SerializedProperty onCurrentDownProp = property.FindPropertyRelative("onCurrentDown");
-                    propHeight = EditorGUI.GetPropertyHeight(onCurrentDownProp);
-                    EditorGUI.PropertyField(new Rect(position.x, yPos, position.width, propHeight), onCurrentDownProp);
-                    yPos += propHeight + spacing;
-
-                    SerializedProperty onCurrentUpProp = property.FindPropertyRelative("onCurrentUp");
-                    propHeight = EditorGUI.GetPropertyHeight(onCurrentUpProp);
-                    EditorGUI.PropertyField(new Rect(position.x, yPos, position.width, propHeight), onCurrentUpProp);
-                    yPos += propHeight + spacing;
-
-                    SerializedProperty onCurrentMaxProp = property.FindPropertyRelative("onCurrentMax");
-                    propHeight = EditorGUI.GetPropertyHeight(onCurrentMaxProp);
-                    EditorGUI.PropertyField(new Rect(position.x, yPos, position.width, propHeight), onCurrentMaxProp);
-                    yPos += propHeight + spacing;
-
-                    SerializedProperty onCurrentZeroProp = property.FindPropertyRelative("onCurrentZero");
-                    propHeight = EditorGUI.GetPropertyHeight(onCurrentZeroProp);
-                    EditorGUI.PropertyField(new Rect(position.x, yPos, position.width, propHeight), onCurrentZeroProp);
-                    yPos += propHeight + spacing;
-
-                    EditorGUI.indentLevel--;
-                }
-
-                // Events - Max Health (with foldout)
-                string maxEventsKey = property.propertyPath + "_maxEvents";
-                if (!maxEventsExpanded.ContainsKey(maxEventsKey))
-                    maxEventsExpanded[maxEventsKey] = false;
-
-                maxEventsExpanded[maxEventsKey] = EditorGUI.Foldout(new Rect(position.x, yPos, position.width, lineHeight), maxEventsExpanded[maxEventsKey], "Max Health Events", true);
-                yPos += lineHeight + spacing;
-
-                if (maxEventsExpanded[maxEventsKey])
-                {
-                    EditorGUI.indentLevel++;
-
-                    SerializedProperty onMaxSetProp = property.FindPropertyRelative("onMaxSet");
-                    float propHeight = EditorGUI.GetPropertyHeight(onMaxSetProp);
-                    EditorGUI.PropertyField(new Rect(position.x, yPos, position.width, propHeight), onMaxSetProp);
-                    yPos += propHeight + spacing;
-
-                    SerializedProperty onMaxChangeProp = property.FindPropertyRelative("onMaxChange");
-                    propHeight = EditorGUI.GetPropertyHeight(onMaxChangeProp);
-                    EditorGUI.PropertyField(new Rect(position.x, yPos, position.width, propHeight), onMaxChangeProp);
-                    yPos += propHeight + spacing;
-
-                    SerializedProperty onMaxDownProp = property.FindPropertyRelative("onMaxDown");
-                    propHeight = EditorGUI.GetPropertyHeight(onMaxDownProp);
-                    EditorGUI.PropertyField(new Rect(position.x, yPos, position.width, propHeight), onMaxDownProp);
-                    yPos += propHeight + spacing;
-
-                    SerializedProperty onMaxUpProp = property.FindPropertyRelative("onMaxUp");
-                    propHeight = EditorGUI.GetPropertyHeight(onMaxUpProp);
-                    EditorGUI.PropertyField(new Rect(position.x, yPos, position.width, propHeight), onMaxUpProp);
-
-                    EditorGUI.indentLevel--;
-                }
-
-                EditorGUI.indentLevel--;
             }
-
             EditorGUI.EndProperty();
         }
 
@@ -190,15 +107,15 @@ namespace JacobHomanics.HealthSystem.Editor
 
             float spacing = EditorGUIUtility.standardVerticalSpacing;
             float height = EditorGUIUtility.singleLineHeight; // Foldout
-            
+
             // Current and Max fields
             height += EditorGUIUtility.singleLineHeight + spacing; // Current
             height += EditorGUIUtility.singleLineHeight + spacing; // Max
-            
+
             // Damage and Heal buttons
             height += EditorGUIUtility.singleLineHeight + spacing; // Damage
             height += EditorGUIUtility.singleLineHeight + spacing; // Heal
-            
+
             // Current Health Events section (foldout)
             string currentEventsKey = property.propertyPath + "_currentEvents";
             bool currentExpanded = currentEventsExpanded.ContainsKey(currentEventsKey) && currentEventsExpanded[currentEventsKey];
@@ -212,7 +129,7 @@ namespace JacobHomanics.HealthSystem.Editor
                 height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("onCurrentMax")) + spacing;
                 height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("onCurrentZero")) + spacing;
             }
-            
+
             // Max Health Events section (foldout)
             string maxEventsKey = property.propertyPath + "_maxEvents";
             bool maxExpanded = maxEventsExpanded.ContainsKey(maxEventsKey) && maxEventsExpanded[maxEventsKey];
@@ -224,7 +141,7 @@ namespace JacobHomanics.HealthSystem.Editor
                 height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("onMaxDown")) + spacing;
                 height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("onMaxUp"));
             }
-            
+
             return height;
         }
     }

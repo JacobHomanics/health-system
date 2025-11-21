@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Events;
 
 namespace JacobHomanics.HealthSystem
 {
@@ -47,24 +46,7 @@ namespace JacobHomanics.HealthSystem
             }
             set
             {
-                var previous = current;
                 current = Mathf.Clamp(value, 0, Max);
-                onCurrentSet?.Invoke();
-
-                if (current != previous)
-                    onCurrentChange?.Invoke(current);
-
-                if (current < previous)
-                    onCurrentDown?.Invoke();
-
-                if (current > previous)
-                    onCurrentUp?.Invoke();
-
-                if (current == 0)
-                    onCurrentZero?.Invoke();
-
-                if (current == Max)
-                    onCurrentMax?.Invoke();
             }
         }
 
@@ -77,18 +59,7 @@ namespace JacobHomanics.HealthSystem
             }
             set
             {
-                var previous = max;
-                max = value;
-                onMaxSet?.Invoke();
-
-                if (max != previous)
-                    onMaxChange?.Invoke();
-
-                if (max < previous)
-                    onMaxDown?.Invoke();
-
-                if (max > previous)
-                    onMaxUp?.Invoke();
+                max = Mathf.Max(0, value);
 
                 // Clamp current to new max value
                 if (current > max)
@@ -97,21 +68,6 @@ namespace JacobHomanics.HealthSystem
                 }
             }
         }
-
-        public UnityEvent onCurrentSet;
-        public UnityEvent<float> onCurrentChange;
-
-        public UnityEvent onCurrentDown;
-        public UnityEvent onCurrentUp;
-        public UnityEvent onCurrentMax;
-        public UnityEvent onCurrentZero;
-
-
-        public UnityEvent onMaxSet;
-        public UnityEvent onMaxChange;
-
-        public UnityEvent onMaxDown;
-        public UnityEvent onMaxUp;
     }
 
     public class Health : MonoBehaviour
@@ -139,14 +95,6 @@ namespace JacobHomanics.HealthSystem
                 return shields;
             }
         }
-
-        public UnityEvent onCurrentSet;
-        public UnityEvent<float> onCurrentChange;
-
-        public UnityEvent onCurrentDown;
-        public UnityEvent onCurrentUp;
-        public UnityEvent onCurrentMax;
-        public UnityEvent onCurrentZero;
 
         public float Current
         {
@@ -201,24 +149,6 @@ namespace JacobHomanics.HealthSystem
 
                     }
                 }
-
-                onCurrentSet?.Invoke();
-
-                if (value != currentTotal)
-                    onCurrentChange?.Invoke(value);
-
-                if (value < currentTotal)
-                    onCurrentDown?.Invoke();
-
-                if (value > currentTotal)
-                    onCurrentUp?.Invoke();
-
-                if (value == 0)
-                    onCurrentZero?.Invoke();
-
-                if (value == Max)
-                    onCurrentMax?.Invoke();
-
             }
         }
 
@@ -317,8 +247,6 @@ namespace JacobHomanics.HealthSystem
             }
         }
 
-        public UnityEvent onShieldChanged;
-
         public void Damage(float amount)
         {
             float remainingDamage = amount;
@@ -331,7 +259,6 @@ namespace JacobHomanics.HealthSystem
                     float shieldDamage = Mathf.Min(Shields[i].value, remainingDamage);
                     Shields[i].value -= shieldDamage;
                     remainingDamage -= shieldDamage;
-                    onShieldChanged?.Invoke();
                 }
             }
 
@@ -373,7 +300,6 @@ namespace JacobHomanics.HealthSystem
 
 
             Shields[0].value += amount;
-            onShieldChanged?.Invoke();
         }
 
 

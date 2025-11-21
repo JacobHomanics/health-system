@@ -410,62 +410,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healths:
-  - current: 1.4000001
+  - current: 3.93
     max: 3.93
-    onCurrentSet:
-      m_PersistentCalls:
-        m_Calls: []
-    onCurrentChange:
-      m_PersistentCalls:
-        m_Calls: []
-    onCurrentDown:
-      m_PersistentCalls:
-        m_Calls: []
-    onCurrentUp:
-      m_PersistentCalls:
-        m_Calls: []
-    onCurrentMax:
-      m_PersistentCalls:
-        m_Calls: []
-    onCurrentZero:
-      m_PersistentCalls:
-        m_Calls: []
-    onMaxSet:
-      m_PersistentCalls:
-        m_Calls: []
-    onMaxChange:
-      m_PersistentCalls:
-        m_Calls: []
-    onMaxDown:
-      m_PersistentCalls:
-        m_Calls: []
-    onMaxUp:
-      m_PersistentCalls:
-        m_Calls: []
   shields:
-  - _value: 0
+  - _value: 34
     color: {r: 0, g: 0.14352083, b: 1, a: 0.7}
-  onCurrentSet:
-    m_PersistentCalls:
-      m_Calls: []
-  onCurrentChange:
-    m_PersistentCalls:
-      m_Calls: []
-  onCurrentDown:
-    m_PersistentCalls:
-      m_Calls: []
-  onCurrentUp:
-    m_PersistentCalls:
-      m_Calls: []
-  onCurrentMax:
-    m_PersistentCalls:
-      m_Calls: []
-  onCurrentZero:
-    m_PersistentCalls:
-      m_Calls: []
-  onShieldChanged:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!1 &1234926570
 GameObject:
   m_ObjectHideFlags: 0
