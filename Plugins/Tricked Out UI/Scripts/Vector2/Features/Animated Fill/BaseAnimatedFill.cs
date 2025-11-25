@@ -165,6 +165,20 @@ namespace JacobHomanics.TrickedOutUI
         {
             return fillAmount * max;
         }
+
+        public float SetFillImmediate(float value, float max)
+        {
+            // Stop any ongoing animation
+            isAnimating = false;
+            animationDelayRemaining = 0f;
+            animationElapsed = 0f;
+
+            // Update previous value to match the new value
+            previousValue = value;
+
+            // Return the normalized fill amount
+            return Normalize(value, max);
+        }
     }
 }
 
