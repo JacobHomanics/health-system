@@ -1,6 +1,6 @@
 {
   "name": "com.jacobhomanics.healthsystem",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "displayName": "Health System",
   "description": "Out of the box health system.",
   "unity": "6000.0",
