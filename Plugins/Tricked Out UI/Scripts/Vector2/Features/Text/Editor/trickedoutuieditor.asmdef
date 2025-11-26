@@ -1,7 +1,9 @@
 {
     "name": "trickedoutuieditor",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "GUID:728fb7ad669a240a49de57f6ba65dbec"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [
         "Editor"
